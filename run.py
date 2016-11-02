@@ -60,6 +60,7 @@ def extract_corpus(file_list):
         data.sort(key=count_sightings, reverse=True)
 
         for entry in data:
+            # print(entry['vocabulary'], str(entry['number_of_sightings']))
             result.append(entry['vocabulary'])
         write_to_csv(f, result)
 
