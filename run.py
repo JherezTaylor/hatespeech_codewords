@@ -55,9 +55,20 @@ def extract_corpus(file_list):
     for f in file_list:
         json_data = load_json_file(f)
         result = []
-        for entry in json_data['data']['datapoint']:
+
+        data = json_data['data']['datapoint']
+        data.sort(key=count_sightings, reverse=True)
+
+        for entry in data:
             result.append(entry['vocabulary'])
         write_to_csv(f, result)
+
+
+def count_sightings(json):
+    try:
+        return int(json['number_of_sightings'])
+    except KeyError:
+        return 0
 
 
 def main():
