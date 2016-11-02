@@ -1,40 +1,68 @@
-import json, os, glob, pprint
+import json
+import os
+import glob
+import pprint
+import csv
 
-def get_file_names():
+json_path = "HatebaseData/json/"
+csv_path = "HatebaseData/csv/"
+
+
+def get_filenames():
     """
     Reads all the json files in the folder and removes the drive and path and
     extension, only returning a list of strings with the file names.
     """
-    read_files = glob.glob("*.json")
+    file_path = glob.glob(json_path + "*.json")
     result = []
-    for m in read_files:
-        drive, path = os.path.splitdrive(m)
+    for f in file_path:
+        drive, path = os.path.splitdrive(f)
         path, filename = os.path.split(path)
         name = os.path.splitext(filename)[0]
         result.append(str(name))
     return result
 
 
-def load_json_file(file_name):
-    data = []
+def load_json_file(filename):
+    """
+    Accepts a file name and loads it as a json object
+    """
+    result = []
     try:
-        with open(file_name+'.json', 'r') as f:
-            data = json.load(f)
+        with open(json_path + filename + '.json', 'r') as f:
+            result = json.load(f)
     except IOError as e:
         print "I/O error({0}): {1}".format(e.errno, e.strerror)
     else:
         f.closed
-        return data
+        return result
 
-# item_dict = json.loads(json_data)
-# print len(item_dict['result'][0]['run'])
+
+def write_to_csv(filename, result):
+    """
+    Writes a list to csv with the given filename
+    """
+    output = open(csv_path + filename + '.csv', 'wb')
+    writer = csv.writer(output, quoting=csv.QUOTE_ALL)
+    writer.writerow(result)
+
+
+def extract_corpus(file_list):
+    """
+    Loads a set of json files and builds a corpus from the
+    terms within
+    """
+    for f in file_list:
+        json_data = load_json_file(f)
+        result = []
+        for entry in json_data['data']['datapoint']:
+            result.append(entry['vocabulary'])
+        write_to_csv(f, result)
 
 
 def main():
-    # file_list = get_file_names()
-    # print file_list
-    hlist = load_json_file('about_class_eng-pg1')
-    pprint.pprint(hlist)
+    file_list = get_filenames()
+    extract_corpus(file_list)
 
 if __name__ == '__main__':
-   main()
+    main()
