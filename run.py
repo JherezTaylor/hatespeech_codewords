@@ -60,7 +60,8 @@ def extract_corpus(file_list):
         data.sort(key=count_sightings, reverse=True)
 
         for entry in data:
-            # print(entry['vocabulary'], str(entry['number_of_sightings']))
+            if int(entry['number_of_sightings']) == 0:
+                print(entry['vocabulary'], str(entry['number_of_sightings']))
             result.append(entry['vocabulary'])
         write_to_csv(f, result)
 
@@ -72,9 +73,22 @@ def count_sightings(json):
         return 0
 
 
+def count_entries(file_list):
+    result = []
+    for f in file_list:
+        with open(csv_path + f + '.csv', "r") as entry:
+            reader = csv.reader(entry, delimiter=",")
+            col_count = len(reader.next())
+            res = {"Filename": f, "Count": col_count}
+            result.append(res)
+    return result
+
+
 def main():
     file_list = get_filenames()
     extract_corpus(file_list)
+    # num_entries = count_entries(file_list)
+    # pprint.pprint(num_entries)
 
 if __name__ == '__main__':
     main()
