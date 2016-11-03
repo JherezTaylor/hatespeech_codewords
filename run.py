@@ -87,8 +87,8 @@ def count_entries(file_list):
 def main():
     file_list = get_filenames()
     extract_corpus(file_list)
-    # num_entries = count_entries(file_list)
-    # pprint.pprint(num_entries)
+    num_entries = count_entries(file_list)
+    pprint.pprint(num_entries)
 
 if __name__ == '__main__':
     main()
