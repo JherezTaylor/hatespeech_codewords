@@ -43,7 +43,7 @@ def write_to_csv(filename, result):
     Writes a list to csv with the given filename
     """
     output = open(csv_path + filename + '.csv', 'wb')
-    writer = csv.writer(output, lineterminator='\n')
+    writer = csv.writer(output, quoting=csv.QUOTE_ALL, lineterminator='\n')
     for val in result:
         writer.writerow([val])
     # Print one a single row
