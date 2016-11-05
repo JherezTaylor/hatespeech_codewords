@@ -43,8 +43,11 @@ def write_to_csv(filename, result):
     Writes a list to csv with the given filename
     """
     output = open(csv_path + filename + '.csv', 'wb')
-    writer = csv.writer(output, quoting=csv.QUOTE_ALL)
-    writer.writerow(result)
+    writer = csv.writer(output, lineterminator='\n')
+    for val in result:
+        writer.writerow([val])
+    # Print one a single row
+    # writer.writerow(result)
 
 
 def extract_corpus(file_list):
@@ -60,9 +63,7 @@ def extract_corpus(file_list):
         data.sort(key=count_sightings, reverse=True)
 
         for entry in data:
-            if int(entry['number_of_sightings']) == 0:
-                print(entry['vocabulary'], str(entry['number_of_sightings']))
-            result.append(entry['vocabulary'])
+            result.append(str(entry['vocabulary']))
         write_to_csv(f, result)
 
 
@@ -71,6 +72,23 @@ def count_sightings(json):
         return int(json['number_of_sightings'])
     except KeyError:
         return 0
+
+
+def load_csv_file(filename):
+    """
+    Accepts a file name and loads it as a list
+    """
+    try:
+        with open(csv_path + filename + '.csv', 'r') as f:
+            reader = csv.reader(f)
+            temp = list(reader)
+            # flatten to 1D, it gets loaded as 2D array
+            result = [x for sublist in temp for x in sublist]
+    except IOError as e:
+        print "I/O error({0}): {1}".format(e.errno, e.strerror)
+    else:
+        f.closed
+        return result
 
 
 def count_entries(file_list):
@@ -88,7 +106,8 @@ def main():
     file_list = get_filenames()
     extract_corpus(file_list)
     num_entries = count_entries(file_list)
-    pprint.pprint(num_entries)
+    # pprint.pprint(num_entries)
+    print load_csv_file('about_sexual_orientation_eng_pg1')
 
 if __name__ == '__main__':
     main()
