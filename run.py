@@ -122,6 +122,7 @@ def count_sightings(json_obj):
     except KeyError:
         return 0
 
+
 def count_entries(file_list):
     """
     Performs a count of the number of number of words in the corpus
@@ -222,21 +223,41 @@ def create_lang_subset(client, db_name, lang):
     dbo.tweets.aggregate(pipeline)
 
 
-def get_top_k(client, db_name, lang_list, k_filter, limit):
+def get_top_k_users(client, db_name, lang_list, k_filter, limit):
     """
-    Finds the top k results in the collection
-    Most frequent users, hashtags etc
-    The filter must be the name of an array in the collection, we apply the $unwind operator to it
+    Finds the top k users in the collection
+    k_filter is the name of an array in the collection, we apply the $unwind operator to it
     """
+    k_filter_base = k_filter
     k_filter = "$" + k_filter
     dbo = client[db_name]
     pipeline = [
         {"$match": {"lang": {"$in": lang_list}}},
+        {"$project": {k_filter_base: 1, "_id": 0}},
         {"$unwind": k_filter},
-        {"$group": {"_id": k_filter, "count": {"$sum": 1}}},
-        {"$sort": {"count": -1}},
+        {"$group": {"_id": {"id_str": k_filter + ".id_str", "screen_name":
+                            k_filter + ".screen_name"}, "count": {"$sum": 1}}},
+        {"$sort": SON([("count", -1), ("_id", -1)])},
         {"$limit": limit},
-        {"$project": {"obj": "$_id", "count": 1, "_id": 0}}
+    ]
+    return dbo.tweets.aggregate(pipeline, allowDiskUse=True)
+
+
+def get_top_k_hashtags(client, db_name, lang_list, k_filter, limit):
+    """
+    Finds the top k hashtags in the collection
+    k_filter is the name of an array in the collection, we apply the $unwind operator to it
+    """
+    k_filter_base = k_filter
+    k_filter = "$" + k_filter
+    dbo = client[db_name]
+    pipeline = [
+        {"$match": {"lang": {"$in": lang_list}}},
+        {"$project": {k_filter_base: 1, "_id": 0}},
+        {"$unwind": k_filter},
+        {"$group": {"_id": k_filter + ".text", "count": {"$sum": 1}}},
+        {"$sort": SON([("num", -1), ("_id", -1)])},
+        {"$limit": limit},
     ]
     return dbo.tweets.aggregate(pipeline, allowDiskUse=True)
 
@@ -246,16 +267,18 @@ def test_get_top_k_users(client, db_name, lang_list, k_filter):
     Test and print results of top k aggregation
     """
     frequency = []
-    names = []
-    cursor = get_top_k(client, db_name, lang_list,
-                       k_filter, USER_MENTIONS_LIMIT)
+    # names = []
+    cursor = get_top_k_users(client, db_name, lang_list,
+                             k_filter, USER_MENTIONS_LIMIT)
     for document in cursor:
-        frequency.append({'screen_name': document['obj']['screen_name'],
-                          'value': document['count'], '_id': document['obj']['id_str']})
-        names.append(document['obj']['screen_name'])
-    # pprint(frequency)
+        frequency.append({'screen_name': document['_id']['screen_name'],
+                          'value': document['count'], '_id': document['_id']['id_str']})
+        # names.append(document['_id']['screen_name'])
+    pprint(frequency)
     write_json_file('frequency', frequency, DATA_PATH)
-    print [item for item, count in collections.Counter(names).items() if count > 1]
+    # Check for duplicates
+    # print [item for item, count in collections.Counter(names).items() if
+    # count > 1]
 
 
 def test_get_top_k_hashtags(client, db_name, lang_list, k_filter):
@@ -263,13 +286,18 @@ def test_get_top_k_hashtags(client, db_name, lang_list, k_filter):
     Test and print results of top k aggregation
     """
     frequency = []
-    cursor = get_top_k(client, db_name, lang_list, k_filter, HASHTAG_LIMIT)
+    cursor = get_top_k_hashtags(
+        client, db_name, lang_list, k_filter, HASHTAG_LIMIT)
     for document in cursor:
-        frequency.append({'hashtag': document['obj']['text'],
+        frequency.append({'hashtag': document['_id'],
                           'value': document['count']})
     pprint(frequency)
 
-def test(client, db_name):
+
+def sample_map_reduce(client, db_name, subset):
+    """
+    Map reduce that returns the number of times a user is mentioned
+    """
     map_function = Code("function () {"
                         "    var userMentions = this.entities.user_mentions;"
                         "    for (var i = 0; i < userMentions.length; i ++){"
@@ -284,26 +312,24 @@ def test(client, db_name):
                            "}")
     frequency = []
     dbo = client[db_name]
-    cursor = dbo.subset_gu.map_reduce(map_function, reduce_function, "out:{ inline: 1 }")
-    # cursor = dbo.tweets.find({'lang':'gu'})
-    # f = open('workfile.txt', 'w')
+    cursor = dbo[subset].map_reduce(
+        map_function, reduce_function, "out:{ inline: 1 }")
     for document in cursor.find():
         frequency.append({'_id': document['_id'], 'value': document['value']})
-        # f.write(str(document))
-    #     frequency.append(document)
-    write_json_file('frequency_gu', frequency, DATA_PATH)
+    pprint(frequency)
+
 
 def main():
     """
     Test functionality
     """
     client = connect()
-    # test(client, 'twitter')
+    # sample_map_reduce(client, 'twitter', 'subset_gu')
     # test_get_language_distribution(client)
     # test_get_language_subset(client)
     # create_lang_subset(client, 'twitter', 'gu')
     test_get_top_k_users(client, 'twitter', ['gu'], USER_MENTIONS)
-    # test_get_top_k_hashtags(client, 'twitter', ['ps'], HASHTAGS)
+    test_get_top_k_hashtags(client, 'twitter', ['gu'], HASHTAGS)
 
 if __name__ == '__main__':
     main()
