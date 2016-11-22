@@ -275,7 +275,7 @@ def test_get_top_k_users(client, db_name, lang_list, k_filter):
                           'value': document['count'], '_id': document['_id']['id_str']})
         # names.append(document['_id']['screen_name'])
     pprint(frequency)
-    write_json_file('frequency', frequency, DATA_PATH)
+    write_json_file('user_distribution', frequency, DATA_PATH)
     # Check for duplicates
     # print [item for item, count in collections.Counter(names).items() if
     # count > 1]
@@ -292,6 +292,7 @@ def test_get_top_k_hashtags(client, db_name, lang_list, k_filter):
         frequency.append({'hashtag': document['_id'],
                           'value': document['count']})
     pprint(frequency)
+    write_json_file('hashtag_distribution', frequency, DATA_PATH)
 
 
 def sample_map_reduce(client, db_name, subset):
