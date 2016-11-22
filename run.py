@@ -1,9 +1,10 @@
-import json
 import os
+import json
 import glob
-import pprint
 import csv
+from pprint import pprint
 import pymongo
+from bson.son import SON
 
 JSON_PATH = "HatebaseData/json/"
 CSV_PATH = "HatebaseData/csv/"
@@ -136,7 +137,7 @@ def test_file_operations():
     file_list = get_filenames()
     extract_corpus(file_list)
     num_entries = count_entries(file_list)
-    pprint.pprint(num_entries)
+    pprint(num_entries)
     res = load_csv_file('about_sexual_orientation_eng_pg1')
     res2 = build_query_string(res)
     print res2
@@ -193,12 +194,58 @@ def test_get_language_subset(client):
         print document
 
 
+def create_lang_subset(client, db_name, lang):
+    """
+    Subsets the collection by the specified language
+    Outputs value to new collection
+    """
+    dbo = client[db_name]
+    pipeline = [
+        {"$match": {"lang": lang}},
+        {"$out": "subset_" + lang}
+    ]
+    dbo.tweets.aggregate(pipeline)
+
+
+def get_top_k(client, db_name, lang_list, k_filter):
+    """
+    Finds the top k results in the collection
+    Most frequent users, hashtags etc
+    The filter must be the name of an array in the collection, we apply the $unwind operator to it
+    """
+    k_filter = "$" + k_filter
+    dbo = client[db_name]
+    pipeline = [
+        {"$match": {"lang": {"$in": lang_list}}},
+        {"$unwind": k_filter},
+        {"$group": {"_id": k_filter, "count": {"$sum": 1}}},
+        {"$sort": SON([("count", -1), ("_id", -1)])},
+        {"$project": {"user": "$_id", "count": 1, "_id": 0}}
+    ]
+    return dbo.tweets.aggregate(pipeline)
+
+
+def test_get_top_k(client, db_name, lang_list, k_filter):
+    """
+    Test and print results of top k aggregation
+    """
+    frequency = []
+    cursor = get_top_k(client, db_name, lang_list, k_filter)
+    for document in cursor:
+        frequency.append({'screen_name': document['user']['screen_name'],
+                          'value': document['count'], '_id': document['user']['id_str']})
+    pprint(frequency)
+
+
 def main():
     """
     Test functionality
     """
     client = connect()
-    test_get_language_subset(client)
+    # test_get_language_distribution(client)
+    # test_get_language_subset(client)
+    # create_lang_subset(client, 'twitter', 'und')
+    test_get_top_k(client, 'twitter', ['uk'], 'entities.user_mentions')
 
 if __name__ == '__main__':
     main()
