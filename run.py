@@ -3,16 +3,19 @@ import json
 import glob
 import csv
 from pprint import pprint
+import collections
 import pymongo
 from bson.son import SON
+from bson.code import Code
 
 JSON_PATH = "HatebaseData/json/"
 CSV_PATH = "HatebaseData/csv/"
+DATA_PATH = "Data/"
 DB_URL = "mongodb://140.114.79.146:27017"
 HASHTAGS = "entities.hashtags"
 USER_MENTIONS = "entities.user_mentions"
-HASHTAG_LIMIT = 50
-USER_MENTIONS_LIMIT = 50
+HASHTAG_LIMIT = 10000
+USER_MENTIONS_LIMIT = 10000
 
 
 def connect():
@@ -40,13 +43,13 @@ def get_filenames():
     return result
 
 
-def load_json_file(filename):
+def read_json_file(filename, path):
     """
     Accepts a file name and loads it as a json object
     """
     result = []
     try:
-        with open(JSON_PATH + filename + '.json', 'r') as entry:
+        with open(path + filename + '.json', 'r') as entry:
             result = json.load(entry)
     except IOError as ex:
         print "I/O error({0}): {1}".format(ex.errno, ex.strerror)
@@ -55,11 +58,37 @@ def load_json_file(filename):
         return result
 
 
-def write_to_csv(filename, result):
+def write_json_file(filename, result, path):
+    """
+    Writes the result to json with the given filename
+    """
+    with open(path + filename + '.json', 'w+') as json_file:
+        json.dump(result, json_file)
+    json_file.close()
+
+
+def read_csv_file(filename, path):
+    """
+    Accepts a file name and loads it as a list
+    """
+    try:
+        with open(path + filename + '.csv', 'r') as entry:
+            reader = csv.reader(entry)
+            temp = list(reader)
+            # flatten to 1D, it gets loaded as 2D array
+            result = [x for sublist in temp for x in sublist]
+    except IOError as ex:
+        print "I/O error({0}): {1}".format(ex.errno, ex.strerror)
+    else:
+        entry.close()
+        return result
+
+
+def write_csv_file(filename, result, path):
     """
     Writes a list to csv with the given filename
     """
-    output = open(CSV_PATH + filename + '.csv', 'wb')
+    output = open(path + filename + '.csv', 'wb')
     writer = csv.writer(output, quoting=csv.QUOTE_ALL, lineterminator='\n')
     for val in result:
         writer.writerow([val])
@@ -73,7 +102,7 @@ def extract_corpus(file_list):
     terms within
     """
     for entry in file_list:
-        json_data = load_json_file(entry)
+        json_data = read_json_file(entry, JSON_PATH)
         result = []
 
         data = json_data['data']['datapoint']
@@ -81,7 +110,7 @@ def extract_corpus(file_list):
 
         for entry in data:
             result.append(str(entry['vocabulary']))
-        write_to_csv(entry, result)
+        write_csv_file(entry, result, CSV_PATH)
 
 
 def count_sightings(json_obj):
@@ -92,24 +121,6 @@ def count_sightings(json_obj):
         return int(json_obj['number_of_sightings'])
     except KeyError:
         return 0
-
-
-def load_csv_file(filename):
-    """
-    Accepts a file name and loads it as a list
-    """
-    try:
-        with open(CSV_PATH + filename + '.csv', 'r') as entry:
-            reader = csv.reader(entry)
-            temp = list(reader)
-            # flatten to 1D, it gets loaded as 2D array
-            result = [x for sublist in temp for x in sublist]
-    except IOError as ex:
-        print "I/O error({0}): {1}".format(ex.errno, ex.strerror)
-    else:
-        entry.close()
-        return result
-
 
 def count_entries(file_list):
     """
@@ -142,7 +153,7 @@ def test_file_operations():
     extract_corpus(file_list)
     num_entries = count_entries(file_list)
     pprint(num_entries)
-    res = load_csv_file('about_sexual_orientation_eng_pg1')
+    res = read_csv_file('about_sexual_orientation_eng_pg1', CSV_PATH)
     res2 = build_query_string(res)
     print res2
 
@@ -223,11 +234,11 @@ def get_top_k(client, db_name, lang_list, k_filter, limit):
         {"$match": {"lang": {"$in": lang_list}}},
         {"$unwind": k_filter},
         {"$group": {"_id": k_filter, "count": {"$sum": 1}}},
-        {"$sort": SON([("count", -1), ("_id", -1)])},
+        {"$sort": {"count": -1}},
         {"$limit": limit},
         {"$project": {"obj": "$_id", "count": 1, "_id": 0}}
     ]
-    return dbo.tweets.aggregate(pipeline)
+    return dbo.tweets.aggregate(pipeline, allowDiskUse=True)
 
 
 def test_get_top_k_users(client, db_name, lang_list, k_filter):
@@ -235,11 +246,17 @@ def test_get_top_k_users(client, db_name, lang_list, k_filter):
     Test and print results of top k aggregation
     """
     frequency = []
-    cursor = get_top_k(client, db_name, lang_list, k_filter, USER_MENTIONS_LIMIT)
+    names = []
+    cursor = get_top_k(client, db_name, lang_list,
+                       k_filter, USER_MENTIONS_LIMIT)
     for document in cursor:
         frequency.append({'screen_name': document['obj']['screen_name'],
                           'value': document['count'], '_id': document['obj']['id_str']})
-    pprint(frequency)
+        names.append(document['obj']['screen_name'])
+    # pprint(frequency)
+    write_json_file('frequency', frequency, DATA_PATH)
+    print [item for item, count in collections.Counter(names).items() if count > 1]
+
 
 def test_get_top_k_hashtags(client, db_name, lang_list, k_filter):
     """
@@ -252,17 +269,41 @@ def test_get_top_k_hashtags(client, db_name, lang_list, k_filter):
                           'value': document['count']})
     pprint(frequency)
 
+def test(client, db_name):
+    map_function = Code("function () {"
+                        "    var userMentions = this.entities.user_mentions;"
+                        "    for (var i = 0; i < userMentions.length; i ++){"
+                        "        if (userMentions[i].screen_name.length > 0) {"
+                        "            emit (userMentions[i].screen_name, 1);"
+                        "        }"
+                        "    }"
+                        "}")
+
+    reduce_function = Code("function (keyUsername, occurs) {"
+                           "     return Array.sum(occurs);"
+                           "}")
+    frequency = []
+    dbo = client[db_name]
+    cursor = dbo.subset_gu.map_reduce(map_function, reduce_function, "out:{ inline: 1 }")
+    # cursor = dbo.tweets.find({'lang':'gu'})
+    # f = open('workfile.txt', 'w')
+    for document in cursor.find():
+        frequency.append({'_id': document['_id'], 'value': document['value']})
+        # f.write(str(document))
+    #     frequency.append(document)
+    write_json_file('frequency_gu', frequency, DATA_PATH)
 
 def main():
     """
     Test functionality
     """
     client = connect()
+    # test(client, 'twitter')
     # test_get_language_distribution(client)
     # test_get_language_subset(client)
-    # create_lang_subset(client, 'twitter', 'und')
-    # test_get_top_k_users(client, 'twitter', ['uk'], USER_MENTIONS)
-    test_get_top_k_hashtags(client, 'twitter', ['ps'], HASHTAGS)
+    # create_lang_subset(client, 'twitter', 'gu')
+    test_get_top_k_users(client, 'twitter', ['gu'], USER_MENTIONS)
+    # test_get_top_k_hashtags(client, 'twitter', ['ps'], HASHTAGS)
 
 if __name__ == '__main__':
     main()
