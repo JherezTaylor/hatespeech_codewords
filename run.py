@@ -9,6 +9,10 @@ from bson.son import SON
 JSON_PATH = "HatebaseData/json/"
 CSV_PATH = "HatebaseData/csv/"
 DB_URL = "mongodb://140.114.79.146:27017"
+HASHTAGS = "entities.hashtags"
+USER_MENTIONS = "entities.user_mentions"
+HASHTAG_LIMIT = 50
+USER_MENTIONS_LIMIT = 50
 
 
 def connect():
@@ -207,7 +211,7 @@ def create_lang_subset(client, db_name, lang):
     dbo.tweets.aggregate(pipeline)
 
 
-def get_top_k(client, db_name, lang_list, k_filter):
+def get_top_k(client, db_name, lang_list, k_filter, limit):
     """
     Finds the top k results in the collection
     Most frequent users, hashtags etc
@@ -220,20 +224,32 @@ def get_top_k(client, db_name, lang_list, k_filter):
         {"$unwind": k_filter},
         {"$group": {"_id": k_filter, "count": {"$sum": 1}}},
         {"$sort": SON([("count", -1), ("_id", -1)])},
-        {"$project": {"user": "$_id", "count": 1, "_id": 0}}
+        {"$limit": limit},
+        {"$project": {"obj": "$_id", "count": 1, "_id": 0}}
     ]
     return dbo.tweets.aggregate(pipeline)
 
 
-def test_get_top_k(client, db_name, lang_list, k_filter):
+def test_get_top_k_users(client, db_name, lang_list, k_filter):
     """
     Test and print results of top k aggregation
     """
     frequency = []
-    cursor = get_top_k(client, db_name, lang_list, k_filter)
+    cursor = get_top_k(client, db_name, lang_list, k_filter, USER_MENTIONS_LIMIT)
     for document in cursor:
-        frequency.append({'screen_name': document['user']['screen_name'],
-                          'value': document['count'], '_id': document['user']['id_str']})
+        frequency.append({'screen_name': document['obj']['screen_name'],
+                          'value': document['count'], '_id': document['obj']['id_str']})
+    pprint(frequency)
+
+def test_get_top_k_hashtags(client, db_name, lang_list, k_filter):
+    """
+    Test and print results of top k aggregation
+    """
+    frequency = []
+    cursor = get_top_k(client, db_name, lang_list, k_filter, HASHTAG_LIMIT)
+    for document in cursor:
+        frequency.append({'hashtag': document['obj']['text'],
+                          'value': document['count']})
     pprint(frequency)
 
 
@@ -245,7 +261,8 @@ def main():
     # test_get_language_distribution(client)
     # test_get_language_subset(client)
     # create_lang_subset(client, 'twitter', 'und')
-    test_get_top_k(client, 'twitter', ['uk'], 'entities.user_mentions')
+    # test_get_top_k_users(client, 'twitter', ['uk'], USER_MENTIONS)
+    test_get_top_k_hashtags(client, 'twitter', ['ps'], HASHTAGS)
 
 if __name__ == '__main__':
     main()
