@@ -14,8 +14,8 @@ DATA_PATH = "Data/"
 DB_URL = ***REMOVED***
 HASHTAGS = "entities.hashtags"
 USER_MENTIONS = "entities.user_mentions"
-HASHTAG_LIMIT = 10000
-USER_MENTIONS_LIMIT = 10000
+HASHTAG_LIMIT = 50
+USER_MENTIONS_LIMIT = 50
 
 
 def connect():
@@ -417,8 +417,8 @@ def main():
     # test_get_language_distribution(client)
     # test_get_language_subset(client)
     # create_lang_subset(client, 'twitter', 'gu')
-    test_get_top_k_users(client, 'twitter', ['gu'], USER_MENTIONS)
-    test_get_top_k_hashtags(client, 'twitter', ['gu'], HASHTAGS)
+    # test_get_top_k_users(client, 'twitter', ['es'], USER_MENTIONS)
+    test_get_top_k_hashtags(client, 'twitter', ['es'], HASHTAGS)
 
 if __name__ == '__main__':
     main()
