@@ -258,6 +258,7 @@ def test_get_language_distribution(client):
     frequency = sorted(frequency, key=lambda k: k['value'], reverse=True)
     write_json_file('language_distribution', DATA_PATH, frequency)
 
+
 def test_get_language_subset(client):
     """Test and print the results of aggregation
     Constrains language list to en, und, es.
