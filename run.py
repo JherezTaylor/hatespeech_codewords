@@ -1,9 +1,10 @@
 import os
 import json
+import time
 import glob
 import csv
+import itertools
 from pprint import pprint
-import collections
 import pymongo
 from bson.son import SON
 from bson.code import Code
@@ -11,11 +12,25 @@ from bson.code import Code
 JSON_PATH = "HatebaseData/json/"
 CSV_PATH = "HatebaseData/csv/"
 DATA_PATH = "Data/"
-DB_URL = "localhost:27017"
+DB_URL = "mongodb://140.114.79.146:27017"
 HASHTAGS = "entities.hashtags"
 USER_MENTIONS = "entities.user_mentions"
 HASHTAG_LIMIT = 50
 USER_MENTIONS_LIMIT = 50
+
+
+def timing(func):
+    """Decorator for timing run time of a function
+    """
+    def wrap(*args):
+        """Wrapper
+        """
+        time1 = time.time()
+        ret = func(*args)
+        time2 = time.time()
+        print '%s function took %0.3f ms' % (func.func_name, (time2 - time1) * 1000.0)
+        return ret
+    return wrap
 
 
 def connect():
@@ -344,7 +359,7 @@ def get_top_k_hashtags(client, db_name, lang_list, k_filter, limit):
         {"$group": {"_id": k_filter + ".text", "count": {"$sum": 1}}},
         {"$sort": SON([("count", -1), ("_id", -1)])}
     ]
-    return dbo.tweets.aggregate(pipeline, allowDiskUse=True)
+    return dbo.tweets.aggregate(pipeline)
 
 
 def test_get_top_k_users(client, db_name, lang_list, k_filter):
@@ -365,13 +380,20 @@ def test_get_top_k_users(client, db_name, lang_list, k_filter):
     # count > 1]
 
 
+@timing
 def test_get_top_k_hashtags(client, db_name, lang_list, k_filter):
     """Test and print results of top k aggregation
     """
     frequency = []
-    cursor = get_top_k_hashtags(
-        client, db_name, lang_list, k_filter, HASHTAG_LIMIT)
-    for document in cursor:
+    try:
+        cursor = get_top_k_hashtags(
+            client, db_name, lang_list, k_filter, HASHTAG_LIMIT)
+    except pymongo.errors.PyMongoError:
+        time.sleep(10)
+        print "Error"
+
+    temp = itertools.islice(cursor, 5)
+    for document in temp:
         frequency.append({'hashtag': document['_id'],
                           'value': document['count']})
     pprint(frequency)
@@ -455,13 +477,13 @@ def main():
     Test functionality
     """
     client = connect()
-    sample_map_reduce(client, 'twitter', 'subset_ru')
-    sample_map_reduce2(client, 'twitter', 'subset_ru')
-    test_get_language_distribution(client)
+    # sample_map_reduce(client, 'twitter', 'subset_ru')
+    # sample_map_reduce2(client, 'twitter', 'subset_ru')
+    # test_get_language_distribution(client)
     # test_get_language_subset(client)
     # create_lang_subset(client, 'twitter', 'ru')
-    test_get_top_k_users(client, 'twitter', ['ru'], USER_MENTIONS)
-    test_get_top_k_hashtags(client, 'twitter', ['ru'], HASHTAGS)
+    # test_get_top_k_users(client, 'twitter', ['ru'], USER_MENTIONS)
+    test_get_top_k_hashtags(client, 'twitter', ['de'], HASHTAGS)
 
 if __name__ == '__main__':
     main()
