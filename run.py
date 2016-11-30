@@ -4,6 +4,7 @@ import time
 import glob
 import csv
 import itertools
+import cProfile
 from pprint import pprint
 import pymongo
 from bson.son import SON
@@ -31,6 +32,23 @@ def timing(func):
         print '%s function took %0.3f ms' % (func.func_name, (time2 - time1) * 1000.0)
         return ret
     return wrap
+
+
+def do_cprofile(func):
+    """Decorator for profiling a function
+    """
+    def profiled_func(*args, **kwargs):
+        """Wrapper
+        """
+        profile = cProfile.Profile()
+        try:
+            profile.enable()
+            result = func(*args, **kwargs)
+            profile.disable()
+            return result
+        finally:
+            profile.print_stats(sort='time')
+    return profiled_func
 
 
 def connect():
@@ -357,7 +375,9 @@ def get_top_k_hashtags(client, db_name, lang_list, k_filter, limit):
         {"$project": {k_filter_base: 1, "_id": 0}},
         {"$unwind": k_filter},
         {"$group": {"_id": k_filter + ".text", "count": {"$sum": 1}}},
-        {"$sort": SON([("count", -1), ("_id", -1)])}
+        {"$sort": SON([("count", -1), ("_id", -1)])},
+        {"$match": {"count": {"$gt": 20}}},
+        {"$limit": limit},
     ]
     return dbo.tweets.aggregate(pipeline)
 
@@ -380,27 +400,23 @@ def test_get_top_k_users(client, db_name, lang_list, k_filter):
     # count > 1]
 
 
-@timing
+@do_cprofile
 def test_get_top_k_hashtags(client, db_name, lang_list, k_filter):
     """Test and print results of top k aggregation
     """
     frequency = []
-    try:
-        cursor = get_top_k_hashtags(
-            client, db_name, lang_list, k_filter, HASHTAG_LIMIT)
-    except pymongo.errors.PyMongoError:
-        time.sleep(10)
-        print "Error"
+    cursor = get_top_k_hashtags(
+        client, db_name, lang_list, k_filter, HASHTAG_LIMIT)
 
-    temp = itertools.islice(cursor, 5)
-    for document in temp:
+    # temp = itertools.islice(cursor, 5)
+    for document in cursor:
         frequency.append({'hashtag': document['_id'],
                           'value': document['count']})
     pprint(frequency)
     write_json_file('hashtag_distribution', DATA_PATH, frequency)
 
 
-def sample_map_reduce(client, db_name, subset):
+def user_mentions_map_reduce(client, db_name, subset, output_name):
     """Map reduce that returns the number of times a user is mentioned
 
     Args:
@@ -426,7 +442,7 @@ def sample_map_reduce(client, db_name, subset):
     frequency = []
     dbo = client[db_name]
     cursor = dbo[subset].map_reduce(
-        map_function, reduce_function, "out:{ inline: 1 }")
+        map_function, reduce_function, output_name)
 
     for document in cursor.find():
         frequency.append({'_id': document['_id'], 'value': document['value']})
@@ -436,8 +452,8 @@ def sample_map_reduce(client, db_name, subset):
     pprint(frequency)
 
 
-def sample_map_reduce2(client, db_name, subset):
-    """Map reduce that returns the number of times a user is mentioned
+def hashtag_map_reduce(client, db_name, subset, output_name):
+    """Map reduce that returns the number of times a hashtag is used
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
@@ -448,21 +464,21 @@ def sample_map_reduce2(client, db_name, subset):
         list: List of objects containing _id and the frequency of appearance.
     """
     map_function = Code("function () {"
-                        "    var userMentions = this.entities.hashtags;"
-                        "    for (var i = 0; i < userMentions.length; i ++){"
-                        "        if (userMentions[i].text.length > 0) {"
-                        "            emit (userMentions[i].text, 1);"
+                        "    var hashtags = this.entities.hashtags;"
+                        "    for (var i = 0; i < hashtags.length; i ++){"
+                        "        if (hashtags[i].text.length > 0) {"
+                        "            emit (hashtags[i].text, 1);"
                         "        }"
                         "    }"
                         "}")
 
-    reduce_function = Code("function (keyUsername, occurs) {"
+    reduce_function = Code("function (keyHashtag, occurs) {"
                            "     return Array.sum(occurs);"
                            "}")
     frequency = []
     dbo = client[db_name]
     cursor = dbo[subset].map_reduce(
-        map_function, reduce_function, "out:{ inline: 1 }")
+        map_function, reduce_function, output_name)
 
     for document in cursor.find():
         frequency.append({'_id': document['_id'], 'value': document['value']})
@@ -478,12 +494,12 @@ def main():
     """
     client = connect()
     # sample_map_reduce(client, 'twitter', 'subset_ru')
-    # sample_map_reduce2(client, 'twitter', 'subset_ru')
+    hashtag_map_reduce(client, 'twitter', 'subset_ru', 'hashtag_ru')
     # test_get_language_distribution(client)
     # test_get_language_subset(client)
     # create_lang_subset(client, 'twitter', 'ru')
     # test_get_top_k_users(client, 'twitter', ['ru'], USER_MENTIONS)
-    test_get_top_k_hashtags(client, 'twitter', ['de'], HASHTAGS)
+    # test_get_top_k_hashtags(client, 'twitter', ['es'], HASHTAGS)
 
 if __name__ == '__main__':
     main()
