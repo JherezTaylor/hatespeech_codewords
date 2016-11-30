@@ -350,7 +350,7 @@ def get_top_k_users(client, db_name, lang_list, k_filter, limit):
     return dbo.tweets.aggregate(pipeline, allowDiskUse=True)
 
 
-def get_top_k_hashtags(client, db_name, lang_list, k_filter, limit):
+def get_top_k_hashtags(client, db_name, lang_list, k_filter, limit, k_value):
     """Finds the top k hashtags in the collection.
     k_filter is the name of an array in the collection, we apply the $unwind operator to it
 
@@ -360,6 +360,7 @@ def get_top_k_hashtags(client, db_name, lang_list, k_filter, limit):
         lang_list   (list): List of languages to match on.
         k_filter    (str):  Name of an array in the collection.abs
         limit       (int):  Limit for the number of results to return.
+        k_value     (int):  Filter for the number of occurences for each hashtag
 
     Returns:
         list: List of objects containing _id, hashtag text and the frequency of appearance.
@@ -375,7 +376,7 @@ def get_top_k_hashtags(client, db_name, lang_list, k_filter, limit):
         {"$group": {"_id": k_filter + ".text", "count": {"$sum": 1}}},
         {"$project": {"hashtag": "$_id", "count": 1, "_id": 0}},
         {"$sort": SON([("count", -1), ("_id", -1)])},
-        {"$match": {"count": {"$gt": 20}}},
+        {"$match": {"count": {"$gt": k_value}}},
         {"$limit": limit},
     ]
     return dbo.tweets.aggregate(pipeline)
@@ -390,11 +391,11 @@ def test_get_top_k_users(client, db_name, lang_list, k_filter):
 
 
 @do_cprofile
-def test_get_top_k_hashtags(client, db_name, lang_list, k_filter):
+def test_get_top_k_hashtags(client, db_name, lang_list, k_filter, k_value):
     """Test and print results of top k aggregation
     """
     cursor = get_top_k_hashtags(
-        client, db_name, lang_list, k_filter, HASHTAG_LIMIT)
+        client, db_name, lang_list, k_filter, HASHTAG_LIMIT, k_value)
     write_json_file('hashtag_distribution', DATA_PATH, list(cursor))
 
 
@@ -478,7 +479,8 @@ def collection_finder(client, db_name, subset):
     # cursor = dbo[subset].find(
     #     {}, no_cursor_timeout=True)
     # cursor.batch_size(80000)
-    write_json_file(subset, DATA_PATH, list(dbo[subset].find({})))
+    write_json_file(subset, DATA_PATH, list(
+        dbo[subset].find({}, {"hashtag": 1, "count": 1, "_id": 0})))
 
 
 def main():
@@ -486,14 +488,14 @@ def main():
     Test functionality
     """
     client = connect()
-    # sample_map_reduce(client, 'twitter', 'subset_ru')
-    # hashtag_map_reduce(client, 'twitter', 'subset_ru', 'hashtag_ru')
-    # collection_finder(client, 'twitter', 'hashtag_dist_en')
     # test_get_language_distribution(client)
     # test_get_language_subset(client)
     # create_lang_subset(client, 'twitter', 'ru')
+    # user_mentions_map_reduce(client, 'twitter', 'subset_ru')
+    # hashtag_map_reduce(client, 'twitter', 'subset_ru', 'hashtag_ru')
     # test_get_top_k_users(client, 'twitter', ['ru'], USER_MENTIONS)
-    test_get_top_k_hashtags(client, 'twitter', ['ru'], HASHTAGS)
+    # test_get_top_k_hashtags(client, 'twitter', ['ru'], HASHTAGS, 20)
+    collection_finder(client, 'twitter', 'hashtag_dist_en')
 
 if __name__ == '__main__':
     main()
