@@ -271,7 +271,8 @@ def get_language_distribution(client, db_name, lang_list):
     pipeline = [
         {"$match": {"lang": {"$in": lang_list}}},
         {"$group": {"_id": "$lang", "count": {"$sum": 1}}},
-        {"$project": {"language": "$_id", "count": 1, "_id": 0}}
+        {"$project": {"language": "$_id", "count": 1, "_id": 0}},
+        {"$sort": SON([("count", -1), ("language", -1)])}
     ]
     return dbo.tweets.aggregate(pipeline)
 
@@ -284,12 +285,7 @@ def test_get_language_distribution(client):
     """
     lang_list = get_language_list(client, 'twitter')
     cursor = get_language_distribution(client, 'twitter', lang_list)
-    frequency = []
-    for document in cursor:
-        frequency.append({'language': document['language'],
-                          'value': document['count']})
-    frequency = sorted(frequency, key=lambda k: k['value'], reverse=True)
-    write_json_file('language_distribution', DATA_PATH, frequency)
+    write_json_file('language_distribution', DATA_PATH, list(cursor))
 
 
 def test_get_language_subset(client):
@@ -347,7 +343,9 @@ def get_top_k_users(client, db_name, lang_list, k_filter, limit):
         {"$unwind": k_filter},
         {"$group": {"_id": {"id_str": k_filter + ".id_str", "screen_name":
                             k_filter + ".screen_name"}, "count": {"$sum": 1}}},
-        {"$sort": SON([("count", -1), ("_id", -1)])}
+        {"$project": {"id_str": "$_id.id_str",
+                      "screen_name": "$_id.screen_name", "count": 1, "_id": 0}},
+        {"$sort": SON([("count", -1), ("id_str", -1)])}
     ]
     return dbo.tweets.aggregate(pipeline, allowDiskUse=True)
 
@@ -375,6 +373,7 @@ def get_top_k_hashtags(client, db_name, lang_list, k_filter, limit):
         {"$project": {k_filter_base: 1, "_id": 0}},
         {"$unwind": k_filter},
         {"$group": {"_id": k_filter + ".text", "count": {"$sum": 1}}},
+        {"$project": {"hashtag": "$_id", "count": 1, "_id": 0}},
         {"$sort": SON([("count", -1), ("_id", -1)])},
         {"$match": {"count": {"$gt": 20}}},
         {"$limit": limit},
@@ -385,35 +384,18 @@ def get_top_k_hashtags(client, db_name, lang_list, k_filter, limit):
 def test_get_top_k_users(client, db_name, lang_list, k_filter):
     """Test and print results of top k aggregation
     """
-    frequency = []
-    # names = []
     cursor = get_top_k_users(client, db_name, lang_list,
                              k_filter, USER_MENTIONS_LIMIT)
-    for document in cursor:
-        frequency.append({'screen_name': document['_id']['screen_name'],
-                          'value': document['count'], '_id': document['_id']['id_str']})
-        # names.append(document['_id']['screen_name'])
-    pprint(frequency)
-    write_json_file('user_distribution', DATA_PATH, frequency)
-    # Check for duplicates
-    # print [item for item, count in collections.Counter(names).items() if
-    # count > 1]
+    write_json_file('user_distribution', DATA_PATH, list(cursor))
 
 
 @do_cprofile
 def test_get_top_k_hashtags(client, db_name, lang_list, k_filter):
     """Test and print results of top k aggregation
     """
-    frequency = []
     cursor = get_top_k_hashtags(
         client, db_name, lang_list, k_filter, HASHTAG_LIMIT)
-
-    # temp = itertools.islice(cursor, 5)
-    for document in cursor:
-        frequency.append({'hashtag': document['_id'],
-                          'value': document['count']})
-    pprint(frequency)
-    write_json_file('hashtag_distribution', DATA_PATH, frequency)
+    write_json_file('hashtag_distribution', DATA_PATH, list(cursor))
 
 
 def user_mentions_map_reduce(client, db_name, subset, output_name):
@@ -488,18 +470,30 @@ def hashtag_map_reduce(client, db_name, subset, output_name):
     pprint(frequency)
 
 
+def collection_finder(client, db_name, subset):
+    """Fetches the specified collection
+    """
+    dbo = client[db_name]
+    # cursor = dbo[subset].find({"count":{"$gt":500}})
+    # cursor = dbo[subset].find(
+    #     {}, no_cursor_timeout=True)
+    # cursor.batch_size(80000)
+    write_json_file(subset, DATA_PATH, list(dbo[subset].find({})))
+
+
 def main():
     """
     Test functionality
     """
     client = connect()
     # sample_map_reduce(client, 'twitter', 'subset_ru')
-    hashtag_map_reduce(client, 'twitter', 'subset_ru', 'hashtag_ru')
+    # hashtag_map_reduce(client, 'twitter', 'subset_ru', 'hashtag_ru')
+    # collection_finder(client, 'twitter', 'hashtag_dist_en')
     # test_get_language_distribution(client)
     # test_get_language_subset(client)
     # create_lang_subset(client, 'twitter', 'ru')
     # test_get_top_k_users(client, 'twitter', ['ru'], USER_MENTIONS)
-    # test_get_top_k_hashtags(client, 'twitter', ['es'], HASHTAGS)
+    test_get_top_k_hashtags(client, 'twitter', ['ru'], HASHTAGS)
 
 if __name__ == '__main__':
     main()
