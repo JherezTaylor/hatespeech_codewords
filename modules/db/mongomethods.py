@@ -230,7 +230,9 @@ def collection_finder(client, db_name, subset):
     fileops.write_json_file(subset, constants.DATA_PATH, list(
         dbo[subset].find({}, {"hashtag": 1, "count": 1, "_id": 0})))
 
+# def parse_undefined_lang(client, db_name, subset):
 
+@fileops.do_cprofile
 def find_one(client, db_name, subset):
     """Fetches one object from the specified collection
     """
