@@ -8,11 +8,11 @@ import os
 
 DIR = os.path.dirname
 ## Jump up three directories
-PATH = os.path.join(DIR(DIR(DIR(__file__))), os.path.join('HatebaseData'))
+PATH = os.path.join(DIR(DIR(DIR(__file__))), os.path.join('Data'))
 
-JSON_PATH = PATH + "/json/"
-CSV_PATH = PATH + "/csv/"
-DATA_PATH = PATH + "/Data/"
+JSON_PATH = PATH + "/HatebaseData/json/"
+CSV_PATH = PATH + "/HatebaseData/csv/"
+DATA_PATH = PATH + "/Output/"
 DB_URL = "mongodb://140.114.79.146:27017"
 HASHTAGS = "entities.hashtags"
 USER_MENTIONS = "entities.user_mentions"
