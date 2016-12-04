@@ -38,6 +38,7 @@ def test_get_language_subset(client):
     for document in cursor:
         print document
 
+
 @fileops.do_cprofile
 def test_get_language_distribution(client):
     """Test and print results of aggregation
@@ -77,7 +78,9 @@ def main():
     """
     # test_file_operations()
     client = mongomethods.connect()
-    test_get_language_distribution(client)
+    mongomethods.filter_object_ids(client, 'twitter', 'tweets', ['und'], 'subset_objectId')
+    # mongomethods.parse_undefined_lang(cliet,'twitter','tweets',)
+    # test_get_language_distribution(client)
     # test_get_language_subset(client)
     # mongomethods.create_lang_subset(client, 'twitter', 'ru')
     # user_mentions_map_reduce(client, 'twitter', 'subset_ru')
@@ -86,6 +89,7 @@ def main():
     # test_get_top_k_hashtags(client, 'twitter', ['ru'], HASHTAGS, 20)
     # mongomethods.collection_finder(client, 'twitter', 'hashtag_dist_und')
     # mongomethods.find_one(client, 'twitter', 'tweets')
+    # mongomethods.find_one(client, 'twitter', 'subset_objectId')
     # filter_hatebase_categories()
     # print constants.DB_URL
 

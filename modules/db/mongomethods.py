@@ -6,9 +6,11 @@
 This module provides methods to query the MongoDB instance
 """
 from pprint import pprint
+from langid.langid import LanguageIdentifier, model
 import pymongo
 from bson.son import SON
 from bson.code import Code
+from bson.objectid import ObjectId
 from modules.utils import constants
 from modules.utils import fileops
 
@@ -152,6 +154,7 @@ def user_mentions_map_reduce(client, db_name, subset, output_name):
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
         subset      (str): Name of collection to use.
+        output_name (str): Name of the collection to output to.
 
     Returns:
         list: List of objects containing _id and the frequency of appearance.
@@ -189,6 +192,7 @@ def hashtag_map_reduce(client, db_name, subset, output_name):
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
         subset      (str): Name of collection to use.
+        output_name (str): Name of the collection to output to.
 
     Returns:
         list: List of objects containing _id and the frequency of appearance.
@@ -230,12 +234,64 @@ def collection_finder(client, db_name, subset):
     fileops.write_json_file(subset, constants.DATA_PATH, list(
         dbo[subset].find({}, {"hashtag": 1, "count": 1, "_id": 0})))
 
-# def parse_undefined_lang(client, db_name, subset):
 
-@fileops.do_cprofile
+def filter_object_ids(client, db_name, subset, lang_list, output_name):
+    """Aggregation pipeline to filter object ids based on the provided condition
+
+    Args:
+        client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+        db_name     (str): Name of database to query.
+        subset      (str): Name of collection to use.
+        lang_list   (list): List of languages to match on.
+        output_name (str): Name of the collection to output to.
+
+    Returns:
+        list: List of objects containing _id and the frequency of appearance.
+    """
+
+    dbo = client[db_name]
+    pipeline = [
+        {"$match": {"lang": {"$in": lang_list}}},
+        {"$project": {"_id": 1}},
+        {"$out": output_name}
+    ]
+    dbo[subset].aggregate(pipeline, allowDiskUse=True)
+
+    result = []
+    cursor = dbo[output_name].find({})
+    for document in cursor:
+        result.append(str(document['_id']))
+
+    fileops.write_json_file(output_name, constants.DATA_PATH, result)
+
+
+def parse_undefined_lang(client, db_name, subset):
+    """Parse the text of each tweet and attempt to identify and update its language
+
+    Args:
+        client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+        db_name     (str): Name of database to query.
+        subset      (str): Name of collection to use.
+    """
+    # objectIdlist = fileops.read_json_file('subset_objectId', constants.DATA_PATH)
+    # for x in objectIdlist:
+    #     print x
+
+    identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
+    # identifier.set_languages(['en', 'it'])
+    print identifier.classify('Je ne parle pas francais')
+
+
+# @fileops.do_cprofile
 def find_one(client, db_name, subset):
     """Fetches one object from the specified collection
     """
-    dbo = client[db_name]
-    cursor = dbo[subset].find_one()
-    pprint(cursor)
+    # dbo = client[db_name]
+    # cursor = dbo[subset].find().limit(5)
+    # # cursor = dbo[subset].find({"_id": ObjectId("581b616348d823750f9ee806")})
+    # # {"_id": ObjectId(obj_id_to_find)})
+    # # pprint(cursor['_id'])
+    # # pprint(for x in cursor)
+    # for x in cursor:
+    #     # pprint(str(x['_id']))
+    #     pprint(x)
