@@ -1,9 +1,11 @@
 import os
+import re
 import json
 import time
 import glob
 import csv
 import itertools
+from collections import OrderedDict
 import cProfile
 from pprint import pprint
 import pymongo
@@ -23,6 +25,7 @@ USER_MENTIONS_LIMIT = 50
 def timing(func):
     """Decorator for timing run time of a function
     """
+
     def wrap(*args):
         """Wrapper
         """
@@ -31,12 +34,14 @@ def timing(func):
         time2 = time.time()
         print '%s function took %0.3f ms' % (func.func_name, (time2 - time1) * 1000.0)
         return ret
+
     return wrap
 
 
 def do_cprofile(func):
     """Decorator for profiling a function
     """
+
     def profiled_func(*args, **kwargs):
         """Wrapper
         """
@@ -48,6 +53,7 @@ def do_cprofile(func):
             return result
         finally:
             profile.print_stats(sort='time')
+
     return profiled_func
 
 
@@ -65,14 +71,14 @@ def connect():
     return conn
 
 
-def get_filenames():
+def get_filenames(directory):
     """Reads all the json files in the folder and removes the drive and path and
     extension, only returning a list of strings with the file names.
 
     Returns:
         list: List of plain filenames
     """
-    file_path = glob.glob(JSON_PATH + "*.json")
+    file_path = glob.glob(directory + "*.json")
     result = []
     for entry in file_path:
         drive, path = os.path.splitdrive(entry)
@@ -138,7 +144,7 @@ def read_csv_file(filename, path):
         return result
 
 
-def write_csv_file(filename, result, path):
+def write_csv_file(filename, path, result):
     """Writes the result to csv with the given filename.
     Args:
         filename   (str): Filename to write to.
@@ -149,8 +155,8 @@ def write_csv_file(filename, result, path):
     writer = csv.writer(output, quoting=csv.QUOTE_ALL, lineterminator='\n')
     for val in result:
         writer.writerow([val])
-    # Print one a single row
-    # writer.writerow(result)
+        # Print one a single row
+        # writer.writerow(result)
 
 
 def extract_corpus(file_list):
@@ -168,7 +174,7 @@ def extract_corpus(file_list):
 
         for entry in data:
             result.append(str(entry['vocabulary']))
-        write_csv_file(entry, result, CSV_PATH)
+        write_csv_file(entry, CSV_PATH, result)
 
 
 def count_sightings(json_obj):
@@ -220,7 +226,7 @@ def test_file_operations():
     """
     Test previous methods
     """
-    file_list = get_filenames()
+    file_list = get_filenames(JSON_PATH)
     extract_corpus(file_list)
     num_entries = count_entries(file_list)
     pprint(num_entries)
@@ -483,11 +489,69 @@ def collection_finder(client, db_name, subset):
         dbo[subset].find({}, {"hashtag": 1, "count": 1, "_id": 0})))
 
 
+def prep_json_entry(entry):
+    """Properly format and return a json object
+    """
+    json_obj = OrderedDict()
+    json_obj['vocabulary'] = entry['vocabulary']
+    json_obj['variant_of'] = entry['variant_of']
+    json_obj['pronunciation'] = entry['pronunciation']
+    json_obj['meaning'] = entry['meaning']
+    json_obj['language'] = entry['language']
+    json_obj['about_ethnicity'] = entry['about_ethnicity']
+    json_obj['about_nationality'] = entry['about_nationality']
+    json_obj['about_religion'] = entry['about_religion']
+    return json_obj
+
+
+def filter_hatebase_categories():
+    """Filters the hatebase data into categories for black, muslim and latino keywords
+    """
+    filter1_subset = []
+    filter2_subset = []
+    filter3_subset = []
+
+    seen_set = set()
+
+    filter1 = ['Black', 'black', 'Blacks', 'blacks',
+               'African', 'african', 'Africans', 'africans']
+    filter2 = ['Muslims', 'Muslim', 'Middle', 'Arab', 'Arabs', 'Arabic']
+    filter3 = ['Hispanic', 'hispanic', 'Hispanics', 'Mexican', 'Mexicans', 'Latino', 'Latinos',
+               'Cuban', 'Cubans']
+
+    file_list = get_filenames(JSON_PATH)
+    for entry in file_list:
+        json_data = read_json_file(entry, JSON_PATH)
+
+        data = json_data['data']['datapoint']
+        data.sort(key=count_sightings, reverse=True)
+
+        for entry in data:
+            if any(x in entry['meaning'] for x in filter1):
+                if entry['vocabulary'] not in seen_set:
+                    seen_set.add(entry['vocabulary'])
+                    filter1_subset.append(prep_json_entry(entry))
+
+            if any(x in entry['meaning'] for x in filter2):
+                if entry['vocabulary'] not in seen_set:
+                    seen_set.add(entry['vocabulary'])
+                    filter2_subset.append(prep_json_entry(entry))
+
+            if any(x in entry['meaning'] for x in filter3):
+                if entry['vocabulary'] not in seen_set:
+                    seen_set.add(entry['vocabulary'])
+                    filter3_subset.append(prep_json_entry(entry))
+
+    write_json_file('filter1_subset', DATA_PATH, filter1_subset)
+    write_json_file('filter2_subset', DATA_PATH, filter2_subset)
+    write_json_file('filter3_subset', DATA_PATH, filter3_subset)
+
+
 def main():
     """
     Test functionality
     """
-    client = connect()
+    # client = connect()
     # test_get_language_distribution(client)
     # test_get_language_subset(client)
     # create_lang_subset(client, 'twitter', 'ru')
@@ -495,7 +559,9 @@ def main():
     # hashtag_map_reduce(client, 'twitter', 'subset_ru', 'hashtag_ru')
     # test_get_top_k_users(client, 'twitter', ['ru'], USER_MENTIONS)
     # test_get_top_k_hashtags(client, 'twitter', ['ru'], HASHTAGS, 20)
-    collection_finder(client, 'twitter', 'hashtag_dist_en')
+    # collection_finder(client, 'twitter', 'hashtag_dist_en')
+    filter_hatebase_categories()
+
 
 if __name__ == '__main__':
     main()
