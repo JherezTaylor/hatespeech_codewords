@@ -223,16 +223,18 @@ def hashtag_map_reduce(client, db_name, subset, output_name):
     pprint(frequency)
 
 
-def collection_finder(client, db_name, subset):
-    """Fetches the specified collection
+def get_hashtag_collection(client, db_name, subset):
+    """Fetches the specified hashtag collection and writes it to a json file
+
+    Args:
+        client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+        db_name     (str): Name of database to query.
+        subset      (str): Name of collection to use.
     """
     dbo = client[db_name]
-    # cursor = dbo[subset].find({"count":{"$gt":500}})
-    # cursor = dbo[subset].find(
-    #     {}, no_cursor_timeout=True)
-    # cursor.batch_size(80000)
-    fileops.write_json_file(subset, constants.DATA_PATH, list(
-        dbo[subset].find({}, {"hashtag": 1, "count": 1, "_id": 0})))
+    cursor = dbo[subset].find({"count": {"$gt": 500}}, {
+                              "hashtag": 1, "count": 1, "_id": 0})
+    fileops.write_json_file(subset, constants.DATA_PATH, list(cursor))
 
 
 def filter_object_ids(client, db_name, subset, lang_list, output_name):
@@ -265,33 +267,85 @@ def filter_object_ids(client, db_name, subset, lang_list, output_name):
     fileops.write_json_file(output_name, constants.DATA_PATH, result)
 
 
+def find_by_object_id(client, db_name, subset, object_id):
+    """Fetches the specified object from the specified collection
+
+    Args:
+        client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+        db_name     (str): Name of database to query.
+        subset      (str): Name of collection to use.
+        object_id   (str): Object ID to fetch.
+    """
+    dbo = client[db_name]
+    cursor = dbo[subset].find({"_id": ObjectId(object_id)})
+    pprint(cursor['_id'])
+
+
+def finder(client, db_name, subset, k_items):
+    """Fetches k obects from the specified collection
+
+    Args:
+        client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+        db_name     (str): Name of database to query.
+        subset      (str): Name of collection to use.
+        k_items     (int): Number of items to retrieve.
+    """
+    dbo = client[db_name]
+    cursor = dbo[subset].find().limit(k_items)
+    for document in cursor:
+        pprint(document)
+        pprint(str(document['_id']))
+
+
+@fileops.do_cprofile
 def parse_undefined_lang(client, db_name, subset):
-    """Parse the text of each tweet and attempt to identify and update its language
+    """Parse the text of each tweet and identify and update its language
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
         subset      (str): Name of collection to use.
     """
-    # objectIdlist = fileops.read_json_file('subset_objectId', constants.DATA_PATH)
-    # for x in objectIdlist:
-    #     print x
 
     identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
+    operations = []
+    dbo = client[db_name]
+    cursor = dbo[subset].find(
+        {}, no_cursor_timeout=True)
+    cursor.batch_size(10000)
+
+    for document in dbo[subset].find({'lang':lang}, no_cursor_timeout=True):
+        # Set a random number on every document update
+    operations.append(
+        UpdateOne({"_id": doc["_id"]}, {
+                  "$set": {"random": random.randint(0, 10)}})
+    )
+
+    # Send once every 1000 in batch
+    if (len(operations) == 1000):
+        collection.bulk_write(operations, ordered=False)
+        operations = []
+
+    if (len(operations) > 0):
+        collection.bulk_write(operations, ordered=False)
+
+    while (cursor.hasNext()):
+        {
+            document = cursor.next()
+            for document in cursor:
+            pprint(document)
+            pprint(str(document['_id']))
+            print identifier.classify(cursor)
+        }
+
+    # object_id_list = fileops.read_json_file(
+    #     'subset_objectId', constants.DATA_PATH)
+    # cursor = dbo[subset].find()
+    # cursor.batch_size(10000)
+
+    # for id in object_id_list[0:5]:
+    #     print id
+
+    # identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
     # identifier.set_languages(['en', 'it'])
-    print identifier.classify('Je ne parle pas francais')
-
-
-# @fileops.do_cprofile
-def find_one(client, db_name, subset):
-    """Fetches one object from the specified collection
-    """
-    # dbo = client[db_name]
-    # cursor = dbo[subset].find().limit(5)
-    # # cursor = dbo[subset].find({"_id": ObjectId("581b616348d823750f9ee806")})
-    # # {"_id": ObjectId(obj_id_to_find)})
-    # # pprint(cursor['_id'])
-    # # pprint(for x in cursor)
-    # for x in cursor:
-    #     # pprint(str(x['_id']))
-    #     pprint(x)
+    # print identifier.classify('Je ne parle pas francais')

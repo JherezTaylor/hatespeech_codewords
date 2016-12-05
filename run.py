@@ -76,23 +76,28 @@ def main():
     """
     Test functionality
     """
-    # test_file_operations()
+
     client = mongomethods.connect()
-    mongomethods.filter_object_ids(client, 'twitter', 'tweets', ['und'], 'subset_objectId')
-    # mongomethods.parse_undefined_lang(cliet,'twitter','tweets',)
-    # test_get_language_distribution(client)
-    # test_get_language_subset(client)
-    # mongomethods.create_lang_subset(client, 'twitter', 'ru')
-    # user_mentions_map_reduce(client, 'twitter', 'subset_ru')
-    # hashtag_map_reduce(client, 'twitter', 'subset_ru', 'hashtag_ru')
-    # test_get_top_k_users(client, 'twitter', ['ru'], USER_MENTIONS)
-    # test_get_top_k_hashtags(client, 'twitter', ['ru'], HASHTAGS, 20)
-    # mongomethods.collection_finder(client, 'twitter', 'hashtag_dist_und')
-    # mongomethods.find_one(client, 'twitter', 'tweets')
-    # mongomethods.find_one(client, 'twitter', 'subset_objectId')
-    # filter_hatebase_categories()
-    # print constants.DB_URL
+    mongomethods.parse_undefined_lang(client, 'twitter', 'tweets')
 
 
 if __name__ == '__main__':
     main()
+
+    # test_file_operations()
+    # test_get_language_distribution(client)
+    # test_get_language_subset(client)
+    
+    # mongomethods.filter_object_ids(client, 'twitter', 'tweets', ['und'], 'subset_objectId')
+    # mongomethods.parse_undefined_lang(cliet,'twitter','tweets',)
+    # mongomethods.create_lang_subset(client, 'twitter', 'ru')
+    # mongomethods.get_hashtag_collection(client, 'twitter', 'hashtag_dist_und')
+    # mongomethods.find_one(client, 'twitter', 'tweets')
+    # mongomethods.find_one(client, 'twitter', 'subset_objectId')
+
+    # user_mentions_map_reduce(client, 'twitter', 'subset_ru')
+    # hashtag_map_reduce(client, 'twitter', 'subset_ru', 'hashtag_ru')
+    # test_get_top_k_users(client, 'twitter', ['ru'], USER_MENTIONS)
+    # test_get_top_k_hashtags(client, 'twitter', ['ru'], HASHTAGS, 20)
+
+    # fileops.filter_hatebase_categories()
