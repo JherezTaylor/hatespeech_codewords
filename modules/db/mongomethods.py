@@ -7,7 +7,9 @@ This module provides methods to query the MongoDB instance
 """
 from pprint import pprint
 from langid.langid import LanguageIdentifier, model
-import pymongo
+from pymongo import MongoClient
+from pymongo import errors
+from pymongo import UpdateOne
 from bson.son import SON
 from bson.code import Code
 from bson.objectid import ObjectId
@@ -22,9 +24,9 @@ def connect():
         pymongo.MongoClient: Connection object for Mongo DB_URL
     """
     try:
-        conn = pymongo.MongoClient(constants.DB_URL)
+        conn = MongoClient(constants.DB_URL)
         print "Connected to DB at " + constants.DB_URL + " successfully"
-    except pymongo.errors.ConnectionFailure, ex:
+    except errors.ConnectionFailure, ex:
         print "Could not connect to MongoDB: %s" % ex
     return conn
 
@@ -298,54 +300,30 @@ def finder(client, db_name, subset, k_items):
 
 
 @fileops.do_cprofile
-def parse_undefined_lang(client, db_name, subset):
+def parse_undefined_lang(client, db_name, subset, lang):
     """Parse the text of each tweet and identify and update its language
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
         subset      (str): Name of collection to use.
+        lang        (str): Language to match on.
     """
 
     identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
     operations = []
     dbo = client[db_name]
-    cursor = dbo[subset].find(
-        {}, no_cursor_timeout=True)
-    cursor.batch_size(10000)
 
-    for document in dbo[subset].find({'lang':lang}, no_cursor_timeout=True):
-        # Set a random number on every document update
-    operations.append(
-        UpdateOne({"_id": doc["_id"]}, {
-                  "$set": {"random": random.randint(0, 10)}})
-    )
+    for document in dbo[subset].find({'lang': lang}, no_cursor_timeout=True):
+        operations.append(
+            UpdateOne({"_id": document["_id"]}, {
+                "$set": {"random": 12}})
+        )
+        print identifier.classify(document["text"])
+        # Send once every 1000 in batch
+        if len(operations) == 1000:
+            dbo[subset].bulk_write(operations, ordered=False)
+            operations = []
 
-    # Send once every 1000 in batch
-    if (len(operations) == 1000):
-        collection.bulk_write(operations, ordered=False)
-        operations = []
-
-    if (len(operations) > 0):
-        collection.bulk_write(operations, ordered=False)
-
-    while (cursor.hasNext()):
-        {
-            document = cursor.next()
-            for document in cursor:
-            pprint(document)
-            pprint(str(document['_id']))
-            print identifier.classify(cursor)
-        }
-
-    # object_id_list = fileops.read_json_file(
-    #     'subset_objectId', constants.DATA_PATH)
-    # cursor = dbo[subset].find()
-    # cursor.batch_size(10000)
-
-    # for id in object_id_list[0:5]:
-    #     print id
-
-    # identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
-    # identifier.set_languages(['en', 'it'])
-    # print identifier.classify('Je ne parle pas francais')
+    if len(operations) > 0:
+        dbo[subset].bulk_write(operations, ordered=False)
