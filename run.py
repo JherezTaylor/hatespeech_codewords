@@ -79,6 +79,7 @@ def main():
 
     # client = mongomethods.connect()
     # mongomethods.parse_undefined_lang(client, 'twitter', 'und_backup', 'und')
+    print fileops.preprocess_text('RT @marcobonzanini: just an example! :D http://example.com #NLP')
 
 
 if __name__ == '__main__':

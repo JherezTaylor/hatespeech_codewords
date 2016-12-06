@@ -14,6 +14,8 @@ import cProfile
 from time import time
 from collections import OrderedDict
 from modules.utils import constants
+from modules.utils import twokenize
+from nltk.stem import WordNetLemmatizer
 
 
 def unicode_to_utf(unicode_list):
@@ -273,3 +275,15 @@ def filter_hatebase_categories():
         'filter2_subset', constants.DATA_PATH, filter2_subset)
     write_json_file(
         'filter3_subset', constants.DATA_PATH, filter3_subset)
+
+
+def preprocess_text(raw_text):
+    """Preprocessing pipeline for Tweet body.
+    Tokenize, lemmatize and remove stopwords.
+    Args:
+        raw_text  (str): String to preprocess.
+
+    Returns:
+        list: vectorized tweet.
+    """
+    return twokenize.tokenize(raw_text)
