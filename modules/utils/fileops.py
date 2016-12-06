@@ -296,6 +296,7 @@ def filter_hatebase_categories():
         'filter3_subset', constants.DATA_PATH, filter3_subset)
 
 
+<<<<<<< 0c748ea8067cc2f81781a61664e964c735fd7a4a
 def parse_category_files():
     """Reads the category entries and return the keywords only
 
@@ -314,6 +315,8 @@ def parse_category_files():
     return result
 
 
+=======
+>>>>>>> Added tokenizer
 def preprocess_text(raw_text):
     """Preprocessing pipeline for Tweet body.
     Tokenize, lemmatize and remove stopwords.
@@ -323,6 +326,7 @@ def preprocess_text(raw_text):
     Returns:
         list: vectorized tweet.
     """
+<<<<<<< 0c748ea8067cc2f81781a61664e964c735fd7a4a
     punctuation = list(string.punctuation)
     stop_list = stopwords.words('english') + punctuation + ['rt', 'via']
 
@@ -348,3 +352,6 @@ def preprocess_text(raw_text):
 
     sentiment = TextBlob(str(terms_single)).sentiment
     return hashtags_only, user_mentions_only, terms_single, list(sentiment)
+=======
+    return twokenize.tokenize(raw_text)
+>>>>>>> Added tokenizer
