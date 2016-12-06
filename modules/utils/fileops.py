@@ -7,7 +7,9 @@ This module houses various file operation functions for use throughout the proje
 """
 
 import os
+import re
 import csv
+import string
 import json
 import glob
 import cProfile
@@ -15,6 +17,7 @@ from time import time
 from collections import OrderedDict
 from modules.utils import constants
 from modules.utils import twokenize
+from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
 
@@ -286,4 +289,27 @@ def preprocess_text(raw_text):
     Returns:
         list: vectorized tweet.
     """
-    return twokenize.tokenize(raw_text)
+    punctuation = list(string.punctuation)
+    stop_list = stopwords.words('english') + punctuation + ['rt', 'via']
+
+    # Remove urls
+    clean_text = re.sub(r"(?:http?\://)\S+", "", raw_text)
+    clean_text = twokenize.tokenize(clean_text)
+
+    clean_text = [token for token in clean_text if len(
+        token.strip(string.digits)) == len(token)]
+
+    # Record single instances of a term only
+    terms_single = set(clean_text)
+
+    # unigrams = [ w for doc in documents for w in doc if len(w)==1]
+    # bigrams  = [ w for doc in documents for w in doc if len(w)==2]
+
+    hashtags_only = [token for token in terms_single if token.startswith('#')]
+    user_mentions_only = [
+        token for token in clean_text if token.startswith('@')]
+
+    terms_single = [
+        token for token in terms_single if token not in stop_list
+        and not token.startswith(('#', '@'))]
+    return hashtags_only, user_mentions_only, terms_single
