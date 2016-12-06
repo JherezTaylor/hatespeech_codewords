@@ -346,4 +346,3 @@ def preprocess_text(raw_text):
 
     sentiment = TextBlob(str(terms_single)).sentiment
     return hashtags_only, user_mentions_only, terms_single, list(sentiment)
-
