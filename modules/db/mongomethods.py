@@ -5,6 +5,7 @@
 """
 This module provides methods to query the MongoDB instance
 """
+from collections import Counter
 from pprint import pprint
 from langid.langid import LanguageIdentifier, model
 from pymongo import MongoClient
@@ -302,6 +303,9 @@ def finder(client, db_name, subset, k_items):
 @fileops.do_cprofile
 def parse_undefined_lang(client, db_name, subset, lang):
     """Parse the text of each tweet and identify and update its language
+    Be careful when using this, most of the tweets marked as und are composed
+    mostly of links and hashtags, which might be useful. Also consider the confidence
+    score.
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
@@ -310,20 +314,36 @@ def parse_undefined_lang(client, db_name, subset, lang):
         lang        (str): Language to match on.
     """
 
-    identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
-    operations = []
     dbo = client[db_name]
+    # Normalize the confidence value with the range 0 - 1
+    identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
+
+    # Operation statistics
+    operations = []
+    lang_dist = []
+    accuracy = []
 
     for document in dbo[subset].find({'lang': lang}, no_cursor_timeout=True):
-        operations.append(
-            UpdateOne({"_id": document["_id"]}, {
-                "$set": {"random": 12}})
-        )
-        print identifier.classify(document["text"])
+
+        doclang = identifier.classify(document['text'])
+        lang_dist.append(doclang[0])
+        accuracy.append(doclang[1])
+
+        if doclang[0] == 'en' and doclang[1] >= 0.70:
+            operations.append(
+                UpdateOne({'_id': document["_id"]}, {
+                    '$set': {'lang': 'en'}})
+            )
         # Send once every 1000 in batch
         if len(operations) == 1000:
             dbo[subset].bulk_write(operations, ordered=False)
             operations = []
 
+        # if doclang[0] == 'en' and doclang[1] >= 0.70:
+        #     print document['text']
+
     if len(operations) > 0:
         dbo[subset].bulk_write(operations, ordered=False)
+
+    print Counter(lang_dist)
+    print reduce(lambda x, y: x + y, accuracy) / len(accuracy)
