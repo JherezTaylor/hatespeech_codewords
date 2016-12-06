@@ -77,8 +77,8 @@ def main():
     Test functionality
     """
 
-    client = mongomethods.connect()
-    mongomethods.parse_undefined_lang(client, 'twitter', 'tweets', 'sd')
+    # client = mongomethods.connect()
+    # mongomethods.parse_undefined_lang(client, 'twitter', 'und_backup', 'und')
 
 
 if __name__ == '__main__':
