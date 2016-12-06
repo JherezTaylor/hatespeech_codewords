@@ -1,3 +1,4 @@
 pymongo
 langid
 nltk
+textblob

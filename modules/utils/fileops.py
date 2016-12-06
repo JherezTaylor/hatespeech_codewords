@@ -19,6 +19,7 @@ from modules.utils import constants
 from modules.utils import twokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+from textblob import TextBlob
 
 
 def unicode_to_utf(unicode_list):
@@ -295,7 +296,6 @@ def preprocess_text(raw_text):
     # Remove urls
     clean_text = re.sub(r"(?:http?\://)\S+", "", raw_text)
     clean_text = twokenize.tokenize(clean_text)
-
     clean_text = [token for token in clean_text if len(
         token.strip(string.digits)) == len(token)]
 
@@ -312,4 +312,6 @@ def preprocess_text(raw_text):
     terms_single = [
         token for token in terms_single if token not in stop_list
         and not token.startswith(('#', '@'))]
-    return hashtags_only, user_mentions_only, terms_single
+
+    sentiment = TextBlob(str(terms_single)).sentiment
+    return hashtags_only, user_mentions_only, terms_single, list(sentiment)
