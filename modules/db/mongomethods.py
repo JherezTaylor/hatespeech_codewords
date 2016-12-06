@@ -18,7 +18,6 @@ from bson.objectid import ObjectId
 from modules.utils import constants
 from modules.utils import fileops
 
-
 def connect():
     """Initializes a pymongo conection object.
 
@@ -347,6 +346,7 @@ def parse_undefined_lang(client, db_name, subset, lang):
         dbo[subset].bulk_write(operations, ordered=False)
 
     print Counter(lang_dist)
+<<<<<<< 0c748ea8067cc2f81781a61664e964c735fd7a4a
     print reduce(lambda x, y: x + y, accuracy) / len(accuracy)
 
 
