@@ -102,7 +102,8 @@ def main():
     # mongomethods.keyword_search(
     #     client, 'twitter', fileops.parse_category_files())
     # generate_bar_chart()
-    print fileops.preprocess_text('RT @marcobonzanini: just an example! :D http://example.com #NLP')
+    hey = fileops.preprocess_text('RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP')
+    print hey
 
 
 
