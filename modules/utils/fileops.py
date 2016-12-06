@@ -135,7 +135,7 @@ def read_json_file(filename, path):
         path       (str): Directory path to use.
 
     Returns:
-        list: List of words concatenated with OR.
+        obj: json object
     """
 
     result = []
@@ -235,6 +235,21 @@ def extract_corpus(file_list):
         write_csv_file(file_name, constants.CSV_PATH, result)
 
 
+def json_field_filter(json_obj, field_filter):
+    """Accepts a json object and returns only the passed field
+     Args:
+        json_obj        (obj): json object.
+        field_filter    (str): field to extract.
+
+   Returns:
+        list: A list of filtered values
+    """
+    result = []
+    for document in json_obj:
+        result.append(document[field_filter])
+    return result
+
+
 def filter_hatebase_categories():
     """Filters the hatebase data into categories for black, muslim and latino keywords
     """
@@ -279,6 +294,24 @@ def filter_hatebase_categories():
         'filter2_subset', constants.DATA_PATH, filter2_subset)
     write_json_file(
         'filter3_subset', constants.DATA_PATH, filter3_subset)
+
+
+def parse_category_files():
+    """Reads the category entries and return the keywords only
+
+    Returns:
+        list: A list of filtered keywords
+    """
+    result = []
+    filter1 = json_field_filter(read_json_file(
+        'filter1_subset', constants.DATA_PATH), 'vocabulary')
+    filter2 = json_field_filter(read_json_file(
+        'filter2_subset', constants.DATA_PATH), 'vocabulary')
+    filter3 = json_field_filter(read_json_file(
+        'filter3_subset', constants.DATA_PATH), 'vocabulary')
+
+    result = filter1 + filter2 + filter3
+    return result
 
 
 def preprocess_text(raw_text):
