@@ -312,6 +312,24 @@ def parse_category_files():
     result = filter1 + filter2 + filter3
     return result
 
+def parse_category_files():
+    """Reads the category entries and return the keywords only
+
+    Returns:
+        list: A list of filtered keywords
+    """
+    result = []
+    filter1 = json_field_filter(read_json_file(
+        'filter1_subset', constants.DATA_PATH), 'vocabulary')
+    filter2 = json_field_filter(read_json_file(
+        'filter2_subset', constants.DATA_PATH), 'vocabulary')
+    filter3 = json_field_filter(read_json_file(
+        'filter3_subset', constants.DATA_PATH), 'vocabulary')
+
+    result = filter1 + filter2 + filter3
+    return result
+
+
 def preprocess_text(raw_text):
     """Preprocessing pipeline for Tweet body.
     Tokenize, lemmatize and remove stopwords.
