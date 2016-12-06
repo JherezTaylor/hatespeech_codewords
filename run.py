@@ -77,10 +77,12 @@ def main():
     Test functionality
     """
 
-    # client = mongomethods.connect()
+    client = mongomethods.connect()
     # mongomethods.parse_undefined_lang(client, 'twitter', 'und_backup', 'und')
-    hey = fileops.preprocess_text('RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP')
-    print hey
+    # hey = fileops.preprocess_text('RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP')
+    # print hey
+    mongomethods.keyword_search(
+        client, 'twitter', ['te'], fileops.parse_category_files())
 
 
 if __name__ == '__main__':
