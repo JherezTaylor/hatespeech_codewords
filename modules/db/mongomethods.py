@@ -17,7 +17,6 @@ from bson.objectid import ObjectId
 from modules.utils import constants
 from modules.utils import fileops
 
-
 def connect():
     """Initializes a pymongo conection object.
 
