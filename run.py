@@ -73,7 +73,10 @@ def test_get_top_k_hashtags(client, db_name, lang_list, k_filter, k_value):
     fileops.write_json_file('hashtag_distribution',
                             constants.DATA_PATH, list(cursor))
 
+
 def generate_bar_chart(chart_title):
+    """Generate a plotly bar_chart
+    """
     json_obj = fileops.read_json_file('hashtag_dist_en', constants.DATA_PATH)
     data_x = []
     data_y = []
@@ -86,23 +89,24 @@ def generate_bar_chart(chart_title):
         "layout": Layout(title=chart_title)
     })
 
+
 def main():
     """
     Test functionality
     """
-
+    # fileops.filter_hatebase_categories()
     # plotly.offline.plot({
     #     "data": [Scatter(x=[1, 2, 3, 4], y=[4, 3, 2, 1])],
     #     "layout": Layout(title="hello world")
     # })
-    # client = mongomethods.connect()
-    # mongomethods.parse_undefined_lang(client, 'twitter', 'und_backup', 'und')
-    # hey = fileops.preprocess_text('RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP')
-    print constants.DB_URL
-    # mongomethods.keyword_search(
-    #     client, 'twitter', fileops.parse_category_files())
     # generate_bar_chart()
-    
+    # mongomethods.parse_undefined_lang(client, 'twitter', 'und_backup', 'und')
+    # hey = fileops.preprocess_tex)t('RT @marcobonzanini: 11 just #NLP an
+    # example! :D http://example.com #NLP')
+    client = mongomethods.connect()
+    mongomethods.keyword_search(
+        client, 'twitter', fileops.parse_category_files())
+
 if __name__ == '__main__':
     main()
 
