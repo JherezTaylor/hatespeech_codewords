@@ -2,3 +2,4 @@ pymongo
 langid
 nltk
 textblob
+plotly
