@@ -9,6 +9,8 @@ Preprocessing module
 from modules.utils import constants
 from modules.utils import fileops
 from modules.db import mongomethods
+import plotly
+from plotly.graph_objs import Scatter, Layout
 
 
 def test_file_operations():
@@ -71,14 +73,35 @@ def test_get_top_k_hashtags(client, db_name, lang_list, k_filter, k_value):
     fileops.write_json_file('hashtag_distribution',
                             constants.DATA_PATH, list(cursor))
 
+def generate_bar_chart(chart_title):
+    json_obj = fileops.read_json_file('hashtag_dist_en', constants.DATA_PATH)
+    data_x = []
+    data_y = []
+    for document in json_obj:
+        data_x.append(document['hashtag'])
+        data_y.append(document['count'])
+
+    plotly.offline.plot({
+        "data": [Scatter(x=data_x[0:10], y=data_y[0:10])],
+        "layout": Layout(title=chart_title)
+    })
 
 def main():
     """
     Test functionality
     """
 
+    # plotly.offline.plot({
+    #     "data": [Scatter(x=[1, 2, 3, 4], y=[4, 3, 2, 1])],
+    #     "layout": Layout(title="hello world")
+    # })
     # client = mongomethods.connect()
     # mongomethods.parse_undefined_lang(client, 'twitter', 'und_backup', 'und')
+    # hey = fileops.preprocess_text('RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP')
+    # print hey
+    # mongomethods.keyword_search(
+    #     client, 'twitter', fileops.parse_category_files())
+    generate_bar_chart()
 
 
 if __name__ == '__main__':

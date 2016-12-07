@@ -7,13 +7,19 @@ This module houses various file operation functions for use throughout the proje
 """
 
 import os
+import re
 import csv
+import string
 import json
 import glob
 import cProfile
 from time import time
 from collections import OrderedDict
 from modules.utils import constants
+from modules.utils import twokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from textblob import TextBlob
 
 
 def unicode_to_utf(unicode_list):
@@ -129,7 +135,7 @@ def read_json_file(filename, path):
         path       (str): Directory path to use.
 
     Returns:
-        list: List of words concatenated with OR.
+        obj: json object
     """
 
     result = []
@@ -229,6 +235,21 @@ def extract_corpus(file_list):
         write_csv_file(file_name, constants.CSV_PATH, result)
 
 
+def json_field_filter(json_obj, field_filter):
+    """Accepts a json object and returns only the passed field
+     Args:
+        json_obj        (obj): json object.
+        field_filter    (str): field to extract.
+
+   Returns:
+        list: A list of filtered values
+    """
+    result = []
+    for document in json_obj:
+        result.append(document[field_filter])
+    return result
+
+
 def filter_hatebase_categories():
     """Filters the hatebase data into categories for black, muslim and latino keywords
     """
@@ -273,3 +294,57 @@ def filter_hatebase_categories():
         'filter2_subset', constants.DATA_PATH, filter2_subset)
     write_json_file(
         'filter3_subset', constants.DATA_PATH, filter3_subset)
+
+
+def parse_category_files():
+    """Reads the category entries and return the keywords only
+
+    Returns:
+        list: A list of filtered keywords
+    """
+    result = []
+    filter1 = json_field_filter(read_json_file(
+        'filter1_subset', constants.DATA_PATH), 'vocabulary')
+    filter2 = json_field_filter(read_json_file(
+        'filter2_subset', constants.DATA_PATH), 'vocabulary')
+    filter3 = json_field_filter(read_json_file(
+        'filter3_subset', constants.DATA_PATH), 'vocabulary')
+
+    result = filter1 + filter2 + filter3
+    return result
+
+
+def preprocess_text(raw_text):
+    """Preprocessing pipeline for Tweet body.
+    Tokenize, lemmatize and remove stopwords.
+    Args:
+        raw_text  (str): String to preprocess.
+
+    Returns:
+        list: vectorized tweet.
+    """
+    punctuation = list(string.punctuation)
+    stop_list = stopwords.words('english') + punctuation + ['rt', 'via']
+
+    # Remove urls
+    clean_text = re.sub(r"(?:http?\://)\S+", "", raw_text)
+    clean_text = twokenize.tokenize(clean_text)
+    clean_text = [token for token in clean_text if len(
+        token.strip(string.digits)) == len(token)]
+
+    # Record single instances of a term only
+    terms_single = set(clean_text)
+
+    # unigrams = [ w for doc in documents for w in doc if len(w)==1]
+    # bigrams  = [ w for doc in documents for w in doc if len(w)==2]
+
+    hashtags_only = [token for token in terms_single if token.startswith('#')]
+    user_mentions_only = [
+        token for token in clean_text if token.startswith('@')]
+
+    terms_single = [
+        token for token in terms_single if token not in stop_list
+        and not token.startswith(('#', '@'))]
+
+    sentiment = TextBlob(str(terms_single)).sentiment
+    return hashtags_only, user_mentions_only, terms_single, list(sentiment)
