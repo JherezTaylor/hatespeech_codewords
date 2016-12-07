@@ -98,25 +98,11 @@ def main():
     # client = mongomethods.connect()
     # mongomethods.parse_undefined_lang(client, 'twitter', 'und_backup', 'und')
     # hey = fileops.preprocess_text('RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP')
-    # print hey
+    print constants.DB_URL
     # mongomethods.keyword_search(
     #     client, 'twitter', fileops.parse_category_files())
     # generate_bar_chart()
-    hey = fileops.preprocess_text('RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP')
-    print hey
-    client = mongomethods.connect()
-    # mongomethods.parse_undefined_lang(client, 'twitter', 'und_backup', 'und')
-    # hey = fileops.preprocess_text('RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP')
-    # print hey
-    # mongomethods.keyword_search(
-    #     client, 'twitter', fileops.parse_category_files())
-    generate_bar_chart()
-<<<<<<< HEAD
-
-=======
->>>>>>> a0bf46672c852f20eca7ce5fde7b9d8dfaa2c69e
-
-
+    
 if __name__ == '__main__':
     main()
 
