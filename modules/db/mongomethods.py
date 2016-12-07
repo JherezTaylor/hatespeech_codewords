@@ -347,19 +347,11 @@ def parse_undefined_lang(client, db_name, subset, lang):
         dbo[subset].bulk_write(operations, ordered=False)
 
     print Counter(lang_dist)
-<<<<<<< 6211ca6065b553473e535aa014e2de9685b01659
-<<<<<<< 0c748ea8067cc2f81781a61664e964c735fd7a4a
-=======
->>>>>>> Keyword search works
     print reduce(lambda x, y: x + y, accuracy) / len(accuracy)
 
 
 @fileops.do_cprofile
-<<<<<<< 6211ca6065b553473e535aa014e2de9685b01659
 def keyword_search(client, db_name, keywords):
-=======
-def keyword_search(client, db_name, lang_list, keywords):
->>>>>>> Keyword search works
     """Perform a text search with the provided keywords in batches of 10.
     Outputs value to new collection
 
@@ -371,7 +363,6 @@ def keyword_search(client, db_name, lang_list, keywords):
     """
 
     # Split the incoming list of keywords into lists of size 10
-<<<<<<< 6211ca6065b553473e535aa014e2de9685b01659
     # decomposed_keywords = [keywords[i:i + 10]
     #                        for i in xrange(0, len(keywords), 10)]
 
@@ -396,18 +387,28 @@ def keyword_search(client, db_name, lang_list, keywords):
 
     if len(operations) > 0:
         dbo['keywords'].bulk_write(operations, ordered=False)
-=======
     decomposed_keywords = [keywords[i:i + 3]
                            for i in xrange(0, len(keywords), 3)]
-
     dbo = client[db_name]
-    for item in decomposed_keywords:
-        search_query = ' '.join(item)
+    operations = []
+    for search_query in keywords:
+        # search_query = ' '.join(item)
+        print search_query
         pipeline = [
             {"$match": {"$text": {"$search": search_query}}},
-            {"$project": {"_id": 1, 'text': 1, 'id': 1, 'timestamp': 1, 'entities': 1, 'retweeted': 1,
-                          'coordinates': 1, 'lang': 1, 'user.id': 1, 'user.screen_name': 1, 'user.location': 1}},
-            {"$out": "subset_search_test"}
+            {"$project": {"_id": 1, 'text': 1, 'id': 1, 'timestamp': 1, 'retweeted': 1,
+                          'lang': 1, 'user.id_str': 1, 'user.screen_name': 1, 'user.location': 1}}
         ]
+
         dbo.tweets.aggregate(pipeline, allowDiskUse=True)
->>>>>>> Keyword search works
+        cursor = dbo.tweets.aggregate(pipeline, allowDiskUse=True)
+        for document in cursor:
+            operations.append(InsertOne(document))
+
+         # Send once every 1000 in batch
+        if len(operations) == 1000:
+            dbo['keywords'].bulk_write(operations, ordered=False)
+            operations = []
+
+    if len(operations) > 0:
+        dbo['keywords'].bulk_write(operations, ordered=False)
