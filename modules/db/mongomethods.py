@@ -351,25 +351,26 @@ def parse_undefined_lang(client, db_name, subset, lang):
 
 
 @fileops.do_cprofile
-def keyword_search(client, db_name, keywords):
+def keyword_search(client, db_name, keyword_list):
     """Perform a text search with the provided keywords.
-    Outputs value to new collection
+    We also preprocess the tweet text in order to avoid redundant operations.
+    Outputs value to new collection.
 
     Args:
-        client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-        db_name     (str):  Name of database to query.
-        lang_list   (list): List of languages to match on.
-        keywords    (list): List of keywords to search for.
+        client          (pymongo.MongoClient): Connection object for Mongo DB_URL.
+        db_name         (str):  Name of database to query.
+        keyword_list    (list): List of keywords to search for.
     """
 
-    # Split the incoming list of keywords into lists of size 10
-    # decomposed_keywords = [keywords[i:i + 10]
-    #                        for i in xrange(0, len(keywords), 10)]
+    # Store the documents for our bulkwrite
+    operations = []
+    # Keep track of the tweets that we have already seen, keep distinct.
+    seen_set = set()
 
     dbo = client[db_name]
-    operations = []
-    seen_set = set()
-    for search_query in keywords:
+    for search_query in keyword_list:
+        # Run an aggregate search for each keyword, might get better performance
+        # from running n keywords at a time, but I'm not sure.
         pipeline = [
             {"$match": {"$text": {"$search": search_query}}},
             {"$match": {"id_str": {"$nin": list(seen_set)}}},
@@ -378,21 +379,24 @@ def keyword_search(client, db_name, keywords):
             {"$out": "temp_set"}
         ]
         dbo.tweets.aggregate(pipeline, allowDiskUse=True)
+
         cursor = dbo["temp_set"].find({})
+        entities = cursor[:]
 
         print "Keyword:", search_query, "| Count:", cursor.count(), " | Seen:", len(seen_set)
-        entities = cursor[:]
         for document in entities:
             seen_set.add(document["id_str"])
+            # Create a new field and add the preprocessed text to it
+            document["vector"] = fileops.preprocess_text(document["text"])
             operations.append(InsertOne(document))
 
             # Send once every 1000 in batch
             if len(operations) == 1000:
-                dbo["keywords"].bulk_write(operations, ordered=False)
+                dbo["keyword_subset"].bulk_write(operations, ordered=False)
                 operations = []
 
     if len(operations) > 0:
-        dbo["keywords"].bulk_write(operations, ordered=False)
+        dbo["keywords_subset"].bulk_write(operations, ordered=False)
 
     # Clean Up
     dbo.temp_set.drop()
