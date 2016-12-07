@@ -181,10 +181,10 @@ def user_mentions_map_reduce(client, db_name, subset, output_name):
         map_function, reduce_function, output_name)
 
     for document in cursor.find():
-        frequency.append({'_id': document['_id'], 'value': document['value']})
+        frequency.append({"_id": document["_id"], "value": document["value"]})
 
-    frequency = sorted(frequency, key=lambda k: k['value'], reverse=True)
-    fileops.write_json_file('user_distribution_mr',
+    frequency = sorted(frequency, key=lambda k: k["value"], reverse=True)
+    fileops.write_json_file("user_distribution_mr",
                             constants.DATA_PATH, frequency)
     pprint(frequency)
 
@@ -219,10 +219,10 @@ def hashtag_map_reduce(client, db_name, subset, output_name):
         map_function, reduce_function, output_name)
 
     for document in cursor.find():
-        frequency.append({'_id': document['_id'], 'value': document['value']})
+        frequency.append({"_id": document["_id"], "value": document["value"]})
 
-    frequency = sorted(frequency, key=lambda k: k['value'], reverse=True)
-    fileops.write_json_file('hashtag_distribution_mr',
+    frequency = sorted(frequency, key=lambda k: k["value"], reverse=True)
+    fileops.write_json_file("hashtag_distribution_mr",
                             constants.DATA_PATH, frequency)
     pprint(frequency)
 
@@ -266,7 +266,7 @@ def filter_object_ids(client, db_name, subset, lang_list, output_name):
     result = []
     cursor = dbo[output_name].find({})
     for document in cursor:
-        result.append(str(document['_id']))
+        result.append(str(document["_id"]))
 
     fileops.write_json_file(output_name, constants.DATA_PATH, result)
 
@@ -282,7 +282,7 @@ def find_by_object_id(client, db_name, subset, object_id):
     """
     dbo = client[db_name]
     cursor = dbo[subset].find({"_id": ObjectId(object_id)})
-    pprint(cursor['_id'])
+    pprint(cursor["_id"])
 
 
 def finder(client, db_name, subset, k_items):
@@ -298,7 +298,7 @@ def finder(client, db_name, subset, k_items):
     cursor = dbo[subset].find().limit(k_items)
     for document in cursor:
         pprint(document)
-        pprint(str(document['_id']))
+        pprint(str(document["_id"]))
 
 
 @fileops.do_cprofile
@@ -324,24 +324,24 @@ def parse_undefined_lang(client, db_name, subset, lang):
     lang_dist = []
     accuracy = []
 
-    for document in dbo[subset].find({'lang': lang}, no_cursor_timeout=True):
+    for document in dbo[subset].find({"lang": lang}, no_cursor_timeout=True):
 
-        doclang = identifier.classify(document['text'])
+        doclang = identifier.classify(document["text"])
         lang_dist.append(doclang[0])
         accuracy.append(doclang[1])
 
-        if doclang[0] == 'en' and doclang[1] >= 0.70:
+        if doclang[0] == "en" and doclang[1] >= 0.70:
             operations.append(
-                UpdateOne({'_id': document["_id"]}, {
-                    '$set': {'lang': 'en'}})
+                UpdateOne({"_id": document["_id"]}, {
+                    "$set": {"lang": "en"}})
             )
         # Send once every 1000 in batch
         if len(operations) == 1000:
             dbo[subset].bulk_write(operations, ordered=False)
             operations = []
 
-        # if doclang[0] == 'en' and doclang[1] >= 0.70:
-        #     print document['text']
+        # if doclang[0] == "en" and doclang[1] >= 0.70:
+        #     print document["text"]
 
     if len(operations) > 0:
         dbo[subset].bulk_write(operations, ordered=False)
@@ -352,7 +352,7 @@ def parse_undefined_lang(client, db_name, subset, lang):
 
 @fileops.do_cprofile
 def keyword_search(client, db_name, keywords):
-    """Perform a text search with the provided keywords in batches of 10.
+    """Perform a text search with the provided keywords.
     Outputs value to new collection
 
     Args:
@@ -368,22 +368,31 @@ def keyword_search(client, db_name, keywords):
 
     dbo = client[db_name]
     operations = []
+    seen_set = set()
     for search_query in keywords:
-        # search_query = ' '.join(item)
-        print search_query
         pipeline = [
             {"$match": {"$text": {"$search": search_query}}},
-            {"$project": {"_id": 1, 'text': 1, 'id': 1, 'timestamp': 1, 'retweeted': 1,
-                          'lang': 1, 'user.id_str': 1, 'user.screen_name': 1, 'user.location': 1}}
+            {"$match": {"id_str": {"$nin": list(seen_set)}}},
+            {"$project": {"_id": 1, "id_str": 1, "text": 1, "id": 1, "timestamp": 1, "retweeted": 1,
+                          "lang": 1, "user.id_str": 1, "user.screen_name": 1, "user.location": 1}},
+            {"$out": "temp_set"}
         ]
-        cursor = dbo.tweets.aggregate(pipeline, allowDiskUse=True)
-        for document in cursor:
+        dbo.tweets.aggregate(pipeline, allowDiskUse=True)
+        cursor = dbo["temp_set"].find({})
+
+        print "Keyword:", search_query, "| Count:", cursor.count(), " | Seen:", len(seen_set)
+        entities = cursor[:]
+        for document in entities:
+            seen_set.add(document["id_str"])
             operations.append(InsertOne(document))
 
-         # Send once every 1000 in batch
-        if len(operations) == 1000:
-            dbo['keywords'].bulk_write(operations, ordered=False)
-            operations = []
+            # Send once every 1000 in batch
+            if len(operations) == 1000:
+                dbo["keywords"].bulk_write(operations, ordered=False)
+                operations = []
 
     if len(operations) > 0:
-        dbo['keywords'].bulk_write(operations, ordered=False)
+        dbo["keywords"].bulk_write(operations, ordered=False)
+
+    # Clean Up
+    dbo.temp_set.drop()

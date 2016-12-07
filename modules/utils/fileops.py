@@ -30,7 +30,7 @@ def unicode_to_utf(unicode_list):
     Returns:
         list: UTF8 converted list of strings.
     """
-    return [x.encode('UTF8') for x in unicode_list]
+    return [x.encode("UTF8") for x in unicode_list]
 
 
 def timing(func):
@@ -43,7 +43,7 @@ def timing(func):
         time1 = time()
         ret = func(*args)
         time2 = time()
-        print '%s function took %0.3f ms' % (func.func_name, (time2 - time1) * 1000.0)
+        print "%s function took %0.3f ms" % (func.func_name, (time2 - time1) * 1000.0)
         return ret
 
     return wrap
@@ -63,7 +63,7 @@ def do_cprofile(func):
             profile.disable()
             return result
         finally:
-            profile.print_stats(sort='time')
+            profile.print_stats(sort="time")
 
     return profiled_func
 
@@ -77,7 +77,7 @@ def count_sightings(json_obj):
         int: The return value.
     """
     try:
-        return int(json_obj['number_of_sightings'])
+        return int(json_obj["number_of_sightings"])
     except KeyError:
         return 0
 
@@ -90,8 +90,8 @@ def build_query_string(query_words):
     Returns:
         list: List of words concatenated with OR.
     """
-    result = ''.join(
-        [q + ' OR ' for q in query_words[0:(len(query_words) - 1)]])
+    result = "".join(
+        [q + " OR " for q in query_words[0:(len(query_words) - 1)]])
     return result + str(query_words[len(query_words) - 1])
 
 
@@ -99,14 +99,14 @@ def prep_json_entry(entry):
     """Properly format and return a json object
     """
     json_obj = OrderedDict()
-    json_obj['vocabulary'] = entry['vocabulary']
-    json_obj['variant_of'] = entry['variant_of']
-    json_obj['pronunciation'] = entry['pronunciation']
-    json_obj['meaning'] = entry['meaning']
-    json_obj['language'] = entry['language']
-    json_obj['about_ethnicity'] = entry['about_ethnicity']
-    json_obj['about_nationality'] = entry['about_nationality']
-    json_obj['about_religion'] = entry['about_religion']
+    json_obj["vocabulary"] = entry["vocabulary"]
+    json_obj["variant_of"] = entry["variant_of"]
+    json_obj["pronunciation"] = entry["pronunciation"]
+    json_obj["meaning"] = entry["meaning"]
+    json_obj["language"] = entry["language"]
+    json_obj["about_ethnicity"] = entry["about_ethnicity"]
+    json_obj["about_nationality"] = entry["about_nationality"]
+    json_obj["about_religion"] = entry["about_religion"]
     return json_obj
 
 
@@ -140,7 +140,7 @@ def read_json_file(filename, path):
 
     result = []
     try:
-        with open(path + filename + '.json', 'r') as entry:
+        with open(path + filename + ".json", "r") as entry:
             result = json.load(entry)
     except IOError as ex:
         print "I/O error({0}): {1}".format(ex.errno, ex.strerror)
@@ -156,7 +156,7 @@ def write_json_file(filename, path, result):
         path       (str): Directory path to use.
     """
 
-    with open(path + filename + '.json', 'w+') as json_file:
+    with open(path + filename + ".json", "w+") as json_file:
         json.dump(result, json_file)
     json_file.close()
 
@@ -172,7 +172,7 @@ def read_csv_file(filename, path):
     """
 
     try:
-        with open(path + filename + '.csv', 'r') as entry:
+        with open(path + filename + ".csv", "r") as entry:
             reader = csv.reader(entry)
             temp = list(reader)
             # flatten to 1D, it gets loaded as 2D array
@@ -191,8 +191,8 @@ def write_csv_file(filename, path, result):
         path       (str): Directory path to use.
     """
 
-    output = open(path + filename + '.csv', 'wb')
-    writer = csv.writer(output, quoting=csv.QUOTE_ALL, lineterminator='\n')
+    output = open(path + filename + ".csv", "wb")
+    writer = csv.writer(output, quoting=csv.QUOTE_ALL, lineterminator="\n")
     for val in result:
         writer.writerow([val])
     # Print one a single row
@@ -209,7 +209,7 @@ def count_entries(file_list):
     """
     result = []
     for obj in file_list:
-        with open(constants.CSV_PATH + obj + '.csv', "r") as entry:
+        with open(constants.CSV_PATH + obj + ".csv", "r") as entry:
             reader = csv.reader(entry, delimiter=",")
             col_count = len(reader.next())
             res = {"Filename": obj, "Count": col_count}
@@ -227,11 +227,11 @@ def extract_corpus(file_list):
         json_data = read_json_file(file_name, constants.JSON_PATH)
         result = []
 
-        data = json_data['data']['datapoint']
+        data = json_data["data"]["datapoint"]
         data.sort(key=count_sightings, reverse=True)
 
         for entry in data:
-            result.append(str(entry['vocabulary']))
+            result.append(str(entry["vocabulary"]))
         write_csv_file(file_name, constants.CSV_PATH, result)
 
 
@@ -259,41 +259,42 @@ def filter_hatebase_categories():
 
     seen_set = set()
 
-    filter1 = ['Black', 'black', 'Blacks', 'blacks',
-               'African', 'african', 'Africans', 'africans']
-    filter2 = ['Muslims', 'Muslim', 'Middle', 'Arab', 'Arabs', 'Arabic']
-    filter3 = ['Hispanic', 'hispanic', 'Hispanics', 'Mexican', 'Mexicans', 'Latino', 'Latinos',
-               'Cuban', 'Cubans']
+    filter1 = ["Black", "black", "Blacks", "blacks",
+               "African", "african", "Africans", "africans"]
+    filter2 = ["Muslims", "Muslim", "Middle", "Arab", "Arabs", "Arabic"]
+    filter3 = ["Hispanic", "hispanic", "Hispanics", "Mexican", "Mexicans", "Latino", "Latinos",
+               "Cuban", "Cubans"]
 
     file_list = get_filenames(constants.JSON_PATH)
     for entry in file_list:
         json_data = read_json_file(entry, constants.JSON_PATH)
 
-        data = json_data['data']['datapoint']
+        data = json_data["data"]["datapoint"]
         data.sort(key=count_sightings, reverse=True)
 
         for entry in data:
-            if any(x in entry['meaning'] for x in filter1):
-                if entry['vocabulary'] not in seen_set:
-                    seen_set.add(entry['vocabulary'])
+            if any(x in entry["meaning"] for x in filter1):
+                if entry["vocabulary"] not in seen_set:
+                    seen_set.add(entry["vocabulary"])
                     filter1_subset.append(prep_json_entry(entry))
 
-            if any(x in entry['meaning'] for x in filter2):
-                if entry['vocabulary'] not in seen_set:
-                    seen_set.add(entry['vocabulary'])
+            if any(x in entry["meaning"] for x in filter2):
+                if entry["vocabulary"] not in seen_set:
+                    seen_set.add(entry["vocabulary"])
                     filter2_subset.append(prep_json_entry(entry))
 
-            if any(x in entry['meaning'] for x in filter3):
-                if entry['vocabulary'] not in seen_set:
-                    seen_set.add(entry['vocabulary'])
+            if any(x in entry["meaning"] for x in filter3):
+                if entry["vocabulary"] not in seen_set:
+                    seen_set.add(entry["vocabulary"])
                     filter3_subset.append(prep_json_entry(entry))
 
     write_json_file(
-        'filter1_subset', constants.DATA_PATH, filter1_subset)
+        "filter1_subset", constants.DATA_PATH, filter1_subset)
     write_json_file(
-        'filter2_subset', constants.DATA_PATH, filter2_subset)
+        "filter2_subset", constants.DATA_PATH, filter2_subset)
     write_json_file(
-        'filter3_subset', constants.DATA_PATH, filter3_subset)
+        "filter3_subset", constants.DATA_PATH, filter3_subset)
+
 
 def parse_category_files():
     """Reads the category entries and return the keywords only
@@ -303,28 +304,11 @@ def parse_category_files():
     """
     result = []
     filter1 = json_field_filter(read_json_file(
-        'filter1_subset', constants.DATA_PATH), 'vocabulary')
+        "filter1_subset", constants.DATA_PATH), "vocabulary")
     filter2 = json_field_filter(read_json_file(
-        'filter2_subset', constants.DATA_PATH), 'vocabulary')
+        "filter2_subset", constants.DATA_PATH), "vocabulary")
     filter3 = json_field_filter(read_json_file(
-        'filter3_subset', constants.DATA_PATH), 'vocabulary')
-
-    result = filter1 + filter2 + filter3
-    return result
-
-def parse_category_files():
-    """Reads the category entries and return the keywords only
-
-    Returns:
-        list: A list of filtered keywords
-    """
-    result = []
-    filter1 = json_field_filter(read_json_file(
-        'filter1_subset', constants.DATA_PATH), 'vocabulary')
-    filter2 = json_field_filter(read_json_file(
-        'filter2_subset', constants.DATA_PATH), 'vocabulary')
-    filter3 = json_field_filter(read_json_file(
-        'filter3_subset', constants.DATA_PATH), 'vocabulary')
+        "filter3_subset", constants.DATA_PATH), "vocabulary")
 
     result = filter1 + filter2 + filter3
     return result
@@ -340,7 +324,7 @@ def preprocess_text(raw_text):
         list: vectorized tweet.
     """
     punctuation = list(string.punctuation)
-    stop_list = stopwords.words('english') + punctuation + ['rt', 'via']
+    stop_list = stopwords.words("english") + punctuation + ["rt", "via"]
 
     # Remove urls
     clean_text = re.sub(r"(?:http?\://)\S+", "", raw_text)
@@ -354,13 +338,13 @@ def preprocess_text(raw_text):
     # unigrams = [ w for doc in documents for w in doc if len(w)==1]
     # bigrams  = [ w for doc in documents for w in doc if len(w)==2]
 
-    hashtags_only = [token for token in terms_single if token.startswith('#')]
+    hashtags_only = [token for token in terms_single if token.startswith("#")]
     user_mentions_only = [
-        token for token in clean_text if token.startswith('@')]
+        token for token in clean_text if token.startswith("@")]
 
     terms_single = [
         token for token in terms_single if token not in stop_list
-        and not token.startswith(('#', '@'))]
+        and not token.startswith(("#", "@"))]
 
     sentiment = TextBlob(str(terms_single)).sentiment
     return hashtags_only, user_mentions_only, terms_single, list(sentiment)
