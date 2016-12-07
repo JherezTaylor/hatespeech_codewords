@@ -3,3 +3,4 @@ langid
 nltk
 textblob
 plotly
+joblib
