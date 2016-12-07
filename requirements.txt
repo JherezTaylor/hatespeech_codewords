@@ -2,11 +2,4 @@ pymongo
 langid
 nltk
 textblob
-<<<<<<< HEAD
 plotly
-
-
-
-=======
-plotly
->>>>>>> a0bf46672c852f20eca7ce5fde7b9d8dfaa2c69e
