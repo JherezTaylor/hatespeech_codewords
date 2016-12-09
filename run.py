@@ -116,13 +116,13 @@ def main():
     # generate_bar_chart()
     # mongomethods.parse_undefined_lang(client, "twitter", "und_backup", "und")
     list_a = []
-    for x in range(0, 1000):
-        list_a.append("RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP")
+    # for x in range(0, 1000):
+    #     list_a.append("RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP")
     
-    run_par(list_a)
-    # client = mongomethods.connect()
-    # mongomethods.keyword_search(
-    #     client, "twitter", fileops.parse_category_files())
+    # run_par(list_a)
+    client = mongomethods.connect()
+    mongomethods.keyword_search(
+        client, "twitter", ['yardie'])
 
 if __name__ == "__main__":
     main()
