@@ -376,7 +376,7 @@ def keyword_search(client, db_name, keyword_list, lang_list):
                                  {"id_str": {"$nin": list(seen_set)}},
                                  {"lang": {"$in": lang_list}},
                                  {"retweet_count": 0}]}},
-            {"$project": {"_id": 1, "id_str": 1, "text": 1, "id": 1, "timestamp": 1, "retweeted": 1,
+            {"$project": {"_id": 1, "id_str": 1, "text": 1, "id": 1, "timestamp": 1,
                           "lang": 1, "user.id_str": 1, "user.screen_name": 1, "user.location": 1}},
             {"$out": "temp_set"}
         ]

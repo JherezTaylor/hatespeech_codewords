@@ -367,10 +367,10 @@ def preprocess_tweet(tweet_obj):
     """Preprocessing pipeline for Tweet body.
     Tokenize, lemmatize and remove stopwords.
     Args:
-        tweet_obj  (json_obj): Tweet to preprocess.
+        tweet_obj  (dict): Tweet to preprocess.
 
     Returns:
-        json_obj: Tweet with vectorized text appended.
+        dict: Tweet with vectorized text appended.
     """
     punctuation = list(string.punctuation)
     stop_list = stopwords.words("english") + punctuation + ["rt", "via", "RT"]
