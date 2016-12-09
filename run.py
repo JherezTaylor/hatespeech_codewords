@@ -12,6 +12,7 @@ from modules.db import mongomethods
 from joblib import Parallel, delayed
 import multiprocessing
 import plotly
+from textblob import TextBlob
 from plotly.graph_objs import Scatter, Layout
 
 
@@ -100,33 +101,40 @@ def par_test(list_a):
 def run_par(list_a):
     num_cores = multiprocessing.cpu_count()
     
-    results = Parallel(n_jobs=num_cores)(delayed(par_test)(i) for i in list_a)
+    results = Parallel(n_jobs=num_cores)(delayed(fileops.preprocess_text)(i) for i in list_a)
     return results
 
+@fileops.do_cprofile
+def linear(list_a):
+    results = []
+    for x in list_a:
+        results.append(fileops.preprocess_text(x))
+    return results
 
 def main():
     """
     Test functionality
     """
-    # fileops.filter_hatebase_categories()
-    # plotly.offline.plot({
-    #     "data": [Scatter(x=[1, 2, 3, 4], y=[4, 3, 2, 1])],
-    #     "layout": Layout(title="hello world")
-    # })
-    # generate_bar_chart()
-    # mongomethods.parse_undefined_lang(client, "twitter", "und_backup", "und")
-    list_a = []
-    # for x in range(0, 1000):
+    # list_a = []
+    # for x in range(0, 100000):
     #     list_a.append("RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP")
-    
     # run_par(list_a)
+    # linear(list_a)
+    # print TextBlob("RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP").sentiment
+    # hey = fileops.preprocess_text("RT @marcobonzanini: 11 just #NLP an example! :D http://example.com #NLP")
+    # print hey
     client = mongomethods.connect()
     mongomethods.keyword_search(
-        client, "twitter", ['yardie'])
+        client, "twitter", ['yardie'], ['en'])
 
 if __name__ == "__main__":
     main()
 
+     # fileops.filter_hatebase_categories()
+    
+    # generate_bar_chart()
+    # mongomethods.parse_undefined_lang(client, "twitter", "und_backup", "und")
+    
     # test_file_operations()
     # test_get_language_distribution(client)
     # test_get_language_subset(client)
