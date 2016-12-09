@@ -366,14 +366,15 @@ def keyword_search(client, db_name, keyword_list):
     operations = []
     # Keep track of the tweets that we have already seen, keep distinct.
     seen_set = set()
-
+    lang_list = ['en']
     dbo = client[db_name]
     for search_query in keyword_list:
         # Run an aggregate search for each keyword, might get better performance
         # from running n keywords at a time, but I'm not sure.
         pipeline = [
-            {"$match": {"$text": {"$search": search_query}}},
-            {"$match": {"id_str": {"$nin": list(seen_set)}}},
+            {"$match": {"$and": [{"$text": {"$search": search_query}},
+                                 {"id_str": {"$nin": list(seen_set)}},
+                                 {"lang": {"$in": lang_list}}]}},
             {"$project": {"_id": 1, "id_str": 1, "text": 1, "id": 1, "timestamp": 1, "retweeted": 1,
                           "lang": 1, "user.id_str": 1, "user.screen_name": 1, "user.location": 1}},
             {"$out": "temp_set"}
