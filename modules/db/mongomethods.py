@@ -178,7 +178,7 @@ def user_mentions_map_reduce(client, db_name, subset, output_name):
     frequency = []
     dbo = client[db_name]
     cursor = dbo[subset].map_reduce(
-        map_function, reduce_function, output_name)
+        map_function, reduce_function, output_name, query={"lang": {"$eq": "en"}})
 
     for document in cursor.find():
         frequency.append({"_id": document["_id"], "value": document["value"]})
@@ -216,7 +216,7 @@ def hashtag_map_reduce(client, db_name, subset, output_name):
     frequency = []
     dbo = client[db_name]
     cursor = dbo[subset].map_reduce(
-        map_function, reduce_function, output_name)
+        map_function, reduce_function, output_name, query={"lang": {"$eq": "en"}})
 
     for document in cursor.find():
         frequency.append({"_id": document["_id"], "value": document["value"]})
@@ -351,7 +351,7 @@ def parse_undefined_lang(client, db_name, subset, lang):
 
 
 @fileops.do_cprofile
-def keyword_search(client, db_name, keyword_list):
+def keyword_search(client, db_name, keyword_list, lang_list):
     """Perform a text search with the provided keywords.
     We also preprocess the tweet text in order to avoid redundant operations.
     Outputs value to new collection.
@@ -360,13 +360,13 @@ def keyword_search(client, db_name, keyword_list):
         client          (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name         (str):  Name of database to query.
         keyword_list    (list): List of keywords to search for.
+        lang_list       (list): List of languages to match on.
     """
 
     # Store the documents for our bulkwrite
     operations = []
     # Keep track of the tweets that we have already seen, keep distinct.
     seen_set = set()
-    lang_list = ['en']
     dbo = client[db_name]
     for search_query in keyword_list:
         # Run an aggregate search for each keyword, might get better performance
@@ -374,7 +374,8 @@ def keyword_search(client, db_name, keyword_list):
         pipeline = [
             {"$match": {"$and": [{"$text": {"$search": search_query}},
                                  {"id_str": {"$nin": list(seen_set)}},
-                                 {"lang": {"$in": lang_list}}]}},
+                                 {"lang": {"$in": lang_list}},
+                                 {"retweet_count": 0}]}},
             {"$project": {"_id": 1, "id_str": 1, "text": 1, "id": 1, "timestamp": 1, "retweeted": 1,
                           "lang": 1, "user.id_str": 1, "user.screen_name": 1, "user.location": 1}},
             {"$out": "temp_set"}
@@ -388,16 +389,20 @@ def keyword_search(client, db_name, keyword_list):
         for document in entities:
             seen_set.add(document["id_str"])
             # Create a new field and add the preprocessed text to it
-            document["vector"] = fileops.preprocess_text(document["text"])
-            operations.append(InsertOne(document))
+            operations.append(document)
+
+            # document["vector"] = fileops.preprocess_text(document["text"])
+            # operations.append(InsertOne(document))
 
             # Send once every 1000 in batch
             if len(operations) == 1000:
+                operations = fileops.parallel_preprocess(operations)
                 dbo["keyword_subset"].bulk_write(operations, ordered=False)
                 operations = []
 
     if len(operations) > 0:
+        operations = fileops.parallel_preprocess(operations)
         dbo["keywords_subset"].bulk_write(operations, ordered=False)
 
     # Clean Up
-    dbo.temp_set.drop()
+    dbo["temp_set"].drop()

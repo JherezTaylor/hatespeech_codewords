@@ -15,11 +15,14 @@ import glob
 import cProfile
 from time import time
 from collections import OrderedDict
+import multiprocessing
 from modules.utils import constants
 from modules.utils import twokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from textblob import TextBlob
+from joblib import Parallel, delayed
+from pymongo import InsertOne
 
 
 def unicode_to_utf(unicode_list):
@@ -315,7 +318,7 @@ def parse_category_files():
 
 
 def preprocess_text(raw_text):
-    """Preprocessing pipeline for Tweet body.
+    """Preprocessing pipeline for raw text.
     Tokenize, lemmatize and remove stopwords.
     Args:
         raw_text  (str): String to preprocess.
@@ -324,11 +327,14 @@ def preprocess_text(raw_text):
         list: vectorized tweet.
     """
     punctuation = list(string.punctuation)
-    stop_list = stopwords.words("english") + punctuation + ["rt", "via"]
+    stop_list = stopwords.words("english") + punctuation + ["rt", "via", "RT"]
 
     # Remove urls
-    clean_text = re.sub(r"(?:http?\://)\S+", "", raw_text)
+    clean_text = re.sub(
+        r"(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?", "", raw_text)
     clean_text = twokenize.tokenize(clean_text)
+
+    # Remove numbers
     clean_text = [token for token in clean_text if len(
         token.strip(string.digits)) == len(token)]
 
@@ -338,13 +344,82 @@ def preprocess_text(raw_text):
     # unigrams = [ w for doc in documents for w in doc if len(w)==1]
     # bigrams  = [ w for doc in documents for w in doc if len(w)==2]
 
-    hashtags_only = [token for token in terms_single if token.startswith("#")]
-    user_mentions_only = [
-        token for token in clean_text if token.startswith("@")]
+    hashtags_only = []
+    user_mentions_only = []
+    terms_only = []
 
-    terms_single = [
-        token for token in terms_single if token not in stop_list
-        and not token.startswith(("#", "@"))]
+    for token in terms_single:
+        if token.startswith("#"):
+            hashtags_only.append(token)
+
+        if token.startswith("@"):
+            user_mentions_only.append(token)
+
+        if not token.startswith(("#", "@")) and token not in stop_list:
+            terms_only.append(token)
+
+    sentiment = TextBlob(raw_text).sentiment
+    return {"hashtags": hashtags_only, "user_mentions": user_mentions_only,
+            "tokens": terms_only, "sentiment": list(sentiment)}
+
+
+def preprocess_tweet(tweet_obj):
+    """Preprocessing pipeline for Tweet body.
+    Tokenize, lemmatize and remove stopwords.
+    Args:
+        tweet_obj  (json_obj): Tweet to preprocess.
+
+    Returns:
+        json_obj: Tweet with vectorized text appended.
+    """
+    punctuation = list(string.punctuation)
+    stop_list = stopwords.words("english") + punctuation + ["rt", "via", "RT"]
+
+    # Remove urls
+    clean_text = clean_text = re.sub(
+        r"(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?", "", tweet_obj["text"])
+    clean_text = twokenize.tokenize(clean_text)
+
+    # Remove numbers
+    clean_text = [token for token in clean_text if len(
+        token.strip(string.digits)) == len(token)]
+
+    # Record single instances of a term only
+    terms_single = set(clean_text)
+
+    # unigrams = [ w for doc in documents for w in doc if len(w)==1]
+    # bigrams  = [ w for doc in documents for w in doc if len(w)==2]
+
+    hashtags_only = []
+    user_mentions_only = []
+    terms_only = []
+
+    for token in terms_single:
+        if token.startswith("#"):
+            hashtags_only.append(token)
+
+        if token.startswith("@"):
+            user_mentions_only.append(token)
+
+        if not token.startswith(("#", "@")) and token not in stop_list:
+            terms_only.append(token)
 
     sentiment = TextBlob(str(terms_single)).sentiment
-    return hashtags_only, user_mentions_only, terms_single, list(sentiment)
+    tweet_obj["vector"] = {"hashtags": hashtags_only, "user_mentions": user_mentions_only,
+                           "tokens": terms_only, "sentiment": list(sentiment)}
+
+    return InsertOne(tweet_obj)
+
+
+def parallel_preprocess(tweet_list):
+    """Passes the incoming raw tweets to our preprocessing function.
+    Args:
+        tweet_list (list): List of raw tweet texts to preprocess.
+
+    Returns:
+        list: List of vectorized tweets.
+    """
+    num_cores = multiprocessing.cpu_count()
+    results = Parallel(n_jobs=num_cores)(
+        delayed(preprocess_tweet)(tweet) for tweet in tweet_list)
+    return results
