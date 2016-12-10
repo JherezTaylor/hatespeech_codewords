@@ -274,7 +274,8 @@ def subset_object_ids(client, db_name, subset, lang_list, output_name):
 @fileops.do_cprofile
 def filter_by_language(client, db_name, subset, lang_list, output_name):
     """Aggregation pipeline to remove tweets with a lang field not in
-    lang_list.
+    lang_list. This should ideally be run directly through mongo shell
+    for large collections.
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
@@ -299,15 +300,20 @@ def filter_by_language(client, db_name, subset, lang_list, output_name):
         {"$project": {"ids": 1}}
     ]
     cursor = dbo[subset].aggregate(pipeline, allowDiskUse=True)
+    print "Finished aggregation. Iterating now"
+
     for document in cursor:
         bulk.find({"_id": {"$in": document["ids"]}}).remove()
         count = count + 1
+        print "Count:", count
 
         if count % 1000 == 0:
+            print "Running bulk execute"
             bulk.execute()
-            bulk = dbo[subset].initializeOrderedBulkOp()
+            bulk = dbo[subset].initialize_unordered_bulk_op()
 
     if count % 1000 != 0:
+        print "Running bulk execute"
         bulk.execute()
 
     pipeline = [
