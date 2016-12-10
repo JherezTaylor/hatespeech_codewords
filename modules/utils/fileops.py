@@ -379,7 +379,7 @@ def preprocess_tweet(tweet_obj):
     clean_text = clean_text = re.sub(
         r"(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?", "", tweet_obj["text"])
     clean_text = twokenize.tokenize(clean_text)
-
+    
     # Remove numbers
     clean_text = [token for token in clean_text if len(
         token.strip(string.digits)) == len(token)]
@@ -408,6 +408,7 @@ def preprocess_tweet(tweet_obj):
     tweet_obj["vector"] = {"hashtags": hashtags_only, "user_mentions": user_mentions_only,
                            "tokens": terms_only, "sentiment": list(sentiment)}
 
+    print hashtags_only
     return InsertOne(tweet_obj)
 
 

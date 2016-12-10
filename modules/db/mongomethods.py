@@ -33,27 +33,29 @@ def connect():
     return conn
 
 
-def get_language_list(client, db_name):
+def get_language_list(client, db_name, subset):
     """Returns a list of all the matching languages within the collection
      Args:
         client  (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name (str): Name of database to query.
+        subset  (str): Name of collection to use.
 
     Returns:
         list: List of languages within the twitter collection.
     """
     dbo = client[db_name]
-    distinct_lang = dbo.tweets.distinct("lang")
+    distinct_lang = dbo[subset].distinct("lang")
     return fileops.unicode_to_utf(distinct_lang)
 
 
-def get_language_distribution(client, db_name, lang_list):
+def get_language_distribution(client, db_name, subset, lang_list):
     """Returns the distribution of tweets matching either
     english, undefined or spanish.
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str):  Name of database to query.
+        subset      (str): Name of collection to use.
         lang_list   (list): List of languages to match on.
 
     Returns:
@@ -67,10 +69,10 @@ def get_language_distribution(client, db_name, lang_list):
         {"$project": {"language": "$_id", "count": 1, "_id": 0}},
         {"$sort": SON([("count", -1), ("language", -1)])}
     ]
-    return dbo.tweets.aggregate(pipeline)
+    return dbo[subset].aggregate(pipeline)
 
 
-def create_lang_subset(client, db_name, lang):
+def create_lang_subset(client, db_name, subset, lang):
     """Subsets the collection by the specified language.
     Outputs value to new collection
 
@@ -86,7 +88,7 @@ def create_lang_subset(client, db_name, lang):
         {"$match": {"lang": lang}},
         {"$out": "subset_" + lang}
     ]
-    dbo.tweets.aggregate(pipeline)
+    dbo[subset].aggregate(pipeline)
 
 
 def get_top_k_users(client, db_name, lang_list, k_filter, limit):
@@ -241,18 +243,16 @@ def get_hashtag_collection(client, db_name, subset):
     fileops.write_json_file(subset, constants.DATA_PATH, list(cursor))
 
 
-def filter_object_ids(client, db_name, subset, lang_list, output_name):
-    """Aggregation pipeline to filter object ids based on the provided condition
+def subset_object_ids(client, db_name, subset, lang_list, output_name):
+    """Aggregation pipeline to create a collection of
+    object ids based on the lang field.
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
         subset      (str): Name of collection to use.
         lang_list   (list): List of languages to match on.
-        output_name (str): Name of the collection to output to.
-
-    Returns:
-        list: List of objects containing _id and the frequency of appearance.
+        output_name (str): Name of the json file to output to.
     """
 
     dbo = client[db_name]
@@ -269,6 +269,52 @@ def filter_object_ids(client, db_name, subset, lang_list, output_name):
         result.append(str(document["_id"]))
 
     fileops.write_json_file(output_name, constants.DATA_PATH, result)
+
+
+@fileops.do_cprofile
+def filter_by_language(client, db_name, subset, lang_list, output_name):
+    """Aggregation pipeline to remove tweets with a lang field not in
+    lang_list.
+
+    Args:
+        client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+        db_name     (str): Name of database to query.
+        subset      (str): Name of collection to use.
+        lang_list   (list): List of languages to match on.
+        output_name (str): Name of the collection to store ids of non removed tweets.
+    """
+    dbo = client[db_name]
+    bulk = dbo[subset].initialize_unordered_bulk_op()
+    count = 0
+
+    pipeline = [
+        {"$match": {"lang": {"$nin": lang_list}}},
+        {"$project": {"lang": 1, "_id": 1}},
+        {"$group": {
+            "_id": {
+                "lang": "$lang",
+            },
+            "ids": {"$push": "$_id"}
+        }},
+        {"$project": {"ids": 1}}
+    ]
+    cursor = dbo[subset].aggregate(pipeline, allowDiskUse=True)
+    for document in cursor:
+        bulk.find({"_id": {"$in": document["ids"]}}).remove()
+        count = count + 1
+
+        if count % 1000 == 0:
+            bulk.execute()
+            bulk = dbo[subset].initializeOrderedBulkOp()
+
+    if count % 1000 != 0:
+        bulk.execute()
+
+    pipeline = [
+        {"$project": {"_id": 1}},
+        {"$out": output_name}
+    ]
+    dbo[subset].aggregate(pipeline, allowDiskUse=True)
 
 
 def find_by_object_id(client, db_name, subset, object_id):

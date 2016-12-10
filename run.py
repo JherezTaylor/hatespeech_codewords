@@ -30,7 +30,7 @@ def test_file_operations():
     print res2
 
 
-def test_get_language_subset(client):
+def test_get_language_subset(client, subset):
     """Test and print the results of aggregation
     Constrains language list to en, und, es.
 
@@ -39,21 +39,21 @@ def test_get_language_subset(client):
     """
     lang_list = ["en", "und", "es"]
     cursor = mongomethods.get_language_distribution(
-        client, "twitter", lang_list)
+        client, "twitter", subset, lang_list)
     for document in cursor:
         print document
 
 
 @fileops.do_cprofile
-def test_get_language_distribution(client):
+def test_get_language_distribution(client, subset):
     """Test and print results of aggregation
 
     Args:
         client (pymongo.MongoClient): Connection object for Mongo DB_URL.
     """
-    lang_list = mongomethods.get_language_list(client, "twitter")
+    lang_list = mongomethods.get_language_list(client, "twitter", subset)
     cursor = mongomethods.get_language_distribution(
-        client, "twitter", lang_list)
+        client, "twitter", subset, lang_list)
     fileops.write_json_file("language_distribution",
                             constants.DATA_PATH, list(cursor))
 
@@ -99,23 +99,24 @@ def main():
     """
 
     client = mongomethods.connect()
-    mongomethods.keyword_search(
-        client, "twitter", fileops.parse_category_files(), ['en', 'und'])
+    # mongomethods.keyword_search(
+    #     client, "twitter", fileops.parse_category_files(), ['en', 'und'])
+    # print mongomethods.finder(client, "twitter", "subset_ru", 1)
+    mongomethods.filter_by_language(client, "twitter", "tweets", ["en", "und", "es"], "lang_obj_ids")
 
 if __name__ == "__main__":
     main()
 
+    # test_get_language_distribution(client)
     # fileops.filter_hatebase_categories()
     # generate_bar_chart()
     # mongomethods.parse_undefined_lang(client, "twitter", "und_backup", "und")
     # test_file_operations()
-    # test_get_language_distribution(client)
     # test_get_language_subset(client)
 
     # mongomethods.filter_object_ids(client, "twitter", "tweets", ["und"], "subset_objectId")
     # mongomethods.create_lang_subset(client, "twitter", "ru")
     # mongomethods.get_hashtag_collection(client, "twitter", "hashtag_dist_und")
-    # mongomethods.find_one(client, "twitter", "subset_objectId")
 
     # user_mentions_map_reduce(client, "twitter", "subset_ru")
     # hashtag_map_reduce(client, "twitter", "subset_ru", "hashtag_ru")
