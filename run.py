@@ -102,7 +102,8 @@ def main():
     # mongomethods.keyword_search(
     #     client, "twitter", fileops.parse_category_files(), ['en', 'und'])
     # print mongomethods.finder(client, "twitter", "subset_ru", 1)
-    mongomethods.filter_by_language(client, "twitter", "ru_backup", ["en", "und", "es"], "lang_obj_ids")
+    mongomethods.subset_object_ids(client, "twitter", "tweets", ['en', 'und'], "subset_object_id")
+    # mongomethods.filter_by_language(client, "twitter", "ru_backup", ["en", "und", "es"], "lang_obj_ids")
 
 if __name__ == "__main__":
     main()
