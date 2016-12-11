@@ -4,3 +4,4 @@ nltk
 textblob
 plotly
 joblib
+ujson
