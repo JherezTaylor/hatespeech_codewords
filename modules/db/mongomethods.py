@@ -271,9 +271,8 @@ def subset_object_ids(client, db_name, subset, lang_list, output_name):
     fileops.write_json_file(output_name, constants.DATA_PATH, result)
 
 
-@fileops.do_cprofile
 def filter_by_language(client, db_name, subset, lang_list, output_name):
-    """Aggregation pipeline to remove tweets with a lang field not in
+    """Bulk operation to remove tweets with a lang field not in
     lang_list. This should ideally be run directly through mongo shell
     for large collections.
 
@@ -286,43 +285,16 @@ def filter_by_language(client, db_name, subset, lang_list, output_name):
     """
     dbo = client[db_name]
     bulk = dbo[subset].initialize_unordered_bulk_op()
-    count = 0
 
-    pipeline = [
-        {"$match": {"lang": {"$nin": lang_list}}},
-        {"$project": {"lang": 1, "_id": 1}},
-        {"$group": {
-            "_id": {
-                "lang": "$lang",
-            },
-            "ids": {"$push": "$_id"}
-        }},
-        {"$project": {"ids": 1}}
-    ]
-    cursor = dbo[subset].aggregate(pipeline, allowDiskUse=True)
-    print "Finished aggregation. Iterating now"
+    bulk.find({"lang": {"$nin": lang_list}}).remove()
+    result = bulk.execute()
+    print "Finished remove operation"
+    pprint(result)
 
-    for document in cursor:
-        bulk.find({"_id": {"$in": document["ids"]}}).remove()
-        count = count + 1
-        print "Count:", count
-
-        if count % 1000 == 0:
-            print "Running bulk execute"
-            bulk.execute()
-            bulk = dbo[subset].initialize_unordered_bulk_op()
-
-    if count % 1000 != 0:
-        print "Running bulk execute"
-        bulk.execute()
-
-    pipeline = [
-        {"$project": {"_id": 1}},
-        {"$out": output_name}
-    ]
-    dbo[subset].aggregate(pipeline, allowDiskUse=True)
+    subset_object_ids(client, db_name, subset, lang_list, output_name)
 
 
+@fileops.do_cprofile
 def find_by_object_id(client, db_name, subset, object_id):
     """Fetches the specified object from the specified collection
 
@@ -458,3 +430,56 @@ def keyword_search(client, db_name, keyword_list, lang_list):
 
     # Clean Up
     dbo["temp_set"].drop()
+
+
+## DEPRECATED ##
+
+# def filter_by_language(client, db_name, subset, lang_list, output_name):
+#     """Aggregation pipeline to remove tweets with a lang field not in
+#     lang_list. This should ideally be run directly through mongo shell
+#     for large collections.
+
+#     Args:
+#         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+#         db_name     (str): Name of database to query.
+#         subset      (str): Name of collection to use.
+#         lang_list   (list): List of languages to match on.
+#         output_name (str): Name of the collection to store ids of non removed tweets.
+#     """
+#     dbo = client[db_name]
+#     bulk = dbo[subset].initialize_unordered_bulk_op()
+#     count = 0
+
+#     pipeline = [
+#         {"$match": {"lang": {"$nin": lang_list}}},
+#         {"$project": {"lang": 1, "_id": 1}},
+#         {"$group": {
+#             "_id": {
+#                 "lang": "$lang",
+#             },
+#             "ids": {"$push": "$_id"}
+#         }},
+#         {"$project": {"ids": 1}}
+#     ]
+#     cursor = dbo[subset].aggregate(pipeline, allowDiskUse=True)
+#     print "Finished aggregation. Iterating now"
+
+#     for document in cursor:
+#         bulk.find({"_id": {"$in": document["ids"]}}).remove()
+#         count = count + 1
+#         print "Count:", count
+
+#         if count % 1000 == 0:
+#             print "Running bulk execute"
+#             bulk.execute()
+#             bulk = dbo[subset].initialize_unordered_bulk_op()
+
+#     if count % 1000 != 0:
+#         print "Running bulk execute"
+#         bulk.execute()
+
+#     pipeline = [
+#         {"$project": {"_id": 1}},
+#         {"$out": output_name}
+#     ]
+#     dbo[subset].aggregate(pipeline, allowDiskUse=True)
