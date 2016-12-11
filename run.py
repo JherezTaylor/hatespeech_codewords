@@ -97,12 +97,16 @@ def main():
     """
     Test functionality
     """
+    data = fileops.read_json_file('filter1_subset', constants.DATA_PATH)
+    print data[0]
+    # print data
 
-    client = mongomethods.connect()
+
+    # client = mongomethods.connect()
     # mongomethods.keyword_search(
     #     client, "twitter", fileops.parse_category_files(), ['en', 'und'])
     # print mongomethods.finder(client, "twitter", "subset_ru", 1)
-    mongomethods.subset_object_ids(client, "twitter", "tweets", ['en', 'und'], "subset_object_id")
+    # mongomethods.subset_object_ids(client, "twitter", "tweets", ['en', 'und'], "subset_object_id")
     # mongomethods.filter_by_language(client, "twitter", "ru_backup", ["en", "und", "es"], "lang_obj_ids")
 
 if __name__ == "__main__":

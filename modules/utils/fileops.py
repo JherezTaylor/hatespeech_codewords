@@ -10,12 +10,12 @@ import os
 import re
 import csv
 import string
-import json
-import glob
-import cProfile
 from time import time
 from collections import OrderedDict
 import multiprocessing
+import glob
+import cProfile
+import ujson
 from modules.utils import constants
 from modules.utils import twokenize
 from nltk.corpus import stopwords
@@ -130,7 +130,7 @@ def get_filenames(directory):
         result.append(str(name))
     return result
 
-
+@do_cprofile
 def read_json_file(filename, path):
     """Accepts a file name and loads it as a json object.
     Args:
@@ -144,7 +144,7 @@ def read_json_file(filename, path):
     result = []
     try:
         with open(path + filename + ".json", "r") as entry:
-            result = json.load(entry)
+            result = ujson.load(entry)
     except IOError as ex:
         print "I/O error({0}): {1}".format(ex.errno, ex.strerror)
     else:
@@ -160,7 +160,7 @@ def write_json_file(filename, path, result):
     """
 
     with open(path + filename + ".json", "w+") as json_file:
-        json.dump(result, json_file)
+        ujson.dump(result, json_file)
     json_file.close()
 
 
