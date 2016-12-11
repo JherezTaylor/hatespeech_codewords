@@ -1,5 +1,7 @@
 // Remove unwanted languages
-lang_list = ['en', 'und'];
+// lang_list = ['en', 'und'];
+lang_list = ['en', 'und', 'es', 'ru', 'pt', 'it', 'ja', 'fr', 'de', 'ar', 'zh'];
+
 
 db.tweets.bulkWrite(
     [
@@ -123,7 +125,7 @@ db.tweets.bulkWrite(
             {
                 "filter": {},
                 "update": {
-                    $unset: {contributors: "", truncated: "","retweet_count": "", retweeted: "", display_text_range: "", 
+                    $unset: {contributors: "", truncated: "",retweet_count: "", retweeted: "", display_text_range: "", 
                         retweeted_status: "", extended_entities:"",
                         entities: "", favorited: "", id: "", "user.follow_request_sent": "",
                         "user.profile_use_background_image": "", "user.default_profile_image": "",
@@ -134,7 +136,8 @@ db.tweets.bulkWrite(
                         "user.profile_link_color": "","user.profile_image_url": "",
                         "user.profile_background_image_url": "","user.profile_background_tile": "",
                         "user.notifications": "","user.default_profile": "",
-                        "user.is_translator": ""
+                        "user.is_translator": "", in_reply_to_status_id: "", in_reply_to_user_id:"",
+                        quoted_status:"", extended_tweet:""
 
                     },
                     $set: {"preprocessed": true}
