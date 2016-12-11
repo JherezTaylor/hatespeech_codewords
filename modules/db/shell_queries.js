@@ -92,6 +92,29 @@ db.tweets.aggregate([
 if ( count % 1000 != 0 ) 
     bulk.execute();
 
+// Find and compress entities.media
+var bulk = db.tweets.initializeOrderedBulkOp(),
+    count = 0;
+    
+db.tweets.aggregate([
+    {$project: {"entities.media": 1, _id:1}},
+    {$unwind:"$entities.media"},
+    {$group:{_id:'$_id', media:{$push:{"url": "$entities.media.media_url", "type": "$entities.media.type"}} }}
+],{ "allowDiskUse": true}).forEach(function(doc) {
+    bulk.find({ "_id": doc._id } ).update({$unset: {"entities.media": ""}, $set: {"media" : doc.media}}); 
+    count++;
+
+    // Execute 1 in 1000 and re-init
+    if ( count % 1000 == 0 ) {
+       bulk.execute();
+       bulk = db.tweets.initializeOrderedBulkOp();
+    }
+});
+
+if ( count % 1000 != 0 ) 
+    bulk.execute();
+
+
 
 // Remove unwanted fields
 db.tweets.bulkWrite(
@@ -102,8 +125,8 @@ db.tweets.bulkWrite(
                 "filter": {},
                 "update": {
                     $unset: {contributors: "", truncated: "","retweet_count": "", retweeted: "", display_text_range: "", 
-                        retweeted_status: "",
-                        "entities": "", favorited: "", id: "", "user.follow_request_sent": "",
+                        retweeted_status: "", extended_entities:"",
+                        entities: "", favorited: "", id: "", "user.follow_request_sent": "",
                         "user.profile_use_background_image": "", "user.default_profile_image": "",
                         "user.profile_sidebar_fill_color": "","user.profile_image_url_https": "",
                         "user.profile_sidebar_border_color": "","user.profile_text_color": "",
@@ -114,7 +137,8 @@ db.tweets.bulkWrite(
                         "user.notifications": "","user.default_profile": "",
                         "user.is_translator": ""
 
-                    }
+                    },
+                    $set: {"preprocessed": true}
                 },
                 "upsert": false
             }
