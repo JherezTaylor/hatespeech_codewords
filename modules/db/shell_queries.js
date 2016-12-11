@@ -32,6 +32,7 @@ var bulk = db.tweets.initializeOrderedBulkOp(),
     count = 0;
 
 db.tweets.aggregate([
+    {$project: {"entities.urls": 1, _id:1}},
     {$unwind:"$entities.urls"},
     {$group:{_id:'$_id',urls:{$addToSet:'$entities.urls.expanded_url'}}}
 ],{ "allowDiskUse": true}).forEach(function(doc) {
@@ -114,8 +115,6 @@ db.tweets.aggregate([
 if ( count % 1000 != 0 ) 
     bulk.execute();
 
-
-
 // Remove unwanted fields
 db.tweets.bulkWrite(
     [
@@ -146,6 +145,7 @@ db.tweets.bulkWrite(
     ],
     { ordered: false }
 )
+
 db.tweets.find({$text: {$search:"trump"}}).limit(5)
 db.tweets.count({"lang":"en"})
 db.tweets.distinct("lang")
