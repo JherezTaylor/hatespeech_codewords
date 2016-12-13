@@ -16,7 +16,7 @@ from bson.son import SON
 from bson.code import Code
 from bson.objectid import ObjectId
 from modules.utils import constants
-from modules.utils import fileops
+from modules.utils import file_ops
 
 
 def connect():
@@ -45,7 +45,7 @@ def get_language_list(client, db_name, subset):
     """
     dbo = client[db_name]
     distinct_lang = dbo[subset].distinct("lang")
-    return fileops.unicode_to_utf(distinct_lang)
+    return file_ops.unicode_to_utf(distinct_lang)
 
 
 def get_language_distribution(client, db_name, subset, lang_list):
@@ -186,7 +186,7 @@ def user_mentions_map_reduce(client, db_name, subset, output_name):
         frequency.append({"_id": document["_id"], "value": document["value"]})
 
     frequency = sorted(frequency, key=lambda k: k["value"], reverse=True)
-    fileops.write_json_file("user_distribution_mr",
+    file_ops.write_json_file("user_distribution_mr",
                             constants.DATA_PATH, frequency)
     pprint(frequency)
 
@@ -224,7 +224,7 @@ def hashtag_map_reduce(client, db_name, subset, output_name):
         frequency.append({"_id": document["_id"], "value": document["value"]})
 
     frequency = sorted(frequency, key=lambda k: k["value"], reverse=True)
-    fileops.write_json_file("hashtag_distribution_mr",
+    file_ops.write_json_file("hashtag_distribution_mr",
                             constants.DATA_PATH, frequency)
     pprint(frequency)
 
@@ -240,7 +240,7 @@ def get_hashtag_collection(client, db_name, subset):
     dbo = client[db_name]
     cursor = dbo[subset].find({"count": {"$gt": 500}}, {
                               "hashtag": 1, "count": 1, "_id": 0})
-    fileops.write_json_file(subset, constants.DATA_PATH, list(cursor))
+    file_ops.write_json_file(subset, constants.DATA_PATH, list(cursor))
 
 
 def subset_object_ids(client, db_name, subset, lang_list, output_name):
@@ -268,7 +268,7 @@ def subset_object_ids(client, db_name, subset, lang_list, output_name):
     for document in cursor:
         result.append(str(document["_id"]))
 
-    fileops.write_json_file(output_name, constants.DATA_PATH, result)
+    file_ops.write_json_file(output_name, constants.DATA_PATH, result)
 
 
 def filter_by_language(client, db_name, subset, lang_list, output_name):
@@ -294,7 +294,7 @@ def filter_by_language(client, db_name, subset, lang_list, output_name):
     subset_object_ids(client, db_name, subset, lang_list, output_name)
 
 
-@fileops.do_cprofile
+@file_ops.do_cprofile
 def find_by_object_id(client, db_name, subset, object_id):
     """Fetches the specified object from the specified collection
 
@@ -325,7 +325,7 @@ def finder(client, db_name, subset, k_items):
         pprint(str(document["_id"]))
 
 
-@fileops.do_cprofile
+@file_ops.do_cprofile
 def parse_undefined_lang(client, db_name, subset, lang):
     """Parse the text of each tweet and identify and update its language
     Be careful when using this, most of the tweets marked as und are composed
@@ -374,7 +374,7 @@ def parse_undefined_lang(client, db_name, subset, lang):
     print reduce(lambda x, y: x + y, accuracy) / len(accuracy)
 
 
-@fileops.do_cprofile
+@file_ops.do_cprofile
 def keyword_search(client, db_name, keyword_list, lang_list):
     """Perform a text search with the provided keywords.
     We also preprocess the tweet text in order to avoid redundant operations.
@@ -415,17 +415,17 @@ def keyword_search(client, db_name, keyword_list, lang_list):
             # Create a new field and add the preprocessed text to it
             operations.append(document)
 
-            # document["vector"] = fileops.preprocess_text(document["text"])
+            # document["vector"] = file_ops.preprocess_text(document["text"])
             # operations.append(InsertOne(document))
 
             # Send once every 1000 in batch
             if len(operations) == 1000:
-                operations = fileops.parallel_preprocess(operations)
+                operations = file_ops.parallel_preprocess(operations)
                 dbo["keyword_subset"].bulk_write(operations, ordered=False)
                 operations = []
 
     if len(operations) > 0:
-        operations = fileops.parallel_preprocess(operations)
+        operations = file_ops.parallel_preprocess(operations)
         dbo["keywords_subset"].bulk_write(operations, ordered=False)
 
     # Clean Up
