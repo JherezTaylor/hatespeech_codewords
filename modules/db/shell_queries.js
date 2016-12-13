@@ -36,8 +36,11 @@ var bulk = db.tweets.initializeOrderedBulkOp(),
 db.tweets.aggregate([
     {$project: {"entities.urls": 1, _id:1}},
     {$unwind:"$entities.urls"},
-    {$group:{_id:'$_id',urls:{$addToSet:'$entities.urls.expanded_url'}}}
-],{ "allowDiskUse": true}).forEach(function(doc) {
+    {$group:{_id:'$_id',urls:{$addToSet:'$entities.urls.expanded_url'}}},
+    {"$out": "temp_urls"}
+],{ "allowDiskUse": true});
+
+db.temp_urls.find({}).noCursorTimeout().forEach(function(doc) {
     bulk.find({ "_id": doc._id } ).update({$unset: {"entities.urls": ""}, $set: {"urls" : doc.urls}}); 
     count++;
 
@@ -58,8 +61,11 @@ var bulk = db.tweets.initializeOrderedBulkOp(),
 db.tweets.aggregate([
     {$project: {"entities.user_mentions": 1, _id:1}},
     {$unwind:"$entities.user_mentions"},
-    {$group:{_id:'$_id', user_mentions:{$addToSet:"$entities.user_mentions.screen_name"}, user_mentions_id_str:{$addToSet:"$entities.user_mentions.id_str"}}}
-],{ "allowDiskUse": true}).forEach(function(doc) {
+    {$group:{_id:'$_id', user_mentions:{$addToSet:"$entities.user_mentions.screen_name"}, user_mentions_id_str:{$addToSet:"$entities.user_mentions.id_str"}}},
+    {"$out": "temp_mentions"}
+],{ "allowDiskUse": true});
+
+db.temp_mentions.find({}).noCursorTimeout().forEach(function(doc) {
     bulk.find({ "_id": doc._id } ).update({$unset: {"entities.user_mentions": ""}, $set: {"user_mentions" : doc.user_mentions, "user_mentions_id_str" : doc.user_mentions_id_str}}); 
     count++;
 
@@ -80,8 +86,11 @@ var bulk = db.tweets.initializeOrderedBulkOp(),
 db.tweets.aggregate([
     {$project: {"entities.hashtags": 1, _id:1}},
     {$unwind:"$entities.hashtags"},
-    {$group:{_id:'$_id', hashtags:{$addToSet:"$entities.hashtags.text"} }}
-],{ "allowDiskUse": true}).forEach(function(doc) {
+    {$group:{_id:'$_id', hashtags:{$addToSet:"$entities.hashtags.text"} }},
+    {"$out": "temp_hashtags"}
+],{ "allowDiskUse": true});
+
+db.temp_hashtags.find({}).noCursorTimeout().forEach(function(doc) {
     bulk.find({ "_id": doc._id } ).update({$unset: {"entities.hashtags": ""}, $set: {"hashtags" : doc.hashtags}}); 
     count++;
 
@@ -102,8 +111,36 @@ var bulk = db.tweets.initializeOrderedBulkOp(),
 db.tweets.aggregate([
     {$project: {"entities.media": 1, _id:1}},
     {$unwind:"$entities.media"},
-    {$group:{_id:'$_id', media:{$push:{"url": "$entities.media.media_url", "type": "$entities.media.type"}} }}
-],{ "allowDiskUse": true}).forEach(function(doc) {
+    {$group:{_id:'$_id', media:{$push:{"url": "$entities.media.media_url", "type": "$entities.media.type"}} }},
+    {"$out": "temp_media"}
+],{ "allowDiskUse": true})
+
+db.temp_media.find({}).noCursorTimeout().forEach(function(doc) {
+    bulk.find({ "_id": doc._id } ).update({$unset: {"entities.media": ""}, $set: {"media" : doc.media}}); 
+    count++;
+
+    // Execute 1 in 1000 and re-init
+    if ( count % 1000 == 0 ) {
+       bulk.execute();
+       bulk = db.tweets.initializeOrderedBulkOp();
+    }
+});
+
+if ( count % 1000 != 0 ) 
+    bulk.execute();
+
+var bulk = db.tweets.initializeOrderedBulkOp(),
+    count = 0;
+
+// Find and compress user.entities
+db.tweets.aggregate([
+    {$project: {"user.entities": 1, _id:1}},
+    {$unwind:"$entities.media"},
+    {$group:{_id:'$_id', media:{$push:{"url": "$entities.media.media_url", "type": "$entities.media.type"}} }},
+    {"$out": "temp_media"}
+],{ "allowDiskUse": true})
+
+db.temp_media.find({}).noCursorTimeout().forEach(function(doc) {
     bulk.find({ "_id": doc._id } ).update({$unset: {"entities.media": ""}, $set: {"media" : doc.media}}); 
     count++;
 
