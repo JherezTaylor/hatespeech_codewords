@@ -33,103 +33,137 @@ def connect():
     return conn
 
 
-def get_language_list(client, db_name, subset):
-    """Returns a list of all the matching languages within the collection
+def get_language_list(connection_params):
+    """Fetches a list of all the languages within the collection.
+
      Args:
-        client  (pymongo.MongoClient): Connection object for Mongo DB_URL.
-        db_name (str): Name of database to query.
-        subset  (str): Name of collection to use.
+        connection_params (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
 
     Returns:
-        list: List of languages within the twitter collection.
+        list: List of languages within the tweet collection.
     """
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
     dbo = client[db_name]
-    distinct_lang = dbo[subset].distinct("lang")
+    distinct_lang = dbo[collection].distinct("lang")
     return file_ops.unicode_to_utf(distinct_lang)
 
 
-def get_language_distribution(client, db_name, subset, lang_list):
-    """Returns the distribution of tweets matching either
-    english, undefined or spanish.
+def get_language_distribution(connection_params, lang_list):
+    """Calculates the language distribution of tweets.
+
+    Matches on languages in the passed list.
 
     Args:
-        client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-        db_name     (str):  Name of database to query.
-        subset      (str): Name of collection to use.
+        connection_params (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+
         lang_list   (list): List of languages to match on.
 
     Returns:
-        list: Distribution for each language in lang_list.
+        list: A list of dicts with the distribution for each language in
+        lang_list. For example:
+
+        [ {"count": 2684813, "language": "es" } ]
     """
 
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
     dbo = client[db_name]
+
     pipeline = [
         {"$match": {"lang": {"$in": lang_list}}},
         {"$group": {"_id": "$lang", "count": {"$sum": 1}}},
         {"$project": {"language": "$_id", "count": 1, "_id": 0}},
-        {"$sort": SON([("count", -1), ("language", -1)])}
+        {"$sort": SON([("count", -1), ("language", -1)])},
+        {"$out": collection + "_lang_distribution"}
     ]
-    return dbo[subset].aggregate(pipeline)
+
+    dbo[collection].aggregate(pipeline)
+    return dbo[collection + "_lang_distribution"].find({}, {"count": 1, "language": 1, "_id": 0})
 
 
-def create_lang_subset(client, db_name, subset, lang):
-    """Subsets the collection by the specified language.
-    Outputs value to new collection
+def create_lang_collection(client, db_name, collection, lang):
+    """Creates a new collection with tweets filtered by the specified language.
+
+    Outputs result to new collection named after the collection arg.
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-        db_name     (str):  Name of database to query.
-        lang        (list): language to match on.
-
+        db_name     (str): Name of database to query.
+        collection  (str): Name of the collection to use.
+        lang        (str): Language to match on.
     """
 
     dbo = client[db_name]
     pipeline = [
         {"$match": {"lang": lang}},
-        {"$out": "subset_" + lang}
+        {"$out": "collection_" + lang}
     ]
-    dbo[subset].aggregate(pipeline)
+    dbo[collection].aggregate(pipeline)
 
 
-def get_top_k_users(client, db_name, lang_list, k_filter, limit):
+def get_top_k_users(client, db_name, collection, lang_list, field_name, k_limit):
     """Finds the top k users in the collection.
-    k_filter is the name of an array in the collection, we apply the $unwind operator to it
+
+    This function outputs the aggregated results to a new collection in the db. From this
+    we return the top k results.
+    field_name is the name of an array in the collection, we apply the $unwind operator to it
 
      Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str):  Name of database to query.
+        collection  (str):  Name of the collection to use.
         lang_list   (list): List of languages to match on.
-        k_filter    (str):  Name of an array in the collection.abs
-        limit       (int):  Limit for the number of results to return.
+        field_name  (str):  Name of an array in the tweet object.
+        k_limit     (int):  Limit for the number of results to return.
 
     Returns:
-        list: List of objects containing id_str, screen_name and the frequency of appearance.
+        list: List of dicts containing id_str, screen_name and the frequency of
+        appearance. For example:
+
+        [ {"count": 309, "id_str": "3407098175", "screen_name": "CharmsPRru" }]
     """
-    k_filter_base = k_filter
-    k_filter = "$" + k_filter
+
+    field_name_base = field_name
+    field_name = "$" + field_name
     dbo = client[db_name]
+
     pipeline = [
         {"$match": {"lang": {"$in": lang_list}}},
-        {"$project": {k_filter_base: 1, "_id": 0}},
-        {"$unwind": k_filter},
-        {"$group": {"_id": {"id_str": k_filter + ".id_str", "screen_name":
-                            k_filter + ".screen_name"}, "count": {"$sum": 1}}},
+        {"$project": {field_name_base: 1, "_id": 0}},
+        {"$unwind": field_name},
+        {"$group": {"_id": {"id_str": field_name + ".id_str", "screen_name":
+                            field_name + ".screen_name"}, "count": {"$sum": 1}}},
         {"$project": {"id_str": "$_id.id_str",
                       "screen_name": "$_id.screen_name", "count": 1, "_id": 0}},
-        {"$sort": SON([("count", -1), ("id_str", -1)])}
+        {"$sort": SON([("count", -1), ("id_str", -1)])},
+        {"$out": collection + "_top_k_users"}
     ]
-    return dbo.tweets.aggregate(pipeline, allowDiskUse=True)
+
+    dbo[collection].aggregate(pipeline, allowDiskUse=True)
+    dbo[collection + "_top_k_users"].find().limit(k_limit)
 
 
-def get_top_k_hashtags(client, db_name, lang_list, k_filter, limit, k_value):
+def get_top_k_hashtags(client, db_name, collection, lang_list, field_name, k_limit, k_value):
     """Finds the top k hashtags in the collection.
-    k_filter is the name of an array in the collection, we apply the $unwind operator to it
+    field_name is the name of an array in the collection, we apply the $unwind operator to it
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str):  Name of database to query.
         lang_list   (list): List of languages to match on.
-        k_filter    (str):  Name of an array in the collection.abs
+        field_name    (str):  Name of an array in the collection.abs
         limit       (int):  Limit for the number of results to return.
         k_value     (int):  Filter for the number of occurences for each hashtag
 
@@ -137,14 +171,14 @@ def get_top_k_hashtags(client, db_name, lang_list, k_filter, limit, k_value):
         list: List of objects containing _id, hashtag text and the frequency of appearance.
     """
 
-    k_filter_base = k_filter
-    k_filter = "$" + k_filter
+    field_name_base = field_name
+    field_name = "$" + field_name
     dbo = client[db_name]
     pipeline = [
         {"$match": {"lang": {"$in": lang_list}}},
-        {"$project": {k_filter_base: 1, "_id": 0}},
-        {"$unwind": k_filter},
-        {"$group": {"_id": k_filter + ".text", "count": {"$sum": 1}}},
+        {"$project": {field_name_base: 1, "_id": 0}},
+        {"$unwind": field_name},
+        {"$group": {"_id": field_name + ".text", "count": {"$sum": 1}}},
         {"$project": {"hashtag": "$_id", "count": 1, "_id": 0}},
         {"$sort": SON([("count", -1), ("_id", -1)])},
         {"$match": {"count": {"$gt": k_value}}},
@@ -153,13 +187,13 @@ def get_top_k_hashtags(client, db_name, lang_list, k_filter, limit, k_value):
     return dbo.tweets.aggregate(pipeline)
 
 
-def user_mentions_map_reduce(client, db_name, subset, output_name):
+def user_mentions_map_reduce(client, db_name, collection, output_name):
     """Map reduce that returns the number of times a user is mentioned
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
-        subset      (str): Name of collection to use.
+        collection      (str): Name of collection to use.
         output_name (str): Name of the collection to output to.
 
     Returns:
@@ -179,7 +213,7 @@ def user_mentions_map_reduce(client, db_name, subset, output_name):
                            "}")
     frequency = []
     dbo = client[db_name]
-    cursor = dbo[subset].map_reduce(
+    cursor = dbo[collection].map_reduce(
         map_function, reduce_function, output_name, query={"lang": {"$eq": "en"}})
 
     for document in cursor.find():
@@ -187,17 +221,17 @@ def user_mentions_map_reduce(client, db_name, subset, output_name):
 
     frequency = sorted(frequency, key=lambda k: k["value"], reverse=True)
     file_ops.write_json_file("user_distribution_mr",
-                            constants.DATA_PATH, frequency)
+                             constants.DATA_PATH, frequency)
     pprint(frequency)
 
 
-def hashtag_map_reduce(client, db_name, subset, output_name):
+def hashtag_map_reduce(client, db_name, collection, output_name):
     """Map reduce that returns the number of times a hashtag is used
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
-        subset      (str): Name of collection to use.
+        collection      (str): Name of collection to use.
         output_name (str): Name of the collection to output to.
 
     Returns:
@@ -217,7 +251,7 @@ def hashtag_map_reduce(client, db_name, subset, output_name):
                            "}")
     frequency = []
     dbo = client[db_name]
-    cursor = dbo[subset].map_reduce(
+    cursor = dbo[collection].map_reduce(
         map_function, reduce_function, output_name, query={"lang": {"$eq": "en"}})
 
     for document in cursor.find():
@@ -225,32 +259,32 @@ def hashtag_map_reduce(client, db_name, subset, output_name):
 
     frequency = sorted(frequency, key=lambda k: k["value"], reverse=True)
     file_ops.write_json_file("hashtag_distribution_mr",
-                            constants.DATA_PATH, frequency)
+                             constants.DATA_PATH, frequency)
     pprint(frequency)
 
 
-def get_hashtag_collection(client, db_name, subset):
+def get_hashtag_collection(client, db_name, collection):
     """Fetches the specified hashtag collection and writes it to a json file
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
-        subset      (str): Name of collection to use.
+        collection      (str): Name of collection to use.
     """
     dbo = client[db_name]
-    cursor = dbo[subset].find({"count": {"$gt": 500}}, {
-                              "hashtag": 1, "count": 1, "_id": 0})
-    file_ops.write_json_file(subset, constants.DATA_PATH, list(cursor))
+    cursor = dbo[collection].find({"count": {"$gt": 500}}, {
+        "hashtag": 1, "count": 1, "_id": 0})
+    file_ops.write_json_file(collection, constants.DATA_PATH, list(cursor))
 
 
-def subset_object_ids(client, db_name, subset, lang_list, output_name):
+def collection_object_ids(client, db_name, collection, lang_list, output_name):
     """Aggregation pipeline to create a collection of
     object ids based on the lang field.
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
-        subset      (str): Name of collection to use.
+        collection      (str): Name of collection to use.
         lang_list   (list): List of languages to match on.
         output_name (str): Name of the json file to output to.
     """
@@ -261,7 +295,7 @@ def subset_object_ids(client, db_name, subset, lang_list, output_name):
         {"$project": {"_id": 1}},
         {"$out": output_name}
     ]
-    dbo[subset].aggregate(pipeline, allowDiskUse=True)
+    dbo[collection].aggregate(pipeline, allowDiskUse=True)
 
     result = []
     cursor = dbo[output_name].find({})
@@ -271,7 +305,7 @@ def subset_object_ids(client, db_name, subset, lang_list, output_name):
     file_ops.write_json_file(output_name, constants.DATA_PATH, result)
 
 
-def filter_by_language(client, db_name, subset, lang_list, output_name):
+def filter_by_language(client, db_name, collection, lang_list, output_name):
     """Bulk operation to remove tweets with a lang field not in
     lang_list. This should ideally be run directly through mongo shell
     for large collections.
@@ -279,54 +313,54 @@ def filter_by_language(client, db_name, subset, lang_list, output_name):
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
-        subset      (str): Name of collection to use.
+        collection      (str): Name of collection to use.
         lang_list   (list): List of languages to match on.
         output_name (str): Name of the collection to store ids of non removed tweets.
     """
     dbo = client[db_name]
-    bulk = dbo[subset].initialize_unordered_bulk_op()
+    bulk = dbo[collection].initialize_unordered_bulk_op()
 
     bulk.find({"lang": {"$nin": lang_list}}).remove()
     result = bulk.execute()
     print "Finished remove operation"
     pprint(result)
 
-    subset_object_ids(client, db_name, subset, lang_list, output_name)
+    collection_object_ids(client, db_name, collection, lang_list, output_name)
 
 
 @file_ops.do_cprofile
-def find_by_object_id(client, db_name, subset, object_id):
+def find_by_object_id(client, db_name, collection, object_id):
     """Fetches the specified object from the specified collection
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
-        subset      (str): Name of collection to use.
+        collection      (str): Name of collection to use.
         object_id   (str): Object ID to fetch.
     """
     dbo = client[db_name]
-    cursor = dbo[subset].find({"_id": ObjectId(object_id)})
+    cursor = dbo[collection].find({"_id": ObjectId(object_id)})
     pprint(cursor["_id"])
 
 
-def finder(client, db_name, subset, k_items):
+def finder(client, db_name, collection, k_items):
     """Fetches k obects from the specified collection
 
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
-        subset      (str): Name of collection to use.
+        collection      (str): Name of collection to use.
         k_items     (int): Number of items to retrieve.
     """
     dbo = client[db_name]
-    cursor = dbo[subset].find().limit(k_items)
+    cursor = dbo[collection].find().limit(k_items)
     for document in cursor:
         pprint(document)
         pprint(str(document["_id"]))
 
 
 @file_ops.do_cprofile
-def parse_undefined_lang(client, db_name, subset, lang):
+def parse_undefined_lang(client, db_name, collection, lang):
     """Parse the text of each tweet and identify and update its language
     Be careful when using this, most of the tweets marked as und are composed
     mostly of links and hashtags, which might be useful. Also consider the confidence
@@ -335,7 +369,7 @@ def parse_undefined_lang(client, db_name, subset, lang):
     Args:
         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
         db_name     (str): Name of database to query.
-        subset      (str): Name of collection to use.
+        collection      (str): Name of collection to use.
         lang        (str): Language to match on.
     """
 
@@ -348,7 +382,7 @@ def parse_undefined_lang(client, db_name, subset, lang):
     lang_dist = []
     accuracy = []
 
-    for document in dbo[subset].find({"lang": lang}, no_cursor_timeout=True):
+    for document in dbo[collection].find({"lang": lang}, no_cursor_timeout=True):
 
         doclang = identifier.classify(document["text"])
         lang_dist.append(doclang[0])
@@ -361,14 +395,14 @@ def parse_undefined_lang(client, db_name, subset, lang):
             )
         # Send once every 1000 in batch
         if len(operations) == 1000:
-            dbo[subset].bulk_write(operations, ordered=False)
+            dbo[collection].bulk_write(operations, ordered=False)
             operations = []
 
         # if doclang[0] == "en" and doclang[1] >= 0.70:
         #     print document["text"]
 
     if len(operations) > 0:
-        dbo[subset].bulk_write(operations, ordered=False)
+        dbo[collection].bulk_write(operations, ordered=False)
 
     print Counter(lang_dist)
     print reduce(lambda x, y: x + y, accuracy) / len(accuracy)
@@ -421,12 +455,12 @@ def keyword_search(client, db_name, keyword_list, lang_list):
             # Send once every 1000 in batch
             if len(operations) == 1000:
                 operations = file_ops.parallel_preprocess(operations)
-                dbo["keyword_subset"].bulk_write(operations, ordered=False)
+                dbo["keyword_collection"].bulk_write(operations, ordered=False)
                 operations = []
 
     if len(operations) > 0:
         operations = file_ops.parallel_preprocess(operations)
-        dbo["keywords_subset"].bulk_write(operations, ordered=False)
+        dbo["keywords_collection"].bulk_write(operations, ordered=False)
 
     # Clean Up
     dbo["temp_set"].drop()
@@ -434,7 +468,7 @@ def keyword_search(client, db_name, keyword_list, lang_list):
 
 ## DEPRECATED ##
 
-# def filter_by_language(client, db_name, subset, lang_list, output_name):
+# def filter_by_language(client, db_name, collection, lang_list, output_name):
 #     """Aggregation pipeline to remove tweets with a lang field not in
 #     lang_list. This should ideally be run directly through mongo shell
 #     for large collections.
@@ -442,12 +476,12 @@ def keyword_search(client, db_name, keyword_list, lang_list):
 #     Args:
 #         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
 #         db_name     (str): Name of database to query.
-#         subset      (str): Name of collection to use.
+#         collection      (str): Name of collection to use.
 #         lang_list   (list): List of languages to match on.
 #         output_name (str): Name of the collection to store ids of non removed tweets.
 #     """
 #     dbo = client[db_name]
-#     bulk = dbo[subset].initialize_unordered_bulk_op()
+#     bulk = dbo[collection].initialize_unordered_bulk_op()
 #     count = 0
 
 #     pipeline = [
@@ -461,7 +495,7 @@ def keyword_search(client, db_name, keyword_list, lang_list):
 #         }},
 #         {"$project": {"ids": 1}}
 #     ]
-#     cursor = dbo[subset].aggregate(pipeline, allowDiskUse=True)
+#     cursor = dbo[collection].aggregate(pipeline, allowDiskUse=True)
 #     print "Finished aggregation. Iterating now"
 
 #     for document in cursor:
@@ -472,7 +506,7 @@ def keyword_search(client, db_name, keyword_list, lang_list):
 #         if count % 1000 == 0:
 #             print "Running bulk execute"
 #             bulk.execute()
-#             bulk = dbo[subset].initialize_unordered_bulk_op()
+#             bulk = dbo[collection].initialize_unordered_bulk_op()
 
 #     if count % 1000 != 0:
 #         print "Running bulk execute"
@@ -482,4 +516,4 @@ def keyword_search(client, db_name, keyword_list, lang_list):
 #         {"$project": {"_id": 1}},
 #         {"$out": output_name}
 #     ]
-#     dbo[subset].aggregate(pipeline, allowDiskUse=True)
+#     dbo[collection].aggregate(pipeline, allowDiskUse=True)

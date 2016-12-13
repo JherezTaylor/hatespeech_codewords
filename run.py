@@ -30,7 +30,7 @@ def test_file_operations():
     print res2
 
 
-def test_get_language_subset(client, subset):
+def test_get_language_collection(connection_params):
     """Test and print the results of aggregation
     Constrains language list to en, und, es.
 
@@ -39,23 +39,21 @@ def test_get_language_subset(client, subset):
     """
     lang_list = ["en", "und", "es"]
     cursor = mongo_methods.get_language_distribution(
-        client, "twitter", subset, lang_list)
+        connection_params, lang_list)
     for document in cursor:
         print document
 
 
 @file_ops.do_cprofile
-def test_get_language_distribution(client, subset):
+def test_get_language_distribution(connection_params):
     """Test and print results of aggregation
 
     Args:
         client (pymongo.MongoClient): Connection object for Mongo DB_URL.
     """
-    lang_list = mongo_methods.get_language_list(client, "twitter", subset)
-    cursor = mongo_methods.get_language_distribution(
-        client, "twitter", subset, lang_list)
-    file_ops.write_json_file("language_distribution",
-                            constants.DATA_PATH, list(cursor))
+    lang_list = mongo_methods.get_language_list(connection_params)
+    cursor = mongo_methods.get_language_distribution(connection_params, lang_list)
+    file_ops.write_json_file("language_distribution", constants.DATA_PATH, list(cursor))
 
 
 def test_get_top_k_users(client, db_name, lang_list, k_filter):
@@ -97,16 +95,21 @@ def main():
     """
     Test functionality
     """
-    data = file_ops.read_json_file('filter1_subset', constants.DATA_PATH)
-    print data[0]
+    # data = file_ops.read_json_file('filter1_collection', constants.DATA_PATH)
+    # print data[0]
     # print data
 
 
-    # client = mongo_methods.connect()
+    client = mongo_methods.connect()
+    connection_params  = [client, "twitter", "tweets"]
+    # test_get_language_collection(connection_params)
+    test_get_language_distribution(connection_params)
+    # print mongo_methods.get_language_list([client, "twitter", "tweets"])
+    # test_get_language_distribution([client, "twitter", "tweets"], ["en", "und"])
     # mongo_methods.keyword_search(
     #     client, "twitter", file_ops.parse_category_files(), ['en', 'und'])
-    # print mongo_methods.finder(client, "twitter", "subset_ru", 1)
-    # mongo_methods.subset_object_ids(client, "twitter", "tweets", ['en', 'und'], "subset_object_id")
+    # print mongo_methods.finder(client, "twitter", "collection_ru", 1)
+    # mongo_methods.collection_object_ids(client, "twitter", "tweets", ['en', 'und'], "collection_object_id")
     # mongo_methods.filter_by_language(client, "twitter", "ru_backup", ["en", "und", "es"], "lang_obj_ids")
 
 if __name__ == "__main__":
@@ -117,13 +120,13 @@ if __name__ == "__main__":
     # generate_bar_chart()
     # mongo_methods.parse_undefined_lang(client, "twitter", "und_backup", "und")
     # test_file_operations()
-    # test_get_language_subset(client)
+    # test_get_language_collection(client)
 
-    # mongo_methods.filter_object_ids(client, "twitter", "tweets", ["und"], "subset_objectId")
-    # mongo_methods.create_lang_subset(client, "twitter", "ru")
+    # mongo_methods.filter_object_ids(client, "twitter", "tweets", ["und"], "collection_objectId")
+    # mongo_methods.create_lang_collection(client, "twitter", "tweets" "ru")
     # mongo_methods.get_hashtag_collection(client, "twitter", "hashtag_dist_und")
 
-    # user_mentions_map_reduce(client, "twitter", "subset_ru")
-    # hashtag_map_reduce(client, "twitter", "subset_ru", "hashtag_ru")
+    # user_mentions_map_reduce(client, "twitter", "collection_ru")
+    # hashtag_map_reduce(client, "twitter", "collection_ru", "hashtag_ru")
     # test_get_top_k_users(client, "twitter", ["ru"], USER_MENTIONS)
     # test_get_top_k_hashtags(client, "twitter", ["ru"], HASHTAGS, 20)
