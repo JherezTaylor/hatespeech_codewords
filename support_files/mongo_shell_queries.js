@@ -1,3 +1,6 @@
+// Author: Jherez Taylor <jherez.taylor@gmail.com>
+// License: MIT
+
 // Remove unwanted languages
 // lang_list = ['en', 'und'];
 lang_list = ['en', 'und', 'es', 'ru', 'pt', 'it', 'ja', 'fr', 'de', 'ar', 'zh'];
