@@ -14,6 +14,7 @@ JSON_PATH = PATH + "/hatebase_data/json/"
 CSV_PATH = PATH + "/hatebase_data/csv/"
 DATA_PATH = PATH + "/output/"
 DB_URL = os.environ["MONGODB_URL"]
+PUSHBULLET_API_KEY = os.environ["PUSHBULLET_API_KEY"]
 HASHTAGS = "entities.hashtags"
 USER_MENTIONS = "entities.user_mentions"
 HASHTAG_LIMIT = 50

@@ -5,3 +5,7 @@ textblob
 plotly
 joblib
 ujson
+nose
+requests
+distribute
+pushbullet.py

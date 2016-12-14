@@ -15,6 +15,7 @@ from collections import OrderedDict
 import multiprocessing
 import glob
 import cProfile
+from pushbullet import Pushbullet
 import ujson
 from modules.utils import constants
 from modules.utils import twokenize
@@ -71,11 +72,25 @@ def do_cprofile(func):
     return profiled_func
 
 
+def send_job_notification(title, body):
+    """ Send a notification via Pushbullet.
+
+     Args:
+        json_obj (json_obj).
+
+    Indicates whether a job has completed or whether an error occured.
+    """
+
+    pushbullet = Pushbullet(constants.PUSHBULLET_API_KEY)
+    channel = pushbullet.channels[0]
+    channel.push_note(title, ujson.dumps(body))
+
+
 def count_sightings(json_obj):
     """ Returns a count of the number of sightings per word in corpus
 
     Args:
-        json_obj (json_obj).
+        json_obj (dict).
 
     Returns:
         int: The return value.
@@ -117,7 +132,7 @@ def prep_json_entry(entry):
 
 
 def get_filenames(directory):
-    """Reads all the json files names in the directory. 
+    """Reads all the json files names in the directory.
 
     Returns:
         list: List of plain filenames
@@ -264,7 +279,7 @@ def json_field_filter(json_obj, field_filter):
 
 
 def filter_hatebase_categories():
-    """Filters the hatebase data into categories. 
+    """Filters the hatebase data into categories.
 
     Does manually parsing for black, muslim and latino keywords.
     """
