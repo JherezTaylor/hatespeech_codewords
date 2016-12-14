@@ -19,7 +19,6 @@ import ujson
 from modules.utils import constants
 from modules.utils import twokenize
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
 from textblob import TextBlob
 from joblib import Parallel, delayed
 from pymongo import InsertOne
@@ -27,6 +26,7 @@ from pymongo import InsertOne
 
 def unicode_to_utf(unicode_list):
     """ Converts a list of strings from unicode to utf8
+
     Args:
         unicode_list (list): A list of unicode strings.
 
@@ -73,6 +73,7 @@ def do_cprofile(func):
 
 def count_sightings(json_obj):
     """ Returns a count of the number of sightings per word in corpus
+
     Args:
         json_obj (json_obj).
 
@@ -87,6 +88,7 @@ def count_sightings(json_obj):
 
 def build_query_string(query_words):
     """Builds an OR concatenated string for querying the Twitter Search API.
+
     Args:
         query_words (list): list of words to be concatenated.
 
@@ -101,6 +103,7 @@ def build_query_string(query_words):
 def prep_json_entry(entry):
     """Properly format and return a json object
     """
+
     json_obj = OrderedDict()
     json_obj["vocabulary"] = entry["vocabulary"]
     json_obj["variant_of"] = entry["variant_of"]
@@ -114,8 +117,7 @@ def prep_json_entry(entry):
 
 
 def get_filenames(directory):
-    """Reads all the json files in the folder and removes the drive and path and
-    extension, only returning a list of strings with the file names.
+    """Reads all the json files names in the directory. 
 
     Returns:
         list: List of plain filenames
@@ -130,9 +132,11 @@ def get_filenames(directory):
         result.append(str(name))
     return result
 
+
 @do_cprofile
 def read_json_file(filename, path):
     """Accepts a file name and loads it as a json object.
+
     Args:
         filename   (str): Filename to be loaded.
         path       (str): Directory path to use.
@@ -154,6 +158,7 @@ def read_json_file(filename, path):
 
 def write_json_file(filename, path, result):
     """Writes the result to json with the given filename.
+
     Args:
         filename   (str): Filename to write to.
         path       (str): Directory path to use.
@@ -189,6 +194,7 @@ def read_csv_file(filename, path):
 
 def write_csv_file(filename, path, result):
     """Writes the result to csv with the given filename.
+
     Args:
         filename   (str): Filename to write to.
         path       (str): Directory path to use.
@@ -203,13 +209,15 @@ def write_csv_file(filename, path, result):
 
 
 def count_entries(file_list):
-    """Performs a count of the number of number of words in the corpus
-     Args:
+    """Performs a count of the number of number of words in the corpus.
+
+    Args:
         file_list  (list): list of file names.
 
     Returns:
         list: A list of json objects containing the count per file name
     """
+
     result = []
     for obj in file_list:
         with open(constants.CSV_PATH + obj + ".csv", "r") as entry:
@@ -221,7 +229,8 @@ def count_entries(file_list):
 
 
 def extract_corpus(file_list):
-    """ Loads a set of json files and builds a corpus from the terms within
+    """ Loads a set of json files and builds a corpus from the terms within.
+
     Args:
         file_list  (list): list of file names.
     """
@@ -240,11 +249,12 @@ def extract_corpus(file_list):
 
 def json_field_filter(json_obj, field_filter):
     """Accepts a json object and returns only the passed field
-     Args:
+
+    Args:
         json_obj        (obj): json object.
         field_filter    (str): field to extract.
 
-   Returns:
+    Returns:
         list: A list of filtered values
     """
     result = []
@@ -254,7 +264,9 @@ def json_field_filter(json_obj, field_filter):
 
 
 def filter_hatebase_categories():
-    """Filters the hatebase data into categories for black, muslim and latino keywords
+    """Filters the hatebase data into categories. 
+
+    Does manually parsing for black, muslim and latino keywords.
     """
     filter1_subset = []
     filter2_subset = []
@@ -319,13 +331,16 @@ def parse_category_files():
 
 def preprocess_text(raw_text):
     """Preprocessing pipeline for raw text.
-    Tokenize, lemmatize and remove stopwords.
+
+    Tokenize and remove stopwords.
+
     Args:
         raw_text  (str): String to preprocess.
 
     Returns:
         list: vectorized tweet.
     """
+
     punctuation = list(string.punctuation)
     stop_list = stopwords.words("english") + punctuation + ["rt", "via", "RT"]
 
@@ -365,7 +380,9 @@ def preprocess_text(raw_text):
 
 def preprocess_tweet(tweet_obj):
     """Preprocessing pipeline for Tweet body.
-    Tokenize, lemmatize and remove stopwords.
+
+    Tokenize and remove stopwords.
+
     Args:
         tweet_obj  (dict): Tweet to preprocess.
 
@@ -379,7 +396,7 @@ def preprocess_tweet(tweet_obj):
     clean_text = clean_text = re.sub(
         r"(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?", "", tweet_obj["text"])
     clean_text = twokenize.tokenize(clean_text)
-    
+
     # Remove numbers
     clean_text = [token for token in clean_text if len(
         token.strip(string.digits)) == len(token)]
@@ -414,6 +431,7 @@ def preprocess_tweet(tweet_obj):
 
 def parallel_preprocess(tweet_list):
     """Passes the incoming raw tweets to our preprocessing function.
+
     Args:
         tweet_list (list): List of raw tweet texts to preprocess.
 
