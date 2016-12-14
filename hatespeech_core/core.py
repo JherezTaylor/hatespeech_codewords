@@ -43,8 +43,12 @@ def test_get_language_collection(connection_params):
     cursor = mongo_methods.get_language_distribution(
         connection_params, lang_list)
 
+    result = list(cursor)
     for document in cursor:
         print document
+
+    file_ops.send_job_notification(
+        "test_get_language_collection", result)
 
 
 @file_ops.do_cprofile
@@ -88,7 +92,7 @@ def test_get_top_k_hashtags(connection_params, lang_list, field_name, k_value):
 def generate_bar_chart(chart_title):
     """Generate a plotly bar_chart
     """
-    
+
     json_obj = file_ops.read_json_file("hashtag_dist_en", constants.DATA_PATH)
     data_x = []
     data_y = []
@@ -112,8 +116,9 @@ def main():
 
     client = mongo_methods.connect()
     connection_params = [client, "twitter", "tweets"]
-    # test_get_language_collection(connection_params)
-    test_get_language_distribution(connection_params)
+    test_get_language_collection(connection_params)
+    # test_get_language_distribution(connection_params)
+    # file_ops.send_job_notification()
     # print mongo_methods.get_language_list([client, "twitter", "tweets"])
     # test_get_language_distribution([client, "twitter", "tweets"], ["en", "und"])
     # mongo_methods.keyword_search(
