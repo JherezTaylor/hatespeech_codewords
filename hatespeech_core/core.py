@@ -7,9 +7,10 @@ Preprocessing module
 """
 
 import multiprocessing
-from .modules.utils import constants
-from .modules.utils import file_ops
-from .modules.db import mongo_methods
+from modules.utils import constants
+from modules.utils import file_ops
+from modules.db import mongo_methods
+from modules.utils import twokenize
 from joblib import Parallel, delayed
 import plotly
 from textblob import TextBlob
@@ -118,8 +119,9 @@ def main():
     # connection_params = [client, "twitter", "tweets"]
     # test_get_language_collection(connection_params)
     # # test_get_language_distribution(connection_params)
-    temp = file_ops.get_filenames(constants.JSON_PATH)
-    print temp
+    # temp = file_ops.get_filenames(constants.JSON_PATH)
+    # print temp
+    print twokenize.tokenize("hey hi, o!")
     # file_ops.send_job_notification()
     # print mongo_methods.get_language_list([client, "twitter", "tweets"])
     # test_get_language_distribution([client, "twitter", "tweets"], ["en", "und"])

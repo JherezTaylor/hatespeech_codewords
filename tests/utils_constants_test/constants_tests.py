@@ -1,7 +1,7 @@
 """Test constants module
 """
 
-from .context import hatespeech_core
+from .. context import hatespeech_core
 
 def test_environ_vars():
     """test"""
