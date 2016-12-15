@@ -17,7 +17,7 @@ import glob
 import cProfile
 from pushbullet import Pushbullet
 import ujson
-from . import constants
+from . import settings
 from . import twokenize
 from nltk.corpus import stopwords
 from textblob import TextBlob
@@ -81,9 +81,9 @@ def send_job_notification(title, body):
     Indicates whether a job has completed or whether an error occured.
     """
 
-    pushbullet = Pushbullet(constants.PUSHBULLET_API_KEY)
+    pushbullet = Pushbullet(settings.PUSHBULLET_API_KEY)
     channel = pushbullet.channels[0]
-    channel.push_note(title, ujson.dumps(body))
+    return channel.push_note(title, ujson.dumps(body))
 
 
 def count_sightings(json_obj):
@@ -236,7 +236,7 @@ def count_entries(file_list):
 
     result = []
     for obj in file_list:
-        with open(constants.CSV_PATH + obj + ".csv", "r") as entry:
+        with open(settings.CSV_PATH + obj + ".csv", "r") as entry:
             reader = csv.reader(entry, delimiter=",")
             col_count = len(reader.next())
             res = {"Filename": obj, "Count": col_count}
@@ -252,7 +252,7 @@ def extract_corpus(file_list):
     """
 
     for file_name in file_list:
-        json_data = read_json_file(file_name, constants.JSON_PATH)
+        json_data = read_json_file(file_name, settings.JSON_PATH)
         result = []
 
         data = json_data["data"]["datapoint"]
@@ -260,7 +260,7 @@ def extract_corpus(file_list):
 
         for entry in data:
             result.append(str(entry["vocabulary"]))
-        write_csv_file(file_name, constants.CSV_PATH, result)
+        write_csv_file(file_name, settings.CSV_PATH, result)
 
 
 def json_field_filter(json_obj, field_filter):
@@ -296,9 +296,9 @@ def filter_hatebase_categories():
     filter3 = ["Hispanic", "hispanic", "Hispanics", "Mexican", "Mexicans", "Latino", "Latinos",
                "Cuban", "Cubans"]
 
-    file_list = get_filenames(constants.JSON_PATH)
+    file_list = get_filenames(settings.JSON_PATH)
     for entry in file_list:
-        json_data = read_json_file(entry, constants.JSON_PATH)
+        json_data = read_json_file(entry, settings.JSON_PATH)
 
         data = json_data["data"]["datapoint"]
         data.sort(key=count_sightings, reverse=True)
@@ -320,11 +320,11 @@ def filter_hatebase_categories():
                     filter3_subset.append(prep_json_entry(entry))
 
     write_json_file(
-        "filter1_subset", constants.DATA_PATH, filter1_subset)
+        "filter1_subset", settings.DATA_PATH, filter1_subset)
     write_json_file(
-        "filter2_subset", constants.DATA_PATH, filter2_subset)
+        "filter2_subset", settings.DATA_PATH, filter2_subset)
     write_json_file(
-        "filter3_subset", constants.DATA_PATH, filter3_subset)
+        "filter3_subset", settings.DATA_PATH, filter3_subset)
 
 
 def parse_category_files():
@@ -335,11 +335,11 @@ def parse_category_files():
     """
     result = []
     filter1 = json_field_filter(read_json_file(
-        "filter1_subset", constants.DATA_PATH), "vocabulary")
+        "filter1_subset", settings.DATA_PATH), "vocabulary")
     filter2 = json_field_filter(read_json_file(
-        "filter2_subset", constants.DATA_PATH), "vocabulary")
+        "filter2_subset", settings.DATA_PATH), "vocabulary")
     filter3 = json_field_filter(read_json_file(
-        "filter3_subset", constants.DATA_PATH), "vocabulary")
+        "filter3_subset", settings.DATA_PATH), "vocabulary")
 
     result = filter1 + filter2 + filter3
     return result
