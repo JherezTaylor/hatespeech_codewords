@@ -1,3 +1,7 @@
+# Author: Jherez Taylor <jherez.taylor@gmail.com>
+# License: MIT
+# Python 2.7
+
 from nose.tools import *
 import hatespeech_core
 

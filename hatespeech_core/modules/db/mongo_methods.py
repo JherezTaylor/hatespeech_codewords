@@ -15,7 +15,7 @@ from pymongo import InsertOne
 from bson.son import SON
 from bson.code import Code
 from bson.objectid import ObjectId
-from ..utils import constants
+from ..utils import settings
 from ..utils import file_ops
 
 
@@ -26,8 +26,8 @@ def connect():
         pymongo.MongoClient: Connection object for Mongo DB_URL
     """
     try:
-        conn = MongoClient(constants.DB_URL)
-        print "Connected to DB at " + constants.DB_URL + " successfully"
+        conn = MongoClient(settings.DB_URL)
+        print "Connected to DB at " + settings.DB_URL + " successfully"
     except errors.ConnectionFailure, ex:
         print "Could not connect to MongoDB: %s" % ex
     return conn
@@ -252,7 +252,7 @@ def user_mentions_map_reduce(connection_params, output_name):
 
     frequency = sorted(frequency, key=lambda k: k["value"], reverse=True)
     file_ops.write_json_file("user_distribution_mr",
-                             constants.DATA_PATH, frequency)
+                             settings.DATA_PATH, frequency)
     pprint(frequency)
 
 
@@ -296,7 +296,7 @@ def hashtag_map_reduce(connection_params, output_name):
 
     frequency = sorted(frequency, key=lambda k: k["value"], reverse=True)
     file_ops.write_json_file("hashtag_distribution_mr",
-                             constants.DATA_PATH, frequency)
+                             settings.DATA_PATH, frequency)
     pprint(frequency)
 
 
@@ -317,7 +317,7 @@ def fetch_hashtag_collection(connection_params):
     dbo = client[db_name]
     cursor = dbo[collection].find({"count": {"$gt": 500}}, {
         "hashtag": 1, "count": 1, "_id": 0})
-    file_ops.write_json_file(collection, constants.DATA_PATH, list(cursor))
+    file_ops.write_json_file(collection, settings.DATA_PATH, list(cursor))
 
 
 def get_object_ids(connection_params, lang_list, output_name):
@@ -353,7 +353,7 @@ def get_object_ids(connection_params, lang_list, output_name):
     for document in cursor:
         result.append(str(document["_id"]))
 
-    file_ops.write_json_file(output_name, constants.DATA_PATH, result)
+    file_ops.write_json_file(output_name, settings.DATA_PATH, result)
 
 
 def filter_by_language(connection_params, lang_list, output_name):

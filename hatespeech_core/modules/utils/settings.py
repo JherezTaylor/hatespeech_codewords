@@ -2,7 +2,7 @@
 # License: MIT
 # Python 2.7
 
-"""Define project constants
+"""Define project settings
 """
 import os
 

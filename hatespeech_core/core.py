@@ -7,7 +7,7 @@ Preprocessing module
 """
 
 import multiprocessing
-from modules.utils import constants
+from modules.utils import settings
 from modules.utils import file_ops
 from modules.db import mongo_methods
 from modules.utils import twokenize
@@ -22,12 +22,12 @@ def test_file_operations():
     Test previous methods
     """
 
-    file_list = file_ops.get_filenames(constants.JSON_PATH)
+    file_list = file_ops.get_filenames(settings.JSON_PATH)
     file_ops.extract_corpus(file_list)
     # num_entries = file_ops.count_entries(file_list)
     # pprint(num_entries)
     res = file_ops.read_csv_file("about_sexual_orientation_eng_pg1",
-                                 constants.CSV_PATH)
+                                 settings.CSV_PATH)
     res2 = file_ops.build_query_string(res)
     print res2
 
@@ -65,7 +65,7 @@ def test_get_language_distribution(connection_params):
         connection_params, lang_list)
 
     file_ops.write_json_file("language_distribution",
-                             constants.DATA_PATH, list(cursor))
+                             settings.DATA_PATH, list(cursor))
 
 
 def test_get_top_k_users(connection_params, lang_list, field_name):
@@ -73,9 +73,9 @@ def test_get_top_k_users(connection_params, lang_list, field_name):
     """
 
     cursor = mongo_methods.get_top_k_users(connection_params, lang_list,
-                                           field_name, constants.USER_MENTIONS_LIMIT)
+                                           field_name, settings.USER_MENTIONS_LIMIT)
     file_ops.write_json_file("user_distribution",
-                             constants.DATA_PATH, list(cursor))
+                             settings.DATA_PATH, list(cursor))
 
 
 @file_ops.do_cprofile
@@ -84,17 +84,17 @@ def test_get_top_k_hashtags(connection_params, lang_list, field_name, k_value):
     """
 
     cursor = mongo_methods.get_top_k_hashtags(
-        connection_params, lang_list, field_name, constants.HASHTAG_LIMIT, k_value)
+        connection_params, lang_list, field_name, settings.HASHTAG_LIMIT, k_value)
 
     file_ops.write_json_file("hashtag_distribution",
-                             constants.DATA_PATH, list(cursor))
+                             settings.DATA_PATH, list(cursor))
 
 
 def generate_bar_chart(chart_title):
     """Generate a plotly bar_chart
     """
 
-    json_obj = file_ops.read_json_file("hashtag_dist_en", constants.DATA_PATH)
+    json_obj = file_ops.read_json_file("hashtag_dist_en", settings.DATA_PATH)
     data_x = []
     data_y = []
     for document in json_obj:
@@ -111,7 +111,7 @@ def main():
     """
     Test functionality
     """
-    # data = file_ops.read_json_file('filter1_collection', constants.DATA_PATH)
+    # data = file_ops.read_json_file('filter1_collection', settings.DATA_PATH)
     # print data[0]
     # print data
 
@@ -119,7 +119,7 @@ def main():
     # connection_params = [client, "twitter", "tweets"]
     # test_get_language_collection(connection_params)
     # # test_get_language_distribution(connection_params)
-    # temp = file_ops.get_filenames(constants.JSON_PATH)
+    # temp = file_ops.get_filenames(settings.JSON_PATH)
     # print temp
     print twokenize.tokenize("hey hi, o!")
     # file_ops.send_job_notification()
