@@ -14,4 +14,4 @@ def test_basic():
     print "I RAN!"
 
 def test_sum():
-    eq_(2+2,5)
+    eq_(2+2,4)

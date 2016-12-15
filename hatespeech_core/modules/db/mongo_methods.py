@@ -15,8 +15,8 @@ from pymongo import InsertOne
 from bson.son import SON
 from bson.code import Code
 from bson.objectid import ObjectId
-from modules.utils import constants
-from modules.utils import file_ops
+from ..utils import constants
+from ..utils import file_ops
 
 
 def connect():

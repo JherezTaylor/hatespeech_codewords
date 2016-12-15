@@ -7,9 +7,9 @@ Preprocessing module
 """
 
 import multiprocessing
-from modules.utils import constants
-from modules.utils import file_ops
-from modules.db import mongo_methods
+from .modules.utils import constants
+from .modules.utils import file_ops
+from .modules.db import mongo_methods
 from joblib import Parallel, delayed
 import plotly
 from textblob import TextBlob
