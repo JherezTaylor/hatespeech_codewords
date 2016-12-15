@@ -17,8 +17,8 @@ import glob
 import cProfile
 from pushbullet import Pushbullet
 import ujson
-from modules.utils import constants
-from modules.utils import twokenize
+from . import constants
+from . import twokenize
 from nltk.corpus import stopwords
 from textblob import TextBlob
 from joblib import Parallel, delayed
@@ -131,6 +131,7 @@ def prep_json_entry(entry):
     return json_obj
 
 
+@do_cprofile
 def get_filenames(directory):
     """Reads all the json files names in the directory.
 
@@ -141,7 +142,7 @@ def get_filenames(directory):
     result = []
 
     for entry in file_path:
-        drive, path = os.path.splitdrive(entry)
+        _, path = os.path.splitdrive(entry)
         path, filename = os.path.split(path)
         name = os.path.splitext(filename)[0]
         result.append(str(name))

@@ -6,11 +6,11 @@
 Preprocessing module
 """
 
+import multiprocessing
 from modules.utils import constants
 from modules.utils import file_ops
 from modules.db import mongo_methods
 from joblib import Parallel, delayed
-import multiprocessing
 import plotly
 from textblob import TextBlob
 from plotly.graph_objs import Scatter, Layout
@@ -114,10 +114,12 @@ def main():
     # print data[0]
     # print data
 
-    client = mongo_methods.connect()
-    connection_params = [client, "twitter", "tweets"]
-    test_get_language_collection(connection_params)
-    # test_get_language_distribution(connection_params)
+    # client = mongo_methods.connect()
+    # connection_params = [client, "twitter", "tweets"]
+    # test_get_language_collection(connection_params)
+    # # test_get_language_distribution(connection_params)
+    temp = file_ops.get_filenames(constants.JSON_PATH)
+    print temp
     # file_ops.send_job_notification()
     # print mongo_methods.get_language_list([client, "twitter", "tweets"])
     # test_get_language_distribution([client, "twitter", "tweets"], ["en", "und"])
