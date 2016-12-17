@@ -9,6 +9,7 @@ Preprocessing module
 import multiprocessing
 from modules.utils import settings
 from modules.utils import file_ops
+from modules.db import mongo_base
 from modules.db import mongo_complex
 from modules.utils import twokenize
 from joblib import Parallel, delayed
@@ -41,7 +42,7 @@ def test_get_language_collection(connection_params):
     """
 
     lang_list = ["en", "und", "es"]
-    cursor = mongo_complex.get_language_distribution(
+    cursor = mongo_base.get_language_distribution(
         connection_params, lang_list)
 
     result = list(cursor)
@@ -60,8 +61,8 @@ def test_get_language_distribution(connection_params):
         client (pymongo.MongoClient): Connection object for Mongo DB_URL.
     """
 
-    lang_list = mongo_complex.get_language_list(connection_params)
-    cursor = mongo_complex.get_language_distribution(
+    lang_list = mongo_base.get_language_list(connection_params)
+    cursor = mongo_base.get_language_distribution(
         connection_params, lang_list)
 
     file_ops.write_json_file("language_distribution",
@@ -115,7 +116,7 @@ def main():
     # print data[0]
     # print data
 
-    # client = mongo_complex.connect()
+    # client = mongo_base.connect()
     # connection_params = [client, "twitter", "tweets"]
     # test_get_language_collection(connection_params)
     # # test_get_language_distribution(connection_params)
@@ -142,8 +143,8 @@ if __name__ == "__main__":
     # test_file_operations()
     # test_get_language_collection(client)
 
-    # mongo_complex.filter_object_ids(client, "twitter", "tweets", ["und"], "collection_objectId")
-    # mongo_complex.create_lang_collection(client, "twitter", "tweets" "ru")
+    # mongo_base.filter_object_ids(client, "twitter", "tweets", ["und"], "collection_objectId")
+    # mongo_base.create_lang_collection(client, "twitter", "tweets" "ru")
     # mongo_complex.get_hashtag_collection(client, "twitter", "hashtag_dist_und")
 
     # user_mentions_map_reduce(client, "twitter", "collection_ru")
