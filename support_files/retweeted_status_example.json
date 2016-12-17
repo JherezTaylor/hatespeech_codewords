@@ -1,367 +1,194 @@
-{ 
-    "_id" : ObjectId("581b616548d823750f9ee817"), 
-    "contributors" : null, 
-    "truncated" : false, 
-    "text" : "RT @USAforTrump2016: RETWEET if you support @realDonaldTrump and want to #DrainTheSwamp https://t.co/0qrUrT6kdb", 
-    "is_quote_status" : false, 
-    "in_reply_to_status_id" : null, 
-    "id" : NumberLong(794210079218094084), 
-    "favorite_count" : NumberInt(0), 
-    "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", 
-    "retweeted" : false, 
-    "coordinates" : null, 
-    "timestamp_ms" : "1478189413252", 
-    "entities" : {
-        "user_mentions" : [
-            {
-                "id" : NumberLong(705902960967094272), 
-                "indices" : [
-                    NumberInt(3), 
-                    NumberInt(19)
-                ], 
-                "id_str" : "705902960967094272", 
-                "screen_name" : "USAforTrump2016", 
-                "name" : "USA For Trump 2016"
-            }, 
-            {
-                "id" : NumberInt(25073877), 
-                "indices" : [
-                    NumberInt(44), 
-                    NumberInt(60)
-                ], 
-                "id_str" : "25073877", 
-                "screen_name" : "realDonaldTrump", 
-                "name" : "Donald J. Trump"
-            }
-        ], 
-        "symbols" : [
-
-        ], 
-        "hashtags" : [
-            {
-                "indices" : [
-                    NumberInt(73), 
-                    NumberInt(87)
-                ], 
-                "text" : "DrainTheSwamp"
-            }
-        ], 
-        "urls" : [
-
-        ], 
-        "media" : [
-            {
-                "source_user_id" : NumberLong(705902960967094272), 
-                "source_status_id_str" : "794195882744881152", 
-                "expanded_url" : "https://twitter.com/USAforTrump2016/status/794195882744881152/photo/1", 
-                "display_url" : "pic.twitter.com/0qrUrT6kdb", 
-                "url" : "https://t.co/0qrUrT6kdb", 
-                "media_url_https" : "https://pbs.twimg.com/media/CwWM8IkWQAAdWr8.jpg", 
-                "source_user_id_str" : "705902960967094272", 
-                "source_status_id" : NumberLong(794195882744881152), 
-                "id_str" : "794195874020737024", 
-                "sizes" : {
-                    "small" : {
-                        "h" : NumberInt(650), 
-                        "resize" : "fit", 
-                        "w" : NumberInt(680)
-                    }, 
-                    "large" : {
-                        "h" : NumberInt(1187), 
-                        "resize" : "fit", 
-                        "w" : NumberInt(1241)
-                    }, 
-                    "medium" : {
-                        "h" : NumberInt(1148), 
-                        "resize" : "fit", 
-                        "w" : NumberInt(1200)
-                    }, 
-                    "thumb" : {
-                        "h" : NumberInt(150), 
-                        "resize" : "crop", 
-                        "w" : NumberInt(150)
-                    }
-                }, 
-                "indices" : [
-                    NumberInt(88), 
-                    NumberInt(111)
-                ], 
-                "type" : "photo", 
-                "id" : NumberLong(794195874020737024), 
-                "media_url" : "http://pbs.twimg.com/media/CwWM8IkWQAAdWr8.jpg"
-            }
-        ]
-    }, 
-    "in_reply_to_screen_name" : null, 
-    "id_str" : "794210079218094084", 
-    "retweet_count" : NumberInt(0), 
-    "in_reply_to_user_id" : null, 
-    "favorited" : false, 
-    "retweeted_status" : {
-        "contributors" : null, 
-        "truncated" : false, 
-        "text" : "RETWEET if you support @realDonaldTrump and want to #DrainTheSwamp https://t.co/0qrUrT6kdb", 
-        "is_quote_status" : false, 
-        "in_reply_to_status_id" : null, 
-        "id" : NumberLong(794195882744881152), 
-        "favorite_count" : NumberInt(217), 
-        "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", 
-        "retweeted" : false, 
-        "coordinates" : null, 
-        "entities" : {
-            "user_mentions" : [
-                {
-                    "id" : NumberInt(25073877), 
-                    "indices" : [
-                        NumberInt(23), 
-                        NumberInt(39)
-                    ], 
-                    "id_str" : "25073877", 
-                    "screen_name" : "realDonaldTrump", 
-                    "name" : "Donald J. Trump"
-                }
-            ], 
-            "symbols" : [
-
-            ], 
-            "hashtags" : [
-                {
-                    "indices" : [
-                        NumberInt(52), 
-                        NumberInt(66)
-                    ], 
-                    "text" : "DrainTheSwamp"
-                }
-            ], 
-            "urls" : [
-
-            ], 
-            "media" : [
-                {
-                    "expanded_url" : "https://twitter.com/USAforTrump2016/status/794195882744881152/photo/1", 
-                    "display_url" : "pic.twitter.com/0qrUrT6kdb", 
-                    "url" : "https://t.co/0qrUrT6kdb", 
-                    "media_url_https" : "https://pbs.twimg.com/media/CwWM8IkWQAAdWr8.jpg", 
-                    "id_str" : "794195874020737024", 
-                    "sizes" : {
-                        "small" : {
-                            "h" : NumberInt(650), 
-                            "resize" : "fit", 
-                            "w" : NumberInt(680)
-                        }, 
-                        "large" : {
-                            "h" : NumberInt(1187), 
-                            "resize" : "fit", 
-                            "w" : NumberInt(1241)
-                        }, 
-                        "medium" : {
-                            "h" : NumberInt(1148), 
-                            "resize" : "fit", 
-                            "w" : NumberInt(1200)
-                        }, 
-                        "thumb" : {
-                            "h" : NumberInt(150), 
-                            "resize" : "crop", 
-                            "w" : NumberInt(150)
-                        }
-                    }, 
-                    "indices" : [
-                        NumberInt(67), 
-                        NumberInt(90)
-                    ], 
-                    "type" : "photo", 
-                    "id" : NumberLong(794195874020737024), 
-                    "media_url" : "http://pbs.twimg.com/media/CwWM8IkWQAAdWr8.jpg"
-                }
-            ]
-        }, 
-        "in_reply_to_screen_name" : null, 
-        "id_str" : "794195882744881152", 
-        "display_text_range" : [
-            NumberInt(0), 
-            NumberInt(66)
-        ], 
-        "retweet_count" : NumberInt(246), 
-        "in_reply_to_user_id" : null, 
-        "favorited" : false, 
-        "user" : {
-            "follow_request_sent" : null, 
-            "profile_use_background_image" : true, 
-            "default_profile_image" : false, 
-            "id" : NumberLong(705902960967094272), 
-            "verified" : false, 
-            "profile_image_url_https" : "https://pbs.twimg.com/profile_images/760219109380526080/6rLqlLh1_normal.jpg", 
-            "profile_sidebar_fill_color" : "DDEEF6", 
-            "profile_text_color" : "333333", 
-            "followers_count" : NumberInt(68584), 
-            "profile_sidebar_border_color" : "C0DEED", 
-            "id_str" : "705902960967094272", 
-            "profile_background_color" : "F5F8FA", 
-            "listed_count" : NumberInt(306), 
-            "profile_background_image_url_https" : "", 
-            "utc_offset" : NumberInt(-14400), 
-            "statuses_count" : NumberInt(12818), 
-            "description" : "Official USA for Trump 2016 🇺🇸Our Geofilter campaign is now live!", 
-            "friends_count" : NumberInt(347), 
-            "location" : "TRUMP HQ", 
-            "profile_link_color" : "2B7BB9", 
-            "profile_image_url" : "http://pbs.twimg.com/profile_images/760219109380526080/6rLqlLh1_normal.jpg", 
-            "following" : null, 
-            "geo_enabled" : false, 
-            "profile_banner_url" : "https://pbs.twimg.com/profile_banners/705902960967094272/1470454001", 
-            "profile_background_image_url" : "", 
-            "name" : "USA For Trump 2016", 
-            "lang" : "en", 
-            "profile_background_tile" : false, 
-            "favourites_count" : NumberInt(11753), 
-            "screen_name" : "USAforTrump2016", 
-            "notifications" : null, 
-            "url" : "http://GoFundMe.com/TrumpGeofilters", 
-            "created_at" : "Fri Mar 04 23:49:15 +0000 2016", 
-            "contributors_enabled" : false, 
-            "time_zone" : "Eastern Time (US & Canada)", 
-            "protected" : false, 
-            "default_profile" : true, 
-            "is_translator" : false
-        }, 
-        "geo" : null, 
-        "in_reply_to_user_id_str" : null, 
-        "possibly_sensitive" : false, 
-        "lang" : "en", 
-        "created_at" : "Thu Nov 03 15:13:48 +0000 2016", 
-        "filter_level" : "low", 
-        "in_reply_to_status_id_str" : null, 
-        "place" : null, 
-        "extended_entities" : {
-            "media" : [
-                {
-                    "expanded_url" : "https://twitter.com/USAforTrump2016/status/794195882744881152/photo/1", 
-                    "display_url" : "pic.twitter.com/0qrUrT6kdb", 
-                    "url" : "https://t.co/0qrUrT6kdb", 
-                    "media_url_https" : "https://pbs.twimg.com/media/CwWM8IkWQAAdWr8.jpg", 
-                    "id_str" : "794195874020737024", 
-                    "sizes" : {
-                        "small" : {
-                            "h" : NumberInt(650), 
-                            "resize" : "fit", 
-                            "w" : NumberInt(680)
-                        }, 
-                        "large" : {
-                            "h" : NumberInt(1187), 
-                            "resize" : "fit", 
-                            "w" : NumberInt(1241)
-                        }, 
-                        "medium" : {
-                            "h" : NumberInt(1148), 
-                            "resize" : "fit", 
-                            "w" : NumberInt(1200)
-                        }, 
-                        "thumb" : {
-                            "h" : NumberInt(150), 
-                            "resize" : "crop", 
-                            "w" : NumberInt(150)
-                        }
-                    }, 
-                    "indices" : [
-                        NumberInt(67), 
-                        NumberInt(90)
-                    ], 
-                    "type" : "photo", 
-                    "id" : NumberLong(794195874020737024), 
-                    "media_url" : "http://pbs.twimg.com/media/CwWM8IkWQAAdWr8.jpg"
-                }
-            ]
-        }
-    }, 
-    "user" : {
-        "follow_request_sent" : null, 
-        "profile_use_background_image" : true, 
-        "default_profile_image" : true, 
-        "id" : NumberLong(783457426641006592), 
-        "verified" : false, 
-        "profile_image_url_https" : "https://abs.twimg.com/sticky/default_profile_images/default_profile_6_normal.png", 
-        "profile_sidebar_fill_color" : "DDEEF6", 
-        "profile_text_color" : "333333", 
-        "followers_count" : NumberInt(14), 
-        "profile_sidebar_border_color" : "C0DEED", 
-        "id_str" : "783457426641006592", 
-        "profile_background_color" : "F5F8FA", 
-        "listed_count" : NumberInt(0), 
-        "profile_background_image_url_https" : "", 
-        "utc_offset" : null, 
-        "statuses_count" : NumberInt(75), 
-        "description" : null, 
-        "friends_count" : NumberInt(432), 
-        "location" : null, 
-        "profile_link_color" : "2B7BB9", 
-        "profile_image_url" : "http://abs.twimg.com/sticky/default_profile_images/default_profile_6_normal.png", 
-        "following" : null, 
-        "geo_enabled" : false, 
-        "profile_background_image_url" : "", 
-        "name" : "Jana Russo", 
-        "lang" : "en", 
-        "profile_background_tile" : false, 
-        "favourites_count" : NumberInt(244), 
-        "screen_name" : "janarusso17", 
-        "notifications" : null, 
-        "url" : null, 
-        "created_at" : ISODate("2016-10-05T00:03:01.000+0000"), 
-        "contributors_enabled" : false, 
-        "time_zone" : null, 
-        "protected" : false, 
-        "default_profile" : true, 
-        "is_translator" : false
-    }, 
-    "geo" : null, 
-    "in_reply_to_user_id_str" : null, 
-    "possibly_sensitive" : false, 
-    "lang" : "en", 
-    "created_at" : ISODate("2016-11-03T16:10:13.000+0000"), 
-    "filter_level" : "low", 
-    "in_reply_to_status_id_str" : null, 
-    "place" : null, 
-    "extended_entities" : {
-        "media" : [
-            {
-                "source_user_id" : NumberLong(705902960967094272), 
-                "source_status_id_str" : "794195882744881152", 
-                "expanded_url" : "https://twitter.com/USAforTrump2016/status/794195882744881152/photo/1", 
-                "display_url" : "pic.twitter.com/0qrUrT6kdb", 
-                "url" : "https://t.co/0qrUrT6kdb", 
-                "media_url_https" : "https://pbs.twimg.com/media/CwWM8IkWQAAdWr8.jpg", 
-                "source_user_id_str" : "705902960967094272", 
-                "source_status_id" : NumberLong(794195882744881152), 
-                "id_str" : "794195874020737024", 
-                "sizes" : {
-                    "small" : {
-                        "h" : NumberInt(650), 
-                        "resize" : "fit", 
-                        "w" : NumberInt(680)
-                    }, 
-                    "large" : {
-                        "h" : NumberInt(1187), 
-                        "resize" : "fit", 
-                        "w" : NumberInt(1241)
-                    }, 
-                    "medium" : {
-                        "h" : NumberInt(1148), 
-                        "resize" : "fit", 
-                        "w" : NumberInt(1200)
-                    }, 
-                    "thumb" : {
-                        "h" : NumberInt(150), 
-                        "resize" : "crop", 
-                        "w" : NumberInt(150)
-                    }
-                }, 
-                "indices" : [
-                    NumberInt(88), 
-                    NumberInt(111)
-                ], 
-                "type" : "photo", 
-                "id" : NumberLong(794195874020737024), 
-                "media_url" : "http://pbs.twimg.com/media/CwWM8IkWQAAdWr8.jpg"
-            }
-        ]
-    }
-}
+[{
+    "_id": {
+        "$oid": "581b616348d823750f9ee807"
+    },
+    "contributors": null,
+    "truncated": false,
+    "text": "RT @VTXSILVERWOLF: @realDonaldTrump @HillaryClinton   #LyingThievingMurderingTreasonousACriminalHillaryClinton you are losing which makes y…",
+    "is_quote_status": false,
+    "in_reply_to_status_id": null,
+    "id": {
+        "$numberLong": "794210071265693696"
+    },
+    "favorite_count": 0,
+    "source": "<a href=\"http://www.DonaldJTrump.com\" rel=\"nofollow\">Loser Donald Trump</a>",
+    "retweeted": false,
+    "coordinates": null,
+    "timestamp_ms": "1478189411356",
+    "entities": {
+        "user_mentions": [{
+            "id": {
+                "$numberLong": "2739547113"
+            },
+            "indices": [3, 17],
+            "id_str": "2739547113",
+            "screen_name": "VTXSILVERWOLF",
+            "name": "VTXSILVERWOLF"
+        }, {
+            "id": 25073877,
+            "indices": [19, 35],
+            "id_str": "25073877",
+            "screen_name": "realDonaldTrump",
+            "name": "Donald J. Trump"
+        }, {
+            "id": 1339835893,
+            "indices": [36, 51],
+            "id_str": "1339835893",
+            "screen_name": "HillaryClinton",
+            "name": "Hillary Clinton"
+        }],
+        "symbols": [],
+        "hashtags": [{
+            "indices": [54, 110],
+            "text": "LyingThievingMurderingTreasonousACriminalHillaryClinton"
+        }],
+        "urls": []
+    },
+    "in_reply_to_screen_name": null,
+    "id_str": "794210071265693696",
+    "retweet_count": 0,
+    "in_reply_to_user_id": null,
+    "favorited": false,
+    "retweeted_status": {
+        "contributors": null,
+        "truncated": false,
+        "text": "@realDonaldTrump @HillaryClinton   #LyingThievingMurderingTreasonousACriminalHillaryClinton you are losing which makes you a loser.😂😂😂😂😂😂😂😂😂",
+        "is_quote_status": false,
+        "in_reply_to_status_id": null,
+        "id": {
+            "$numberLong": "794209951426248704"
+        },
+        "favorite_count": 0,
+        "source": "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>",
+        "retweeted": false,
+        "coordinates": null,
+        "entities": {
+            "user_mentions": [{
+                "id": 25073877,
+                "indices": [0, 16],
+                "id_str": "25073877",
+                "screen_name": "realDonaldTrump",
+                "name": "Donald J. Trump"
+            }, {
+                "id": 1339835893,
+                "indices": [17, 32],
+                "id_str": "1339835893",
+                "screen_name": "HillaryClinton",
+                "name": "Hillary Clinton"
+            }],
+            "symbols": [],
+            "hashtags": [{
+                "indices": [35, 91],
+                "text": "LyingThievingMurderingTreasonousACriminalHillaryClinton"
+            }],
+            "urls": []
+        },
+        "in_reply_to_screen_name": "realDonaldTrump",
+        "id_str": "794209951426248704",
+        "retweet_count": 1,
+        "in_reply_to_user_id": 25073877,
+        "favorited": false,
+        "user": {
+            "follow_request_sent": null,
+            "profile_use_background_image": true,
+            "default_profile_image": false,
+            "id": {
+                "$numberLong": "2739547113"
+            },
+            "verified": false,
+            "profile_image_url_https": "https://pbs.twimg.com/profile_images/764186254766473216/NwGmilPD_normal.jpg",
+            "profile_sidebar_fill_color": "DDEEF6",
+            "profile_text_color": "333333",
+            "followers_count": 146,
+            "profile_sidebar_border_color": "C0DEED",
+            "id_str": "2739547113",
+            "profile_background_color": "C0DEED",
+            "listed_count": 9,
+            "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme1/bg.png",
+            "utc_offset": null,
+            "statuses_count": 6422,
+            "description": "Retired firefighter,retired EMS, Retired law-enforcement,Little League coach,Cub Scout leader. happily married 45 yrs.three wonderful sons. Seven grandchildren.",
+            "friends_count": 52,
+            "location": "Ride VTX1300truCherokee Nation",
+            "profile_link_color": "0084B4",
+            "profile_image_url": "http://pbs.twimg.com/profile_images/764186254766473216/NwGmilPD_normal.jpg",
+            "following": null,
+            "geo_enabled": false,
+            "profile_banner_url": "https://pbs.twimg.com/profile_banners/2739547113/1469920687",
+            "profile_background_image_url": "http://abs.twimg.com/images/themes/theme1/bg.png",
+            "name": "VTXSILVERWOLF",
+            "lang": "en",
+            "profile_background_tile": false,
+            "favourites_count": 3258,
+            "screen_name": "VTXSILVERWOLF",
+            "notifications": null,
+            "url": null,
+            "created_at": "Mon Aug 11 02:41:10 +0000 2014",
+            "contributors_enabled": false,
+            "time_zone": null,
+            "protected": false,
+            "default_profile": true,
+            "is_translator": false
+        },
+        "geo": null,
+        "in_reply_to_user_id_str": "25073877",
+        "lang": "en",
+        "created_at": "Thu Nov 03 16:09:42 +0000 2016",
+        "filter_level": "low",
+        "in_reply_to_status_id_str": null,
+        "place": null
+    },
+    "user": {
+        "follow_request_sent": null,
+        "profile_use_background_image": false,
+        "default_profile_image": false,
+        "id": {
+            "$numberLong": "788444815566344192"
+        },
+        "verified": false,
+        "profile_image_url_https": "https://pbs.twimg.com/profile_images/788455346100514816/3TINmqFj_normal.jpg",
+        "profile_sidebar_fill_color": "000000",
+        "profile_text_color": "000000",
+        "followers_count": 651,
+        "profile_sidebar_border_color": "000000",
+        "id_str": "788444815566344192",
+        "profile_background_color": "000000",
+        "listed_count": 41,
+        "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme1/bg.png",
+        "utc_offset": null,
+        "statuses_count": 21135,
+        "description": "I'm losing the election. Very sad!",
+        "friends_count": 1,
+        "location": "Loser Tower",
+        "profile_link_color": "FF691F",
+        "profile_image_url": "http://pbs.twimg.com/profile_images/788455346100514816/3TINmqFj_normal.jpg",
+        "following": null,
+        "geo_enabled": false,
+        "profile_banner_url": "https://pbs.twimg.com/profile_banners/788444815566344192/1476898221",
+        "profile_background_image_url": "http://abs.twimg.com/images/themes/theme1/bg.png",
+        "name": "Donald L. Trump",
+        "lang": "en",
+        "profile_background_tile": false,
+        "favourites_count": 11,
+        "screen_name": "loserDonldTrump",
+        "notifications": null,
+        "url": null,
+        "created_at": {
+            "$date": "2016-10-18T18:21:07.000+0000"
+        },
+        "contributors_enabled": false,
+        "time_zone": null,
+        "protected": false,
+        "default_profile": false,
+        "is_translator": false
+    },
+    "geo": null,
+    "in_reply_to_user_id_str": null,
+    "lang": "en",
+    "created_at": {
+        "$date": "2016-11-03T16:10:11.000+0000"
+    },
+    "filter_level": "low",
+    "in_reply_to_status_id_str": null,
+    "place": null
+}]

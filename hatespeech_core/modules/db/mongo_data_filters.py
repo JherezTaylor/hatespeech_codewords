@@ -11,13 +11,14 @@ Keyword searches. Only provided as a sample, for large collections ElasticSearch
 Identify the language of tweets with an und lang.
 """
 
-from pymongo import InsertOne, DeleteOne, ReplaceOne, UpdateMany
+from pymongo import InsertOne, DeleteOne, ReplaceOne, UpdateMany, ASCENDING
 from ..utils import file_ops
 
 
-@file_ops.timing
-def field_removal(connection_params):
-    """Bulk operation to remove tweets by the lang field.
+def create_indexes(connection_params):
+    """Create index for field existence checks
+
+    Prerocessing Pipeline Stage 1.
 
     Filters by any lang not in lang_list. This should ideally be
     run directly through mongo shellfor large collections.
@@ -27,9 +28,62 @@ def field_removal(connection_params):
             0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
             1: db_name     (str): Name of database to query.
             2: collection  (str): Name of collection to use.
+    """
 
-        lang_list   (list): List of languages to match on.
-        output_name (str):  Name of the collection to store ids of non removed tweets.
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
+    dbo = client[db_name]
+
+    dbo[collection].create_index(
+        [("entities.urls", ASCENDING)], sparse=True)
+    print "URL Index built"
+
+    dbo[collection].create_index(
+        [("entities.user_mentions", ASCENDING)], sparse=True)
+    print "User mentions Index built"
+
+    dbo[collection].create_index(
+        [("entities.hashtags", ASCENDING)], sparse=True)
+    print "Hashtag Index built"
+
+    dbo[collection].create_index(
+        [("entities.media", ASCENDING)], sparse=True)
+    print "Media Index built"
+
+    dbo[collection].create_index(
+        [("user.entities", ASCENDING)], sparse=True)
+    print "User entities Index built"
+
+    dbo[collection].create_index(
+        [("is_quote_status", ASCENDING)], sparse=True)
+    print "Quoted status Index built"
+
+    dbo[collection].create_index(
+        [("retweeted_status.id", ASCENDING)], sparse=True)
+    print "Retweeted Index built"
+
+    dbo[collection].create_index(
+        [("extended_entities.media.id_str", ASCENDING)], sparse=True)
+    print "Extended entities Index built"
+
+    dbo[collection].create_index(
+        [("extended_tweet.display_text_range", ASCENDING)], sparse=True)
+    print "Extended tweet Index built"
+
+
+@file_ops.timing
+def field_removal(connection_params):
+    """Bulk operation to remove unwanted fields from the tweet object
+
+    Prerocessing Pipeline Stage 2.
+
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
     """
 
     client = connection_params[0]

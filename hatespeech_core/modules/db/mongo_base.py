@@ -30,7 +30,7 @@ def connect(db_url=None):
     if db_url is None:
         db_url = settings.DB_URL
     try:
-        conn = MongoClient(db_url, serverSelectionTimeoutMS=max_sev_sel_delay)
+        conn = MongoClient(db_url, serverSelectionTimeoutMS=max_sev_sel_delay, socketKeepAlive=True)
         conn.server_info()
         print "Connected to DB at " + db_url + " successfully"
     except errors.ServerSelectionTimeoutError, ex:
