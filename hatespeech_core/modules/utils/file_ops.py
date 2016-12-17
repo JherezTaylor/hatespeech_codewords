@@ -72,6 +72,7 @@ def do_cprofile(func):
     return profiled_func
 
 
+@timing
 def send_job_notification(title, body):
     """ Send a notification via Pushbullet.
 
@@ -82,7 +83,7 @@ def send_job_notification(title, body):
     """
     headers = {"Access-Token": settings.PUSHBULLET_API_KEY,
                "Content-Type": "application/json"}
-    payload = {"type": "note", "title": title, "body": body}
+    payload = {"type": "note", "title": title, "body": ujson.dumps(body)}
     url = "https://api.pushbullet.com/v2/pushes"
     return requests.post(url, headers=headers, data=ujson.dumps(payload))
 

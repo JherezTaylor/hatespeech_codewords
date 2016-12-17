@@ -12,9 +12,11 @@ Identify the language of tweets with an und lang.
 """
 
 from pymongo import InsertOne, DeleteOne, ReplaceOne, UpdateMany
+from ..utils import file_ops
 
 
-def field_removal(connection_params, lang_list, output_name):
+@file_ops.timing
+def field_removal(connection_params):
     """Bulk operation to remove tweets by the lang field.
 
     Filters by any lang not in lang_list. This should ideally be
@@ -41,23 +43,23 @@ def field_removal(connection_params, lang_list, output_name):
                    {
                        "$unset": {
                            "contributors": "", "truncated": "", "retweet_count": "",
-                           "retweeted": "", "display_text_range": "", "retweeted_status": "",
-                           "extended_entities": "", "entities": "", "favorited": "", "id": "",
+                           "retweeted": "", "favorited": "", "id": "",
                            "user.follow_request_sent": "", "user.profile_use_background_image": "",
                            "user.default_profile_image": "", "user.profile_sidebar_fill_color": "",
-                           "user.profile_image_url_https": "", "in_reply_to_user_id": "",
                            "user.profile_text_color": "", "user.profile_sidebar_border_color": "",
+                           "user.profile_image_url_https": "", "in_reply_to_user_id": "",
                            "user.profile_background_color": "", "in_reply_to_status_id": "",
-                           "user.profile_link_color": "", "user.profile_image_url": "",
-                           "user.profile_background_tile": "", "extended_tweet": "",
-                           "user.notifications": "", "user.default_profile": "",
-                           "user.is_translator": "", "user.id": "",
-                           "quoted_status": "",
-                           "user.profile_background_image_url": "",
+                           "user.profile_link_color": "", "geo": "",
+                           "user.profile_image_url": "", "following": "",
+                           "user.profile_background_tile": "", "user.contributors_enabled": "",
+                           "user.notifications": "", "user.is_translator": "", "user.id": "",
+                           "user.profile_background_image_url": "", "user.has_extended_profile": "",
                            "user.profile_background_image_url_https": "",
+                           "user.is_translation_enabled": "", "metadata": "",
+                           "user.translator_type": "",
 
                        },
-                       "$set": {"preprocessed": True}}, upsert=False)
+                       "$set": {"fields_removed": True}}, upsert=False)
     ]
     result = dbo[collection].bulk_write(pipeline, ordered=False)
     return result
