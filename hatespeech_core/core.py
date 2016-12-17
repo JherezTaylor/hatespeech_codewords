@@ -9,7 +9,7 @@ Preprocessing module
 import multiprocessing
 from modules.utils import settings
 from modules.utils import file_ops
-from modules.db import mongo_methods
+from modules.db import mongo_complex
 from modules.utils import twokenize
 from joblib import Parallel, delayed
 import plotly
@@ -41,7 +41,7 @@ def test_get_language_collection(connection_params):
     """
 
     lang_list = ["en", "und", "es"]
-    cursor = mongo_methods.get_language_distribution(
+    cursor = mongo_complex.get_language_distribution(
         connection_params, lang_list)
 
     result = list(cursor)
@@ -60,8 +60,8 @@ def test_get_language_distribution(connection_params):
         client (pymongo.MongoClient): Connection object for Mongo DB_URL.
     """
 
-    lang_list = mongo_methods.get_language_list(connection_params)
-    cursor = mongo_methods.get_language_distribution(
+    lang_list = mongo_complex.get_language_list(connection_params)
+    cursor = mongo_complex.get_language_distribution(
         connection_params, lang_list)
 
     file_ops.write_json_file("language_distribution",
@@ -72,7 +72,7 @@ def test_get_top_k_users(connection_params, lang_list, field_name):
     """Test and print results of top k aggregation
     """
 
-    cursor = mongo_methods.get_top_k_users(connection_params, lang_list,
+    cursor = mongo_complex.get_top_k_users(connection_params, lang_list,
                                            field_name, settings.USER_MENTIONS_LIMIT)
     file_ops.write_json_file("user_distribution",
                              settings.DATA_PATH, list(cursor))
@@ -83,7 +83,7 @@ def test_get_top_k_hashtags(connection_params, lang_list, field_name, k_value):
     """Test and print results of top k aggregation
     """
 
-    cursor = mongo_methods.get_top_k_hashtags(
+    cursor = mongo_complex.get_top_k_hashtags(
         connection_params, lang_list, field_name, settings.HASHTAG_LIMIT, k_value)
 
     file_ops.write_json_file("hashtag_distribution",
@@ -115,7 +115,7 @@ def main():
     # print data[0]
     # print data
 
-    # client = mongo_methods.connect()
+    # client = mongo_complex.connect()
     # connection_params = [client, "twitter", "tweets"]
     # test_get_language_collection(connection_params)
     # # test_get_language_distribution(connection_params)
@@ -124,13 +124,13 @@ def main():
     # print twokenize.tokenize("hey hi, o!")
     # r =  file_ops.send_job_notification("hey", ["test8"])
     # print r.status_code
-    # print mongo_methods.get_language_list([client, "twitter", "tweets"])
+    # print mongo_complex.get_language_list([client, "twitter", "tweets"])
     # test_get_language_distribution([client, "twitter", "tweets"], ["en", "und"])
-    # mongo_methods.keyword_search(
+    # mongo_complex.keyword_search(
     #     client, "twitter", file_ops.parse_category_files(), ['en', 'und'])
-    # print mongo_methods.finder(client, "twitter", "collection_ru", 1)
-    # mongo_methods.collection_object_ids(client, "twitter", "tweets", ['en', 'und'], "collection_object_id")
-    # mongo_methods.filter_by_language(client, "twitter", "ru_backup", ["en", "und", "es"], "lang_obj_ids")
+    # print mongo_complex.finder(client, "twitter", "collection_ru", 1)
+    # mongo_complex.collection_object_ids(client, "twitter", "tweets", ['en', 'und'], "collection_object_id")
+    # mongo_complex.filter_by_language(client, "twitter", "ru_backup", ["en", "und", "es"], "lang_obj_ids")
 
 if __name__ == "__main__":
     main()
@@ -138,13 +138,13 @@ if __name__ == "__main__":
     # test_get_language_distribution(client)
     # file_ops.filter_hatebase_categories()
     # generate_bar_chart()
-    # mongo_methods.parse_undefined_lang(client, "twitter", "und_backup", "und")
+    # mongo_complex.parse_undefined_lang(client, "twitter", "und_backup", "und")
     # test_file_operations()
     # test_get_language_collection(client)
 
-    # mongo_methods.filter_object_ids(client, "twitter", "tweets", ["und"], "collection_objectId")
-    # mongo_methods.create_lang_collection(client, "twitter", "tweets" "ru")
-    # mongo_methods.get_hashtag_collection(client, "twitter", "hashtag_dist_und")
+    # mongo_complex.filter_object_ids(client, "twitter", "tweets", ["und"], "collection_objectId")
+    # mongo_complex.create_lang_collection(client, "twitter", "tweets" "ru")
+    # mongo_complex.get_hashtag_collection(client, "twitter", "hashtag_dist_und")
 
     # user_mentions_map_reduce(client, "twitter", "collection_ru")
     # hashtag_map_reduce(client, "twitter", "collection_ru", "hashtag_ru")
