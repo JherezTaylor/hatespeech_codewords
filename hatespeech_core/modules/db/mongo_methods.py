@@ -25,7 +25,7 @@ def connect(db_url=None):
     Returns:
         pymongo.MongoClient: Connection object for Mongo DB_URL
     """
-    max_sev_sel_delay = 20
+    max_sev_sel_delay = 500
     if db_url is None:
         db_url = settings.DB_URL
     try:
