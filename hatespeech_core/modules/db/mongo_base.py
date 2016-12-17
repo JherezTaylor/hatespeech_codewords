@@ -3,7 +3,12 @@
 # Python 2.7
 
 """
-This module provides methods to query the MongoDB instance
+This module provides simple methods that interact with the MongoDB instance.
+
+Handles connection.
+Object and collection retrieval.
+Simple aggregations.
+Removes all entries from a collection not matching a given language.
 """
 
 from pymongo import MongoClient
@@ -13,6 +18,7 @@ from bson.objectid import ObjectId
 from bson.son import SON
 from ..utils import settings
 from ..utils import file_ops
+
 
 def connect(db_url=None):
     """Initializes a pymongo conection object.
@@ -30,6 +36,50 @@ def connect(db_url=None):
     except errors.ServerSelectionTimeoutError, ex:
         print "Could not connect to MongoDB: %s" % ex
     return conn
+
+
+def fetch_by_object_id(connection_params, object_id):
+    """Fetches the specified object from the specified collection.
+
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+
+        object_id   (str): Object ID to fetch.
+    """
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
+    dbo = client[db_name]
+    cursor = dbo[collection].find({"_id": ObjectId(object_id)})
+    return list(cursor)
+
+
+def finder(connection_params, k_items):
+    """Fetches k objects from the specified collection.
+
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+
+        k_items     (int): Number of items to retrieve.
+    """
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
+    dbo = client[db_name]
+    cursor = dbo[collection].find().limit(k_items)
+    for document in cursor:
+        pprint(document)
+        pprint(str(document["_id"]))
 
 
 def get_language_list(connection_params):
@@ -117,8 +167,9 @@ def create_lang_collection(connection_params, lang):
     ]
     dbo[collection].aggregate(pipeline)
 
+
 def get_object_ids(connection_params, lang_list, output_name):
-    """Creates a to create a collection of object ids.
+    """Creates a collection of consisting only of object ids.
 
     Filters using the lang field. Also writes result to a json file.
 
@@ -154,7 +205,7 @@ def get_object_ids(connection_params, lang_list, output_name):
 
 
 def filter_by_language(connection_params, lang_list, output_name):
-    """Bulk operation to remove tweets by the lang field.abs
+    """Bulk operation to remove tweets by the lang field.
 
     Filters by any lang not in lang_list. This should ideally be
     run directly through mongo shellfor large collections.
@@ -182,49 +233,3 @@ def filter_by_language(connection_params, lang_list, output_name):
     pprint(result)
 
     get_object_ids(connection_params, lang_list, output_name)
-
-
-@file_ops.do_cprofile
-def fetch_by_object_id(connection_params, object_id):
-    """Fetches the specified object from the specified collection.
-
-    Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
-
-        object_id   (str): Object ID to fetch.
-    """
-
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
-
-    dbo = client[db_name]
-    cursor = dbo[collection].find({"_id": ObjectId(object_id)})
-    return list(cursor)
-
-
-def finder(connection_params, k_items):
-    """Fetches k obects from the specified collection.
-
-    Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
-
-        k_items     (int): Number of items to retrieve.
-    """
-
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
-
-    dbo = client[db_name]
-    cursor = dbo[collection].find().limit(k_items)
-    for document in cursor:
-        pprint(document)
-        pprint(str(document["_id"]))
-        
