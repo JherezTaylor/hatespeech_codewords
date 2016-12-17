@@ -5,7 +5,7 @@
 """Test settings module
 """
 
-from ..context import hatespeech_core
+from context import hatespeech_core
 
 def test_settings():
     """Test that settings are loaded"""
