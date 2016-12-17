@@ -2,7 +2,7 @@
 # License: MIT
 # Python 2.7
 
-"""Test mongo_methods module
+"""Test mongo_complex module
 """
 
 from nose.tools import *
@@ -13,7 +13,7 @@ class TestMongoMethods(object):
     """ init class """
 
     def __init__(self):
-        self.client = hatespeech_core.mongo_methods.connect()
+        self.client = hatespeech_core.mongo_complex.connect()
         self.db_name = "test_database"
         self.collection = "test_collection_en_und"
         self.connection_params = [self.client,
@@ -35,14 +35,14 @@ class TestMongoMethods(object):
     # @nottest
     def test_get_language_list(self):
         """Test get language list for the tweet collection"""
-        result = hatespeech_core.mongo_methods.get_language_list(
+        result = hatespeech_core.mongo_complex.get_language_list(
             self.connection_params)
         assert_equals(result, self.lang_list)
 
     # @nottest
     def test_get_language_distribution(self):
         """Test the language distribution of tweets"""
-        db_result = hatespeech_core.mongo_methods.get_language_distribution(
+        db_result = hatespeech_core.mongo_complex.get_language_distribution(
             self.connection_params, self.lang_list)
         expected = [{"language": "en", "count": 9295},
                     {"language": "und", "count": 705}]
