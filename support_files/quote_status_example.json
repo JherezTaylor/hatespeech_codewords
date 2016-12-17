@@ -1,0 +1,288 @@
+{ 
+    "_id" : ObjectId("581b616748d823750f9ee827"), 
+    "contributors" : null, 
+    "truncated" : true, 
+    "text" : "Hillary emails\n@realDonaldTrump up 4 RAPE of 13yr old girl\nWho do u want running USA\n#NeverTrump\n#WomenAgainstTrump… https://t.co/PD3lLrQnEw", 
+    "is_quote_status" : true, 
+    "in_reply_to_status_id" : null, 
+    "id" : NumberLong(794210087489314817), 
+    "favorite_count" : NumberInt(0), 
+    "entities" : {
+        "user_mentions" : [
+            {
+                "id" : NumberInt(25073877), 
+                "indices" : [
+                    NumberInt(15), 
+                    NumberInt(31)
+                ], 
+                "id_str" : "25073877", 
+                "screen_name" : "realDonaldTrump", 
+                "name" : "Donald J. Trump"
+            }
+        ], 
+        "symbols" : [
+
+        ], 
+        "hashtags" : [
+            {
+                "indices" : [
+                    NumberInt(85), 
+                    NumberInt(96)
+                ], 
+                "text" : "NeverTrump"
+            }, 
+            {
+                "indices" : [
+                    NumberInt(97), 
+                    NumberInt(115)
+                ], 
+                "text" : "WomenAgainstTrump"
+            }
+        ], 
+        "urls" : [
+            {
+                "url" : "https://t.co/PD3lLrQnEw", 
+                "indices" : [
+                    NumberInt(117), 
+                    NumberInt(140)
+                ], 
+                "expanded_url" : "https://twitter.com/i/web/status/794210087489314817", 
+                "display_url" : "twitter.com/i/web/status/7…"
+            }
+        ]
+    }, 
+    "quoted_status_id" : NumberLong(794207856568438784), 
+    "retweeted" : false, 
+    "coordinates" : null, 
+    "timestamp_ms" : "1478189415224", 
+    "quoted_status" : {
+        "contributors" : null, 
+        "truncated" : false, 
+        "text" : "@daveweigel @beausjo Not COULD BE BUT WILL BE!! On docket mid December #VoteBlueDownBallot", 
+        "is_quote_status" : false, 
+        "in_reply_to_status_id" : NumberLong(793639490740887552), 
+        "id" : NumberLong(794207856568438784), 
+        "favorite_count" : NumberInt(1), 
+        "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", 
+        "retweeted" : false, 
+        "coordinates" : null, 
+        "entities" : {
+            "user_mentions" : [
+                {
+                    "id" : NumberInt(13524182), 
+                    "indices" : [
+                        NumberInt(0), 
+                        NumberInt(11)
+                    ], 
+                    "id_str" : "13524182", 
+                    "screen_name" : "daveweigel", 
+                    "name" : "Dave Weigel"
+                }, 
+                {
+                    "id" : NumberInt(21567842), 
+                    "indices" : [
+                        NumberInt(12), 
+                        NumberInt(20)
+                    ], 
+                    "id_str" : "21567842", 
+                    "screen_name" : "beausjo", 
+                    "name" : "YoNastyMama"
+                }
+            ], 
+            "symbols" : [
+
+            ], 
+            "hashtags" : [
+                {
+                    "indices" : [
+                        NumberInt(71), 
+                        NumberInt(90)
+                    ], 
+                    "text" : "VoteBlueDownBallot"
+                }
+            ], 
+            "urls" : [
+
+            ]
+        }, 
+        "in_reply_to_screen_name" : "daveweigel", 
+        "id_str" : "794207856568438784", 
+        "display_text_range" : [
+            NumberInt(12), 
+            NumberInt(90)
+        ], 
+        "retweet_count" : NumberInt(0), 
+        "in_reply_to_user_id" : NumberInt(13524182), 
+        "favorited" : false, 
+        "user" : {
+            "follow_request_sent" : null, 
+            "profile_use_background_image" : true, 
+            "default_profile_image" : false, 
+            "id" : NumberInt(572257085), 
+            "verified" : false, 
+            "profile_image_url_https" : "https://pbs.twimg.com/profile_images/782669667005566976/xgLLFu7t_normal.jpg", 
+            "profile_sidebar_fill_color" : "DDEEF6", 
+            "profile_text_color" : "333333", 
+            "followers_count" : NumberInt(230), 
+            "profile_sidebar_border_color" : "C0DEED", 
+            "id_str" : "572257085", 
+            "profile_background_color" : "C0DEED", 
+            "listed_count" : NumberInt(22), 
+            "profile_background_image_url_https" : "https://abs.twimg.com/images/themes/theme1/bg.png", 
+            "utc_offset" : null, 
+            "statuses_count" : NumberInt(5766), 
+            "description" : "Democrat since early childhood; Christian since age 14. MARRIED. Keep politics out of our pulpits and have NO PRESIDENT dictate my religion, or my morality!!", 
+            "friends_count" : NumberInt(304), 
+            "location" : "Tennessee, USA", 
+            "profile_link_color" : "0084B4", 
+            "profile_image_url" : "http://pbs.twimg.com/profile_images/782669667005566976/xgLLFu7t_normal.jpg", 
+            "following" : null, 
+            "geo_enabled" : false, 
+            "profile_background_image_url" : "http://abs.twimg.com/images/themes/theme1/bg.png", 
+            "name" : "LKWA1", 
+            "lang" : "en", 
+            "profile_background_tile" : false, 
+            "favourites_count" : NumberInt(5530), 
+            "screen_name" : "WDeedakaren", 
+            "notifications" : null, 
+            "url" : null, 
+            "created_at" : "Sun May 06 02:57:04 +0000 2012", 
+            "contributors_enabled" : false, 
+            "time_zone" : null, 
+            "protected" : false, 
+            "default_profile" : true, 
+            "is_translator" : false
+        }, 
+        "geo" : null, 
+        "in_reply_to_user_id_str" : "13524182", 
+        "lang" : "en", 
+        "created_at" : "Thu Nov 03 16:01:23 +0000 2016", 
+        "filter_level" : "low", 
+        "in_reply_to_status_id_str" : "793639490740887552", 
+        "place" : null
+    }, 
+    "source" : "<a href=\"http://twitter.com/#!/download/ipad\" rel=\"nofollow\">Twitter for iPad</a>", 
+    "in_reply_to_screen_name" : null, 
+    "id_str" : "794210087489314817", 
+    "display_text_range" : [
+        NumberInt(0), 
+        NumberInt(140)
+    ], 
+    "retweet_count" : NumberInt(0), 
+    "in_reply_to_user_id" : null, 
+    "favorited" : false, 
+    "user" : {
+        "follow_request_sent" : null, 
+        "profile_use_background_image" : false, 
+        "default_profile_image" : false, 
+        "id" : NumberInt(21567842), 
+        "verified" : false, 
+        "profile_image_url_https" : "https://pbs.twimg.com/profile_images/3239729529/22337ce7f39af3c636525f70d727a1e3_normal.png", 
+        "profile_sidebar_fill_color" : "000000", 
+        "profile_text_color" : "000000", 
+        "followers_count" : NumberInt(2148), 
+        "profile_sidebar_border_color" : "000000", 
+        "id_str" : "21567842", 
+        "profile_background_color" : "000000", 
+        "listed_count" : NumberInt(74), 
+        "profile_background_image_url_https" : "https://abs.twimg.com/images/themes/theme4/bg.gif", 
+        "utc_offset" : NumberInt(-25200), 
+        "statuses_count" : NumberInt(34118), 
+        "description" : "NastyWoman 4 Hillary. Boomer, Ret ICU RN who bleeds blue, Politics, GunControl,ClimateChange, Animals, Legalization of Cannabis, Health, Agnostic.", 
+        "friends_count" : NumberInt(2353), 
+        "location" : "Oregon", 
+        "profile_link_color" : "1B95E0", 
+        "profile_image_url" : "http://pbs.twimg.com/profile_images/3239729529/22337ce7f39af3c636525f70d727a1e3_normal.png", 
+        "following" : null, 
+        "geo_enabled" : true, 
+        "profile_banner_url" : "https://pbs.twimg.com/profile_banners/21567842/1358526009", 
+        "profile_background_image_url" : "http://abs.twimg.com/images/themes/theme4/bg.gif", 
+        "name" : "YoNastyMama", 
+        "lang" : "en", 
+        "profile_background_tile" : false, 
+        "favourites_count" : NumberInt(12955), 
+        "screen_name" : "beausjo", 
+        "notifications" : null, 
+        "url" : null, 
+        "created_at" : ISODate("2009-02-22T14:26:40.000+0000"), 
+        "contributors_enabled" : false, 
+        "time_zone" : "Pacific Time (US & Canada)", 
+        "protected" : false, 
+        "default_profile" : false, 
+        "is_translator" : false
+    }, 
+    "geo" : null, 
+    "in_reply_to_user_id_str" : null, 
+    "possibly_sensitive" : false, 
+    "lang" : "en", 
+    "extended_tweet" : {
+        "display_text_range" : [
+            NumberInt(0), 
+            NumberInt(137)
+        ], 
+        "entities" : {
+            "user_mentions" : [
+                {
+                    "id" : NumberInt(25073877), 
+                    "indices" : [
+                        NumberInt(15), 
+                        NumberInt(31)
+                    ], 
+                    "id_str" : "25073877", 
+                    "screen_name" : "realDonaldTrump", 
+                    "name" : "Donald J. Trump"
+                }
+            ], 
+            "symbols" : [
+
+            ], 
+            "hashtags" : [
+                {
+                    "indices" : [
+                        NumberInt(85), 
+                        NumberInt(96)
+                    ], 
+                    "text" : "NeverTrump"
+                }, 
+                {
+                    "indices" : [
+                        NumberInt(97), 
+                        NumberInt(115)
+                    ], 
+                    "text" : "WomenAgainstTrump"
+                }, 
+                {
+                    "indices" : [
+                        NumberInt(116), 
+                        NumberInt(126)
+                    ], 
+                    "text" : "UniteBlue"
+                }, 
+                {
+                    "indices" : [
+                        NumberInt(127), 
+                        NumberInt(137)
+                    ], 
+                    "text" : "ImWithHer"
+                }
+            ], 
+            "urls" : [
+                {
+                    "url" : "https://t.co/xSNlwPHZjs", 
+                    "indices" : [
+                        NumberInt(138), 
+                        NumberInt(161)
+                    ], 
+                    "expanded_url" : "https://twitter.com/wdeedakaren/status/794207856568438784", 
+                    "display_url" : "twitter.com/wdeedakaren/st…"
+                }
+            ]
+        }, 
+        "full_text" : "Hillary emails\n@realDonaldTrump up 4 RAPE of 13yr old girl\nWho do u want running USA\n#NeverTrump\n#WomenAgainstTrump\n#UniteBlue\n#ImWithHer https://t.co/xSNlwPHZjs"
+    }, 
+    "created_at" : ISODate("2016-11-03T16:10:15.000+0000"), 
+    "quoted_status_id_str" : "794207856568438784", 
+    "filter_level" : "low", 
+    "in_reply_to_status_id_str" : null, 
+    "place" : null
+}
