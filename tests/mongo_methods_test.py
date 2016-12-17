@@ -26,20 +26,20 @@ class TestMongoMethods(object):
     def teardown(self):
         """This method is run once after _each_ test method is executed"""
 
-    @nottest
+    # @nottest
     def test_connection(self):
         """Test mongo db connection"""
         ping = self.client.admin.command("ping")
         assert ping >= 1
 
-    @nottest
+    # @nottest
     def test_get_language_list(self):
         """Test get language list for the tweet collection"""
         result = hatespeech_core.mongo_methods.get_language_list(
             self.connection_params)
         assert_equals(result, self.lang_list)
 
-    @nottest
+    # @nottest
     def test_get_language_distribution(self):
         """Test the language distribution of tweets"""
         db_result = hatespeech_core.mongo_methods.get_language_distribution(
@@ -53,5 +53,3 @@ class TestMongoMethods(object):
         # Cleanup
         dbo = self.client[self.db_name]
         dbo[self.collection + "_lang_distribution"].drop()
-    
-

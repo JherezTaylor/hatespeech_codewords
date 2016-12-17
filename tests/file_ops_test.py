@@ -23,7 +23,7 @@ class TestFileOps(object):
     def teardown(self):
         """This method is run once after _each_ test method is executed"""
 
-    @nottest
+    # @nottest
     def test_send_job_notification(self):
         """This method tests the pushbullet notification function"""
         response = hatespeech_core.file_ops.send_job_notification(
