@@ -19,16 +19,20 @@ from ..utils import settings
 from ..utils import file_ops
 
 
-def connect():
+def connect(db_url=None):
     """Initializes a pymongo conection object.
 
     Returns:
         pymongo.MongoClient: Connection object for Mongo DB_URL
     """
+    max_sev_sel_delay = 20
+    if db_url is None:
+        db_url = settings.DB_URL
     try:
-        conn = MongoClient(settings.DB_URL)
-        print "Connected to DB at " + settings.DB_URL + " successfully"
-    except errors.ConnectionFailure, ex:
+        conn = MongoClient(db_url, serverSelectionTimeoutMS=max_sev_sel_delay)
+        conn.server_info()
+        print "Connected to DB at " + db_url + " successfully"
+    except errors.ServerSelectionTimeoutError, ex:
         print "Could not connect to MongoDB: %s" % ex
     return conn
 

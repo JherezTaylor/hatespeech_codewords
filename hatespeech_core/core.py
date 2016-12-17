@@ -121,8 +121,9 @@ def main():
     # # test_get_language_distribution(connection_params)
     # temp = file_ops.get_filenames(settings.JSON_PATH)
     # print temp
-    print twokenize.tokenize("hey hi, o!")
-    # file_ops.send_job_notification()
+    # print twokenize.tokenize("hey hi, o!")
+    # r =  file_ops.send_job_notification("hey", ["test8"])
+    # print r.status_code
     # print mongo_methods.get_language_list([client, "twitter", "tweets"])
     # test_get_language_distribution([client, "twitter", "tweets"], ["en", "und"])
     # mongo_methods.keyword_search(

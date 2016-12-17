@@ -2,8 +2,10 @@
 # License: MIT
 # Python 2.7
 
+"""http://nullege.com/codes/search?cq=nose.tools"""
+
 from nose.tools import *
-import hatespeech_core
+from context import hatespeech_core
 
 
 def setup():

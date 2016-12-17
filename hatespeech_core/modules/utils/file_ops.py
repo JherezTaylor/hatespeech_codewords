@@ -15,7 +15,7 @@ from collections import OrderedDict
 import multiprocessing
 import glob
 import cProfile
-from pushbullet import Pushbullet
+import requests
 import ujson
 from . import settings
 from . import twokenize
@@ -80,10 +80,11 @@ def send_job_notification(title, body):
 
     Indicates whether a job has completed or whether an error occured.
     """
-
-    pushbullet = Pushbullet(settings.PUSHBULLET_API_KEY)
-    channel = pushbullet.channels[0]
-    return channel.push_note(title, ujson.dumps(body))
+    headers = {"Access-Token": settings.PUSHBULLET_API_KEY,
+               "Content-Type": "application/json"}
+    payload = {"type": "note", "title": title, "body": body}
+    url = "https://api.pushbullet.com/v2/pushes"
+    return requests.post(url, headers=headers, data=ujson.dumps(payload))
 
 
 def count_sightings(json_obj):
