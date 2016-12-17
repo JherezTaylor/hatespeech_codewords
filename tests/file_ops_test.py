@@ -12,11 +12,13 @@ from context import hatespeech_core
 class TestFileOps(object):
     """ init class """
 
+    def __init__(self):
+        self.pushbullet_message_title = "hey"
+        self.pushbullet_message_body = "test"
+        self.test_list = ["hello", "world", "how", "are", "you"]
+
     def setup(self):
         """This method is run once before _each_ test method is executed"""
-        self.pushbullet_message_title = 'hey'
-        self.pushbullet_message_body = 'test'
-        self.test_list = ["hello", "world", "how", "are", "you"]
 
     def teardown(self):
         """This method is run once after _each_ test method is executed"""
