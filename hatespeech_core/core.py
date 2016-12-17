@@ -10,6 +10,7 @@ import multiprocessing
 from modules.utils import settings
 from modules.utils import file_ops
 from modules.db import mongo_base
+from modules.db import mongo_data_filters
 from modules.db import mongo_complex
 from modules.utils import twokenize
 from joblib import Parallel, delayed
@@ -108,10 +109,34 @@ def generate_bar_chart(chart_title):
     })
 
 
+def run_field_removal(connection_params):
+    """Start the field removal task.
+
+    Stage 1 in preprocessing pipeline.
+    """
+
+    time1 = file_ops.time()
+    db_response = mongo_data_filters.field_removal(connection_params)
+    time2 = file_ops.time()
+    time_diff = (time2 - time1) * 1000.0
+
+    result = db_response
+    print result.modified_count
+
+    print "%s function took %0.3f ms" % ("field_removal", time_diff)
+    send_notification = file_ops.send_job_notification(
+        "Field Removal took " + str(time_diff) + " ms", result)
+    print send_notification.content
+
+
 def main():
     """
     Test functionality
     """
+    client = mongo_base.connect()
+    connection_params = [client, "test_database", "random_sample"]
+
+    run_field_removal(connection_params)
     # data = file_ops.read_json_file('filter1_collection', settings.DATA_PATH)
     # print data[0]
     # print data
@@ -123,7 +148,9 @@ def main():
     # temp = file_ops.get_filenames(settings.JSON_PATH)
     # print temp
     # print twokenize.tokenize("hey hi, o!")
-    # r =  file_ops.send_job_notification("hey", ["test8"])
+
+    # r = file_ops.send_job_notification("hey", ["test10"])
+    # print r
     # print r.status_code
     # print mongo_complex.get_language_list([client, "twitter", "tweets"])
     # test_get_language_distribution([client, "twitter", "tweets"], ["en", "und"])
