@@ -108,11 +108,26 @@ def generate_bar_chart(chart_title):
         "layout": Layout(title=chart_title)
     })
 
+def run_create_indexes(connection_params):
+    """Init indexes.
+
+    Stage 1 in preprocessing pipeline.
+    """
+
+    time1 = file_ops.time()
+    mongo_data_filters.create_indexes(connection_params)
+    time2 = file_ops.time()
+    time_diff = (time2 - time1) * 1000.0
+
+    print "%s function took %0.3f ms" % ("field_removal", time_diff)
+    send_notification = file_ops.send_job_notification(
+        "Field Removal took " + str(time_diff) + " ms", "None")
+    print send_notification.content
 
 def run_field_removal(connection_params):
     """Start the field removal task.
 
-    Stage 1 in preprocessing pipeline.
+    Stage 2 in preprocessing pipeline.
     """
 
     time1 = file_ops.time()
@@ -136,7 +151,8 @@ def main():
     client = mongo_base.connect()
     connection_params = [client, "test_database", "random_sample"]
 
-    run_field_removal(connection_params)
+    run_create_indexes(connection_params)
+    # run_field_removal(connection_params)
     # data = file_ops.read_json_file('filter1_collection', settings.DATA_PATH)
     # print data[0]
     # print data
