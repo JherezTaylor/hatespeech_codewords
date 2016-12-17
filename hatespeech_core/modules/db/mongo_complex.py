@@ -3,8 +3,14 @@
 # Python 2.7
 
 """
-This module provides methods to query the MongoDB instance
+This module provides complex methods that interact with the MongoDB instance.
+
+Aggreagate users and hashtags.
+Map reduce samples.
+Keyword searches. Only provided as a sample, for large collections ElasticSearch should be used.
+Identify the language of tweets with an und lang.
 """
+
 from collections import Counter
 from pprint import pprint
 from bson.code import Code

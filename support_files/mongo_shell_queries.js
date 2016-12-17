@@ -1,11 +1,46 @@
 // Author: Jherez Taylor <jherez.taylor@gmail.com>
 // License: MIT
 
-// Remove unwanted languages
 // lang_list = ['en', 'und'];
 lang_list = ['en', 'und', 'es', 'ru', 'pt', 'it', 'ja', 'fr', 'de', 'ar', 'zh'];
 
+/* --------- DATA PROCESSING PIPELINE -----------*/ 
 
+// STAGE ONE: UNWANTED FIELD REMOVAL
+
+db.tweets.bulkWrite(
+    [
+        {
+            updateMany:
+            {
+                "filter": {},
+                "update": {
+                    $unset: {contributors: "", truncated: "",retweet_count: "", retweeted: "", display_text_range: "", 
+                        retweeted_status: "", extended_entities:"",
+                        entities: "", favorited: "", id: "", "user.follow_request_sent": "",
+                        "user.profile_use_background_image": "", "user.default_profile_image": "",
+                        "user.profile_sidebar_fill_color": "","user.profile_image_url_https": "",
+                        "user.profile_sidebar_border_color": "","user.profile_text_color": "",
+                        "user.profile_sidebar_border_color": "","user.id": "",
+                        "user.profile_background_color": "","user.profile_background_image_url_https": "",
+                        "user.profile_link_color": "","user.profile_image_url": "",
+                        "user.profile_background_image_url": "","user.profile_background_tile": "",
+                        "user.notifications": "","user.default_profile": "",
+                        "user.is_translator": "", in_reply_to_status_id: "", in_reply_to_user_id:"",
+                        quoted_status:"", extended_tweet:""
+
+                    },
+                    $set: {"preprocessed": true}
+                },
+                "upsert": false
+            }
+        }
+    ],
+    { ordered: false }
+)
+
+
+// Remove unwanted languages
 db.tweets.bulkWrite(
     [
         {
@@ -157,37 +192,7 @@ db.temp_media.find({}).noCursorTimeout().forEach(function(doc) {
 if ( count % 1000 != 0 ) 
     bulk.execute();
 
-// Remove unwanted fields
-db.tweets.bulkWrite(
-    [
-        {
-            updateMany:
-            {
-                "filter": {},
-                "update": {
-                    $unset: {contributors: "", truncated: "",retweet_count: "", retweeted: "", display_text_range: "", 
-                        retweeted_status: "", extended_entities:"",
-                        entities: "", favorited: "", id: "", "user.follow_request_sent": "",
-                        "user.profile_use_background_image": "", "user.default_profile_image": "",
-                        "user.profile_sidebar_fill_color": "","user.profile_image_url_https": "",
-                        "user.profile_sidebar_border_color": "","user.profile_text_color": "",
-                        "user.profile_sidebar_border_color": "","user.id": "",
-                        "user.profile_background_color": "","user.profile_background_image_url_https": "",
-                        "user.profile_link_color": "","user.profile_image_url": "",
-                        "user.profile_background_image_url": "","user.profile_background_tile": "",
-                        "user.notifications": "","user.default_profile": "",
-                        "user.is_translator": "", in_reply_to_status_id: "", in_reply_to_user_id:"",
-                        quoted_status:"", extended_tweet:""
 
-                    },
-                    $set: {"preprocessed": true}
-                },
-                "upsert": false
-            }
-        }
-    ],
-    { ordered: false }
-)
 
 db.tweets.find({$text: {$search:"trump"}}).limit(5)
 db.tweets.count({"lang":"en"})
