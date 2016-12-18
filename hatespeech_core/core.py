@@ -149,10 +149,10 @@ def main():
     Test functionality
     """
     client = mongo_base.connect()
-    connection_params = [client, "test_database", "random_sample"]
+    connection_params = [client, "twitter", "tweets"]
 
     run_create_indexes(connection_params)
-    # run_field_removal(connection_params)
+    run_field_removal(connection_params)
     # data = file_ops.read_json_file('filter1_collection', settings.DATA_PATH)
     # print data[0]
     # print data
