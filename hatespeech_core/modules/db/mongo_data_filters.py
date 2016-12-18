@@ -11,7 +11,7 @@ Keyword searches. Only provided as a sample, for large collections ElasticSearch
 Identify the language of tweets with an und lang.
 """
 
-from pymongo import InsertOne, DeleteOne, ReplaceOne, UpdateMany, ASCENDING
+from pymongo import InsertOne, DeleteOne, ReplaceOne, UpdateMany, ASCENDING, errors
 from ..utils import file_ops
 
 
@@ -115,5 +115,12 @@ def field_removal(connection_params):
                        },
                        "$set": {"fields_removed": True}}, upsert=False)
     ]
-    result = dbo[collection].bulk_write(pipeline, ordered=False)
+
+    try:
+        result = dbo[collection].bulk_write(pipeline, ordered=False)
+    except errors.BulkWriteError as bwe:
+        print bwe.details
+        werrors = bwe.details['writeErrors']
+        print werrors
+        raise
     return result

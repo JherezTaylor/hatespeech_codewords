@@ -150,6 +150,7 @@ def main():
     """
     client = mongo_base.connect()
     connection_params = [client, "twitter", "tweets"]
+    # connection_params = [client, "test_database", "random_sample"]
 
     # run_create_indexes(connection_params)
     run_field_removal(connection_params)
