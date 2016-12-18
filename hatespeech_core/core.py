@@ -142,6 +142,13 @@ def run_field_flattening_base(connection_params, field_name, field_to_set, field
     Stage 4 in preprocessing pipeline.
     """
 
+
+    # job_names = ["hashtags", "urls", "media"]
+    # field_names = ["entities.hashtags",  "entities.urls",  "entities.media"]
+    # fields_to_set = ["hashtags", "urls", "media"]
+    # field_to_extract = [".text", "expanded_url", ""]
+    # "entities.hashtags", "hashtags", ".text"
+
     time1 = file_ops.time()
     mongo_data_filters.field_flattening_base(
         connection_params, field_name, field_to_set, field_to_extract)
@@ -159,9 +166,9 @@ def main():
     Test functionality
     """
     client = mongo_base.connect()
-    connection_params = [client, "test_database", "random_sample"]
+    # connection_params = [client, "test_database", "random_sample"]
 
-    # connection_params = [client, "twitter", "tweets"]
+    connection_params = [client, "twitter", "tweets"]
     # run_create_indexes(connection_params)
     # run_field_removal(connection_params)
     # run_language_trimming(connection_params)
