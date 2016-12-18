@@ -88,7 +88,7 @@ def run_create_indexes(connection_params):
 
     print "%s function took %0.3f ms" % ("field_removal", time_diff)
     send_notification = file_ops.send_job_notification(
-        "Field Removal took " + str(time_diff) + " ms", "None")
+        "Field Removal took " + str(time_diff) + " ms", "Complete")
     print send_notification.content
 
 
@@ -136,17 +136,37 @@ def run_language_trimming(connection_params):
     print send_notification.content
 
 
+def run_field_flattening_base(connection_params, field_name, field_to_set, field_to_extract):
+    """Start the field flattening task.
+
+    Stage 4 in preprocessing pipeline.
+    """
+
+    time1 = file_ops.time()
+    mongo_data_filters.field_flattening_base(
+        connection_params, field_name, field_to_set, field_to_extract)
+    time2 = file_ops.time()
+    time_diff = (time2 - time1) * 1000.0
+
+    print "%s function took %0.3f ms" % ("field_removal", time_diff)
+    send_notification = file_ops.send_job_notification(
+        "Field Removal took " + str(time_diff) + " ms", "Complete")
+    print send_notification.content
+
+
 def main():
     """
     Test functionality
     """
     client = mongo_base.connect()
-    connection_params = [client, "twitter", "tweets"]
-    # connection_params = [client, "test_database", "random_sample"]
+    connection_params = [client, "test_database", "random_sample"]
 
+    # connection_params = [client, "twitter", "tweets"]
     # run_create_indexes(connection_params)
-    run_field_removal(connection_params)
+    # run_field_removal(connection_params)
     # run_language_trimming(connection_params)
+    run_field_flattening_base(
+        connection_params, "entities.hashtags", "hashtags", ".text")
 
 if __name__ == "__main__":
     main()

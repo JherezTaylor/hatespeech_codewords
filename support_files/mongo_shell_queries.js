@@ -56,20 +56,6 @@ db.tweets.bulkWrite(
     { ordered: false }
 )
 
-// Remove retweets
-db.tweets.bulkWrite(
-    [
-        {
-            deleteMany: 
-            {
-                "filter": {"retweet_count": {$gt: 0}}
-            }
-        }
-    ],
-    { ordered: false }
-)
-
-
 // Find and compress entities.urls
 var bulk = db.tweets.initializeOrderedBulkOp(),
     count = 0;
