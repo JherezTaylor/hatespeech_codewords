@@ -213,3 +213,75 @@ def field_flattening_base(connection_params, field_name, field_to_set, field_to_
 
     # Clean Up
     dbo["temp_" + field_name_base].drop()
+
+
+def field_flattening_complex(connection_params, field_params):
+    """Aggregate operation to unwind entries in the various entities object.
+
+    Prerocessing Pipeline Stage 4.
+    Entities include hashtags, user_mentions, urls and media.
+
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+    """
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
+    field_name = field_params[0]
+    field_top_level = field_params[1]
+    field_to_set_1 = field_params[2]
+    field_to_set_2 = field_params[3]
+    field_to_extract_1 = field_params[4]
+    field_to_extract_2 = field_params[5]
+
+    dbo = client[db_name]
+
+    field_name_base = field_name
+    field_name = "$" + field_name
+    # Store the documents for our bulkwrite
+    operations = []
+
+    pipeline = [
+        {"$match": {field_name_base: {"$exists": True}}},
+        {"$project": {field_name_base: 1, "_id": 1}},
+        {"$unwind": field_name},
+        {"$group": {"_id": "$_id", field_top_level:
+                    {"$addToSet": {field_to_set_1: field_name + field_to_extract_1,
+                                   field_to_set_2: field_name + field_to_extract_2}
+                     }
+                    }
+         },
+        {"$out": "temp_" + field_name_base}
+    ]
+
+    dbo[collection].aggregate(pipeline, allowDiskUse=True)
+    cursor = dbo["temp_" + field_name_base].find({}, no_cursor_timeout=True)
+
+    for document in cursor:
+        operations.append(
+            UpdateOne({"_id": document["_id"]},
+                      {
+                          "$set": {
+                              field_top_level: document[field_top_level],
+                              str(field_top_level) + "_extracted": True
+                          },
+                          "$unset": {
+                              str(field_name_base): ""
+                          }
+            }, upsert=False))
+
+        # Send once every 1000 in batch
+        if (len(operations) % 1000) == 0:
+            dbo[collection].bulk_write(operations, ordered=False)
+            operations = []
+
+    if (len(operations) % 1000) != 0:
+        dbo[collection].bulk_write(operations, ordered=False)
+
+    # Clean Up
+    dbo["temp_" + field_name_base].drop()
