@@ -97,7 +97,7 @@ def field_removal(connection_params):
                    {
                        "$unset": {
                            "contributors": "", "truncated": "", "retweet_count": "",
-                           "retweeted": "", "favorited": "", "id": "",
+                           "retweeted": "", "favorited": "",
                            "user.follow_request_sent": "", "user.profile_use_background_image": "",
                            "user.default_profile_image": "", "user.profile_sidebar_fill_color": "",
                            "user.profile_text_color": "", "user.profile_sidebar_border_color": "",
