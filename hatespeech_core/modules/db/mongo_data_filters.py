@@ -36,9 +36,9 @@ def create_indexes(connection_params):
 
     dbo = client[db_name]
 
-    dbo[collection].create_index(
-        [("entities.urls", ASCENDING)], sparse=True, background=True)
-    print "URL Index built"
+    # dbo[collection].create_index(
+    #     [("entities.urls", ASCENDING)], sparse=True, background=True)
+    # print "URL Index built"
 
     dbo[collection].create_index(
         [("entities.user_mentions", ASCENDING)], sparse=True, background=True)
@@ -48,25 +48,25 @@ def create_indexes(connection_params):
         [("entities.hashtags", ASCENDING)], sparse=True, background=True)
     print "Hashtag Index built"
 
-    dbo[collection].create_index(
-        [("entities.media", ASCENDING)], sparse=True, background=True)
-    print "Media Index built"
+    # dbo[collection].create_index(
+    #     [("entities.media", ASCENDING)], sparse=True, background=True)
+    # print "Media Index built"
 
-    dbo[collection].create_index(
-        [("user.entities", ASCENDING)], sparse=True, background=True)
-    print "User entities Index built"
+    # dbo[collection].create_index(
+    #     [("user.entities", ASCENDING)], sparse=True, background=True)
+    # print "User entities Index built"
 
     dbo[collection].create_index(
         [("is_quote_status", ASCENDING)], sparse=True, background=True)
     print "Quoted status Index built"
 
     dbo[collection].create_index(
-        [("retweeted_status.id", ASCENDING)], sparse=True, background=True)
+        [("retweeted_status.id_str", ASCENDING)], sparse=True, background=True)
     print "Retweeted Index built"
 
-    dbo[collection].create_index(
-        [("extended_entities.media.id_str", ASCENDING)], sparse=True, background=True)
-    print "Extended entities Index built"
+    # dbo[collection].create_index(
+    #     [("extended_entities.media.id_str", ASCENDING)], sparse=True, background=True)
+    # print "Extended entities Index built"
 
     dbo[collection].create_index(
         [("extended_tweet.display_text_range", ASCENDING)], sparse=True, background=True)
