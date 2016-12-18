@@ -37,3 +37,14 @@ class TestFileOps(object):
             self.test_list)
         print response_string
         assert_equals(response_string, result_string)
+
+    def test_file_operations(self):
+        """Test previous methods
+        """
+
+        file_list = hatespeech_core.file_ops.get_filenames(hatespeech_core.settings.JSON_PATH)
+        hatespeech_core.file_ops.extract_corpus(file_list)
+        response = hatespeech_core.file_ops.read_csv_file("about_sexual_orientation_eng_pg1",
+                                                          hatespeech_core.settings.CSV_PATH)
+        result = hatespeech_core.file_ops.build_query_string(response)
+        assert_equals(len(result), 67)

@@ -30,7 +30,8 @@ def connect(db_url=None):
     if db_url is None:
         db_url = settings.DB_URL
     try:
-        conn = MongoClient(db_url, serverSelectionTimeoutMS=max_sev_sel_delay, socketKeepAlive=True)
+        conn = MongoClient(
+            db_url, serverSelectionTimeoutMS=max_sev_sel_delay, socketKeepAlive=True)
         conn.server_info()
         print "Connected to DB at " + db_url + " successfully"
     except errors.ServerSelectionTimeoutError, ex:
@@ -204,32 +205,34 @@ def get_object_ids(connection_params, lang_list, output_name):
     file_ops.write_json_file(output_name, settings.DATA_PATH, result)
 
 
-def filter_by_language(connection_params, lang_list, output_name):
-    """Bulk operation to remove tweets by the lang field.
+# DEPRECATED
 
-    Filters by any lang not in lang_list. This should ideally be
-    run directly through mongo shellfor large collections.
+# def filter_by_language(connection_params, lang_list, output_name):
+#     """Bulk operation to remove tweets by the lang field.
 
-    Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+#     Filters by any lang not in lang_list. This should ideally be
+#     run directly through mongo shellfor large collections.
 
-        lang_list   (list): List of languages to match on.
-        output_name (str):  Name of the collection to store ids of non removed tweets.
-    """
+#     Args:
+#         connection_params  (list): Contains connection objects and params as follows:
+#             0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+#             1: db_name     (str): Name of database to query.
+#             2: collection  (str): Name of collection to use.
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+#         lang_list   (list): List of languages to match on.
+#         output_name (str):  Name of the collection to store ids of non removed tweets.
+#     """
 
-    dbo = client[db_name]
-    bulk = dbo[collection].initialize_unordered_bulk_op()
+#     client = connection_params[0]
+#     db_name = connection_params[1]
+#     collection = connection_params[2]
 
-    bulk.find({"lang": {"$nin": lang_list}}).remove()
-    result = bulk.execute()
-    print "Finished remove operation"
-    pprint(result)
+#     dbo = client[db_name]
+#     bulk = dbo[collection].initialize_unordered_bulk_op()
 
-    get_object_ids(connection_params, lang_list, output_name)
+#     bulk.find({"lang": {"$nin": lang_list}}).remove()
+#     result = bulk.execute()
+#     print "Finished remove operation"
+#     pprint(result)
+
+#     get_object_ids(connection_params, lang_list, output_name)
