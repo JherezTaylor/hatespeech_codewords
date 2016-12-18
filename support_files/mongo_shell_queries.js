@@ -15,22 +15,24 @@ db.tweets.bulkWrite(
             {
                 "filter": {},
                 "update": {
-                    $unset: {contributors: "", truncated: "",retweet_count: "", retweeted: "", display_text_range: "", 
-                        retweeted_status: "", extended_entities:"",
-                        entities: "", favorited: "", id: "", "user.follow_request_sent": "",
-                        "user.profile_use_background_image": "", "user.default_profile_image": "",
-                        "user.profile_sidebar_fill_color": "","user.profile_image_url_https": "",
-                        "user.profile_sidebar_border_color": "","user.profile_text_color": "",
-                        "user.profile_sidebar_border_color": "","user.id": "",
-                        "user.profile_background_color": "","user.profile_background_image_url_https": "",
-                        "user.profile_link_color": "","user.profile_image_url": "",
-                        "user.profile_background_image_url": "","user.profile_background_tile": "",
-                        "user.notifications": "","user.default_profile": "",
-                        "user.is_translator": "", in_reply_to_status_id: "", in_reply_to_user_id:"",
-                        quoted_status:"", extended_tweet:""
+                    $unset: {"contributors": "", "truncated": "", "retweet_count": "",
+                           "retweeted": "", "favorited": "",
+                           "user.follow_request_sent": "", "user.profile_use_background_image": "",
+                           "user.default_profile_image": "", "user.profile_sidebar_fill_color": "",
+                           "user.profile_text_color": "", "user.profile_sidebar_border_color": "",
+                           "user.profile_image_url_https": "", "in_reply_to_user_id": "",
+                           "user.profile_background_color": "", "in_reply_to_status_id": "",
+                           "user.profile_link_color": "", "geo": "",
+                           "user.profile_image_url": "", "following": "",
+                           "user.profile_background_tile": "", "user.contributors_enabled": "",
+                           "user.notifications": "", "user.is_translator": "", "user.id": "",
+                           "user.profile_background_image_url": "", "user.has_extended_profile": "",
+                           "user.profile_background_image_url_https": "",
+                           "user.is_translation_enabled": "", "metadata": "",
+                           "user.translator_type": "",
 
                     },
-                    $set: {"preprocessed": true}
+                    $set: {"fields_removed": true}
                 },
                 "upsert": false
             }
@@ -39,6 +41,7 @@ db.tweets.bulkWrite(
     { ordered: false }
 )
 
+// STAGE TWO: LANGUAGE TRIMMING
 
 // Remove unwanted languages
 db.tweets.bulkWrite(

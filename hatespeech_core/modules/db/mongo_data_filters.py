@@ -11,7 +11,7 @@ Keyword searches. Only provided as a sample, for large collections ElasticSearch
 Identify the language of tweets with an und lang.
 """
 
-from pymongo import InsertOne, DeleteOne, ReplaceOne, UpdateMany, ASCENDING, errors
+from pymongo import InsertOne, DeleteOne, DeleteMany, ReplaceOne, UpdateMany, ASCENDING, errors
 from ..utils import file_ops
 
 
@@ -123,4 +123,31 @@ def field_removal(connection_params):
         werrors = bwe.details['writeErrors']
         print werrors
         raise
+    return result
+
+
+@file_ops.timing
+def language_trimming(connection_params, lang_list):
+    """Bulk operation to trim the list of languages present
+
+    Prerocessing Pipeline Stage 3.
+
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+    """
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
+    dbo = client[db_name]
+
+    pipeline = [
+        DeleteMany({"lang": {"$nin": lang_list}})
+    ]
+
+    result = dbo[collection].bulk_write(pipeline, ordered=False)
     return result
