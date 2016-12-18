@@ -136,44 +136,82 @@ def run_language_trimming(connection_params):
     print send_notification.content
 
 
-def run_field_flattening_base(connection_params, field_name, field_to_set, field_to_extract):
+def run_field_flattening(connection_params, job_name, field_params):
     """Start the field flattening task.
 
     Stage 4 in preprocessing pipeline.
     """
 
-
-    # job_names = ["hashtags", "urls", "media"]
-    # field_names = ["entities.hashtags",  "entities.urls",  "entities.media"]
-    # fields_to_set = ["hashtags", "urls", "media"]
-    # field_to_extract = [".text", "expanded_url", ""]
-    # "entities.hashtags", "hashtags", ".text"
+    field_name = field_params[0]
+    field_to_set = field_params[1]
+    field_to_extract = field_params[2]
 
     time1 = file_ops.time()
-    mongo_data_filters.field_flattening_base(
-        connection_params, field_name, field_to_set, field_to_extract)
+    if len(field_params) == 3:
+        mongo_data_filters.field_flattening_base(
+            connection_params, field_name, field_to_set, field_to_extract)
+    else:
+        mongo_data_filters.field_flattening_complex(
+            connection_params, field_params)
+
     time2 = file_ops.time()
     time_diff = (time2 - time1) * 1000.0
 
-    print "%s function took %0.3f ms" % ("field_removal", time_diff)
+    print "%s function took %0.3f ms" % (job_name, time_diff)
     send_notification = file_ops.send_job_notification(
-        "Field Removal took " + str(time_diff) + " ms", "Complete")
+        job_name + str(time_diff) + " ms", "Complete")
     print send_notification.content
+
+
+def runner():
+    """ Handle DB operations"""
+
+    job_names = ["hashtags", "entities.urls", "user_mentions", "media"]
+    field_names = ["entities.hashtags", "entities.urls",
+                   "entities.user_mentions", "entities.media"]
+    fields_to_set = ["hashtags", "urls",
+                     "user_mentions", "screen_name", "id_str", "media", "url", "type"]
+    field_to_extract = [".text", ".expanded_url",
+                        ".screen_name", ".id_str", ".media_url", ".type"]
+
+    client = mongo_base.connect()
+    connection_params = [client, "twitter", "tweets"]
+    # connection_params = [client, "test_database", "random_sample"]
+    
+    # run_create_indexes(connection_params)
+    # run_field_removal(connection_params)
+    # run_language_trimming(connection_params)
+
+    hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
+    url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
+    user_mentions_args = [field_names[2], fields_to_set[2], fields_to_set[
+        3], fields_to_set[4], field_to_extract[2], field_to_extract[3]]
+    media_args = [field_names[3], fields_to_set[5], fields_to_set[
+        6], fields_to_set[7], field_to_extract[4], field_to_extract[5]]
+
+    # # Hashtags
+    # run_field_flattening(
+    #     connection_params, job_names[0], hashtag_args)
+
+    # # Urls
+    # run_field_flattening(
+    #     connection_params, job_names[1], url_args)
+
+    # User mentions
+    run_field_flattening(
+        connection_params, job_names[2], user_mentions_args)
+
+    # Media
+    run_field_flattening(
+        connection_params, job_names[3], media_args)
 
 
 def main():
     """
     Test functionality
     """
-    client = mongo_base.connect()
-    # connection_params = [client, "test_database", "random_sample"]
+    runner()
 
-    connection_params = [client, "twitter", "tweets"]
-    # run_create_indexes(connection_params)
-    # run_field_removal(connection_params)
-    # run_language_trimming(connection_params)
-    run_field_flattening_base(
-        connection_params, "entities.hashtags", "hashtags", ".text")
 
 if __name__ == "__main__":
     main()
