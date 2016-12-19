@@ -86,9 +86,9 @@ def run_create_indexes(connection_params):
     time2 = file_ops.time()
     time_diff = (time2 - time1) * 1000.0
 
-    print "%s function took %0.3f ms" % ("field_removal", time_diff)
+    print "%s function took %0.3f ms" % ("create_indexes", time_diff)
     send_notification = file_ops.send_job_notification(
-        "Field Removal took " + str(time_diff) + " ms", "Complete")
+        "Index creation took " + str(time_diff) + " ms", "Complete")
     print send_notification.content
 
 
@@ -130,7 +130,7 @@ def run_language_trimming(connection_params):
     result = db_response
     print result.modified_count
 
-    print "%s function took %0.3f ms" % ("field_removal", time_diff)
+    print "%s function took %0.3f ms" % ("language_trimming", time_diff)
     send_notification = file_ops.send_job_notification(
         "Language trimming took " + str(time_diff) + " ms", result)
     print send_notification.content
@@ -163,6 +163,26 @@ def run_field_flattening(connection_params, job_name, field_params):
     print send_notification.content
 
 
+def run_retweet_removal(connection_params):
+    """Start the retweet removal task.
+
+    Stage 5 in preprocessing pipeline.
+    """
+
+    time1 = file_ops.time()
+    db_response = mongo_data_filters.retweet_removal(connection_params)
+    time2 = file_ops.time()
+    time_diff = (time2 - time1) * 1000.0
+
+    result = db_response
+    print result.modified_count
+
+    print "%s function took %0.3f ms" % ("retweet_removal", time_diff)
+    send_notification = file_ops.send_job_notification(
+        "Language trimming took " + str(time_diff) + " ms", result)
+    print send_notification.content
+
+
 def runner():
     """ Handle DB operations"""
 
@@ -177,7 +197,7 @@ def runner():
     client = mongo_base.connect()
     connection_params = [client, "twitter", "tweets"]
     # connection_params = [client, "test_database", "random_sample"]
-    
+
     # run_create_indexes(connection_params)
     # run_field_removal(connection_params)
     # run_language_trimming(connection_params)
@@ -198,12 +218,15 @@ def runner():
     #     connection_params, job_names[1], url_args)
 
     # User mentions
-    run_field_flattening(
-        connection_params, job_names[2], user_mentions_args)
+    # run_field_flattening(
+    #     connection_params, job_names[2], user_mentions_args)
 
-    # Media
-    run_field_flattening(
-        connection_params, job_names[3], media_args)
+    # # Media
+    # run_field_flattening(
+    #     connection_params, job_names[3], media_args)
+
+    # Remove retweets
+    run_retweet_removal(connection_params)
 
 
 def main():
