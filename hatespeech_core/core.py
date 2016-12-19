@@ -75,10 +75,30 @@ def generate_bar_chart(chart_title):
     })
 
 
+def run_retweet_removal(connection_params):
+    """Start the retweet removal task.
+
+    Stage 1 in preprocessing pipeline.
+    """
+
+    time1 = file_ops.time()
+    db_response = mongo_data_filters.retweet_removal(connection_params)
+    time2 = file_ops.time()
+    time_diff = (time2 - time1) * 1000.0
+
+    result = db_response
+    print result.modified_count
+
+    print "%s function took %0.3f ms" % ("retweet_removal", time_diff)
+    send_notification = file_ops.send_job_notification(
+        settings.MONGO_SOURCE + ": Retweet removal took " + str(time_diff) + " ms", result)
+    print send_notification.content
+
+
 def run_create_indexes(connection_params):
     """Init indexes.
 
-    Stage 1 in preprocessing pipeline.
+    Stage 2 in preprocessing pipeline.
     """
 
     time1 = file_ops.time()
@@ -95,7 +115,7 @@ def run_create_indexes(connection_params):
 def run_field_removal(connection_params):
     """Start the field removal task.
 
-    Stage 2 in preprocessing pipeline.
+    Stage 3 in preprocessing pipeline.
     """
 
     time1 = file_ops.time()
@@ -115,7 +135,7 @@ def run_field_removal(connection_params):
 def run_language_trimming(connection_params):
     """Start the language trimming task.
 
-    Stage 3 in preprocessing pipeline.
+    Stage 4 in preprocessing pipeline.
     """
 
     lang_list = ['en', 'und', 'es', 'ru', 'pt',
@@ -139,7 +159,7 @@ def run_language_trimming(connection_params):
 def run_field_flattening(connection_params, job_name, field_params):
     """Start the field flattening task.
 
-    Stage 4 in preprocessing pipeline.
+    Stage 5 in preprocessing pipeline.
     """
 
     field_name = field_params[0]
@@ -163,26 +183,6 @@ def run_field_flattening(connection_params, job_name, field_params):
     print send_notification.content
 
 
-def run_retweet_removal(connection_params):
-    """Start the retweet removal task.
-
-    Stage 5 in preprocessing pipeline.
-    """
-
-    time1 = file_ops.time()
-    db_response = mongo_data_filters.retweet_removal(connection_params)
-    time2 = file_ops.time()
-    time_diff = (time2 - time1) * 1000.0
-
-    result = db_response
-    print result.modified_count
-
-    print "%s function took %0.3f ms" % ("retweet_removal", time_diff)
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": Retweet removal took " + str(time_diff) + " ms", result)
-    print send_notification.content
-
-
 def runner():
     """ Handle DB operations"""
 
@@ -196,6 +196,7 @@ def runner():
 
     client = mongo_base.connect()
     connection_params = [client, "twitter", "tweets"]
+    # connection_params = [client, "uselections", "tweets"]
     # connection_params = [client, "test_database", "random_sample"]
 
     # run_create_indexes(connection_params)
@@ -208,6 +209,9 @@ def runner():
         3], fields_to_set[4], field_to_extract[2], field_to_extract[3]]
     media_args = [field_names[3], fields_to_set[5], fields_to_set[
         6], fields_to_set[7], field_to_extract[4], field_to_extract[5]]
+
+    # Remove retweets
+    run_retweet_removal(connection_params)
 
     # # Hashtags
     # run_field_flattening(
@@ -224,9 +228,6 @@ def runner():
     # # Media
     # run_field_flattening(
     #     connection_params, job_names[3], media_args)
-
-    # Remove retweets
-    run_retweet_removal(connection_params)
 
 
 def main():
