@@ -131,6 +131,20 @@ def run_field_removal(connection_params):
         settings.MONGO_SOURCE + ": Field Removal took " + str(time_diff) + " ms", result)
     print send_notification.content
 
+    time1 = file_ops.time()
+    db_response = mongo_data_filters.quoted_status_field_removal(
+        connection_params)
+    time2 = file_ops.time()
+    time_diff = (time2 - time1) * 1000.0
+
+    result = db_response
+    print result.modified_count
+
+    print "%s function took %0.3f ms" % ("quoted_status_field_removal", time_diff)
+    send_notification = file_ops.send_job_notification(
+        settings.MONGO_SOURCE + ":Quoted_status Field Removal took " + str(time_diff) + " ms", result)
+    print send_notification.content
+
 
 def run_language_trimming(connection_params):
     """Start the language trimming task.
@@ -199,10 +213,6 @@ def runner():
     # connection_params = [client, "uselections", "tweets"]
     # connection_params = [client, "test_database", "random_sample"]
 
-    # run_create_indexes(connection_params)
-    
-    # run_language_trimming(connection_params)
-
     hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
     url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
     user_mentions_args = [field_names[2], fields_to_set[2], fields_to_set[
@@ -211,9 +221,16 @@ def runner():
         6], fields_to_set[7], field_to_extract[4], field_to_extract[5]]
 
     # Remove retweets
-    run_retweet_removal(connection_params)
+    # run_retweet_removal(connection_params)
 
-    # run_field_removal(connection_params)
+    # Create Indexes
+    run_create_indexes(connection_params)
+
+    # Remove unwanted and redundant fields
+    run_field_removal(connection_params)
+
+    # run_language_trimming(connection_params)
+
     # # Hashtags
     # run_field_flattening(
     #     connection_params, job_names[0], hashtag_args)

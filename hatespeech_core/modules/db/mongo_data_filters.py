@@ -62,10 +62,6 @@ def create_indexes(connection_params):
 
     dbo = client[db_name]
 
-    # dbo[collection].create_index(
-    #     [("entities.urls", ASCENDING)], sparse=True, background=True)
-    # print "URL Index built"
-
     dbo[collection].create_index(
         [("entities.user_mentions", ASCENDING)], sparse=True, background=True)
     print "User mentions Index built"
@@ -74,29 +70,21 @@ def create_indexes(connection_params):
         [("entities.hashtags", ASCENDING)], sparse=True, background=True)
     print "Hashtag Index built"
 
-    # dbo[collection].create_index(
-    #     [("entities.media", ASCENDING)], sparse=True, background=True)
-    # print "Media Index built"
-
-    # dbo[collection].create_index(
-    #     [("user.entities", ASCENDING)], sparse=True, background=True)
-    # print "User entities Index built"
-
     dbo[collection].create_index(
-        [("is_quote_status", ASCENDING)], sparse=True, background=True)
+        [("quoted_status_id", ASCENDING)], sparse=True, background=True)
     print "Quoted status Index built"
 
     dbo[collection].create_index(
-        [("retweeted_status.id_str", ASCENDING)], sparse=True, background=True)
-    print "Retweeted Index built"
-
-    # dbo[collection].create_index(
-    #     [("extended_entities.media.id_str", ASCENDING)], sparse=True, background=True)
-    # print "Extended entities Index built"
+        [("extended_tweet.id_str", ASCENDING)], sparse=True, background=True)
+    print "Extended tweet Index built"
 
     dbo[collection].create_index(
-        [("extended_tweet.display_text_range", ASCENDING)], sparse=True, background=True)
-    print "Extended tweet Index built"
+        [("quoted_status.entities.hashtags", ASCENDING)], sparse=True, background=True)
+    print "Quoted status hashtag Index built"
+
+    dbo[collection].create_index(
+        [("quoted_status.entities.user_mentions", ASCENDING)], sparse=True, background=True)
+    print "Quoted status user_mention Index built"
 
 
 @file_ops.timing
