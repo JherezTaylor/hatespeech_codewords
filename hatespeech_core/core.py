@@ -88,7 +88,7 @@ def run_create_indexes(connection_params):
 
     print "%s function took %0.3f ms" % ("create_indexes", time_diff)
     send_notification = file_ops.send_job_notification(
-        "Index creation took " + str(time_diff) + " ms", "Complete")
+        settings.MONGO_SOURCE + ": Index creation took " + str(time_diff) + " ms", "Complete")
     print send_notification.content
 
 
@@ -108,7 +108,7 @@ def run_field_removal(connection_params):
 
     print "%s function took %0.3f ms" % ("field_removal", time_diff)
     send_notification = file_ops.send_job_notification(
-        "Field Removal took " + str(time_diff) + " ms", result)
+        settings.MONGO_SOURCE + ": Field Removal took " + str(time_diff) + " ms", result)
     print send_notification.content
 
 
@@ -132,7 +132,7 @@ def run_language_trimming(connection_params):
 
     print "%s function took %0.3f ms" % ("language_trimming", time_diff)
     send_notification = file_ops.send_job_notification(
-        "Language trimming took " + str(time_diff) + " ms", result)
+        settings.MONGO_SOURCE + ": Language trimming took " + str(time_diff) + " ms", result)
     print send_notification.content
 
 
@@ -159,7 +159,7 @@ def run_field_flattening(connection_params, job_name, field_params):
 
     print "%s function took %0.3f ms" % (job_name, time_diff)
     send_notification = file_ops.send_job_notification(
-        job_name + str(time_diff) + " ms", "Complete")
+        settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
     print send_notification.content
 
 
@@ -179,7 +179,7 @@ def run_retweet_removal(connection_params):
 
     print "%s function took %0.3f ms" % ("retweet_removal", time_diff)
     send_notification = file_ops.send_job_notification(
-        "Language trimming took " + str(time_diff) + " ms", result)
+        settings.MONGO_SOURCE + ": Language trimming took " + str(time_diff) + " ms", result)
     print send_notification.content
 
 
