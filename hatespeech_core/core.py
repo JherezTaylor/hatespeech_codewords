@@ -209,9 +209,9 @@ def runner():
                         ".screen_name", ".id_str", ".media_url", ".type"]
 
     client = mongo_base.connect()
-    connection_params = [client, "twitter", "tweets"]
+    # connection_params = [client, "twitter", "tweets"]
     # connection_params = [client, "uselections", "tweets"]
-    # connection_params = [client, "test_database", "random_sample"]
+    connection_params = [client, "test_database", "random_sample"]
 
     hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
     url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
