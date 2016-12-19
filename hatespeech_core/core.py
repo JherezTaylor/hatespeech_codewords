@@ -209,9 +209,9 @@ def runner():
                         ".screen_name", ".id_str", ".media_url", ".type"]
 
     client = mongo_base.connect()
-    # connection_params = [client, "twitter", "tweets"]
+    connection_params = [client, "twitter", "tweets"]
     # connection_params = [client, "uselections", "tweets"]
-    connection_params = [client, "test_database", "random_sample"]
+    # connection_params = [client, "test_database", "random_sample"]
 
     hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
     url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
@@ -232,32 +232,36 @@ def runner():
     # run_language_trimming(connection_params)
 
     # # Hashtags
-    run_field_flattening(
-        connection_params, "top_level", job_names[0], hashtag_args)
+    # run_field_flattening(
+    #     connection_params, "top_level", job_names[0], hashtag_args)
 
     # # Urls
-    # run_field_flattening(
-    #     connection_params, "top_level", job_names[1], url_args)
+    run_field_flattening(
+        connection_params, "top_level", job_names[1], url_args)
 
     # User mentions
-    # run_field_flattening(
-    #     connection_params, "top_level", job_names[2], user_mentions_args)
+    run_field_flattening(
+        connection_params, "top_level", job_names[2], user_mentions_args)
 
     # # Media
-    # run_field_flattening(
-    #     connection_params, "top_level", job_names[3], media_args)
+    run_field_flattening(
+        connection_params, "top_level", job_names[3], media_args)
 
     # Quoted_status Hashtags
-    # run_field_flattening(connection_params, "quoted_status", job_names[0], hashtag_args)
+    run_field_flattening(connection_params, "quoted_status",
+                         job_names[0], hashtag_args)
 
     # Quoted_status Urls
-    # run_field_flattening(connection_params, "quoted_status", job_names[1], url_args)
+    run_field_flattening(connection_params, "quoted_status",
+                         job_names[1], url_args)
 
     # Quoted_status User mentions
-    # run_field_flattening(connection_params, "quoted_status", job_names[2], user_mentions_args)
+    run_field_flattening(connection_params, "quoted_status",
+                         job_names[2], user_mentions_args)
 
     # Quoted_status Media
-    # run_field_flattening(connection_params, "quoted_status", job_names[3], media_args)
+    run_field_flattening(connection_params, "quoted_status",
+                         job_names[3], media_args)
 
 
 def main():
