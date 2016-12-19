@@ -14,6 +14,7 @@ Identify the language of tweets with an und lang.
 from pymongo import InsertOne, UpdateOne, DeleteOne, DeleteMany, ReplaceOne, UpdateMany, ASCENDING, errors
 from ..utils import file_ops
 
+
 def retweet_removal(connection_params):
     """Bulk operation to delete all retweets.
 
@@ -38,6 +39,7 @@ def retweet_removal(connection_params):
 
     result = dbo[collection].bulk_write(pipeline, ordered=False)
     return result
+
 
 def create_indexes(connection_params):
     """Create index for field existence checks
@@ -310,4 +312,55 @@ def field_flattening_complex(connection_params, field_params):
     # Clean Up
     dbo["temp_" + field_name_base].drop()
 
-    
+
+@file_ops.timing
+def quoted_status_field_removal(connection_params):
+    """Bulk operation to remove unwanted fields from the quoted_status tweet object
+
+    Prerocessing Pipeline Stage 6.
+
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+    """
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
+    dbo = client[db_name]
+
+    pipeline = [
+        UpdateMany({"quoted_status": {"$exists": True}},
+                   {
+                       "$unset": {
+                           "quoted_status.contributors": "", "quoted_status.truncated": "",
+                           "quoted_status.retweeted": "", "quoted_status.favorited": "",
+                           "quoted_status.user.follow_request_sent": "", "quoted_status.user.profile_use_background_image": "",
+                           "quoted_status.user.default_profile_image": "", "quoted_status.user.profile_sidebar_fill_color": "",
+                           "quoted_status.user.profile_text_color": "", "quoted_status.user.profile_sidebar_border_color": "",
+                           "quoted_status.user.profile_image_url_https": "", "quoted_status.in_reply_to_user_id": "",
+                           "quoted_status.user.profile_background_color": "", "quoted_status.in_reply_to_status_id": "",
+                           "quoted_status.user.profile_link_color": "", "quoted_status.geo": "",
+                           "quoted_status.user.profile_image_url": "", "quoted_status.following": "",
+                           "quoted_status.user.profile_background_tile": "", "quoted_status.user.contributors_enabled": "",
+                           "quoted_status.user.notifications": "", "quoted_status.user.is_translator": "", "quoted_status.user.id": "",
+                           "quoted_status.user.profile_background_image_url": "", "quoted_status.user.has_extended_profile": "",
+                           "quoted_status.user.profile_background_image_url_https": "",
+                           "quoted_status.user.is_translation_enabled": "", "quoted_status.metadata": "",
+                           "quoted_status.user.translator_type": "",
+
+                       },
+                       "$set": {"fields_removed": True}}, upsert=False)
+    ]
+
+    try:
+        result = dbo[collection].bulk_write(pipeline, ordered=False)
+    except errors.BulkWriteError as bwe:
+        print bwe.details
+        werrors = bwe.details['writeErrors']
+        print werrors
+        raise
+    return result

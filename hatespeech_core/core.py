@@ -200,7 +200,7 @@ def runner():
     # connection_params = [client, "test_database", "random_sample"]
 
     # run_create_indexes(connection_params)
-    # run_field_removal(connection_params)
+    
     # run_language_trimming(connection_params)
 
     hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
@@ -213,6 +213,7 @@ def runner():
     # Remove retweets
     run_retweet_removal(connection_params)
 
+    # run_field_removal(connection_params)
     # # Hashtags
     # run_field_flattening(
     #     connection_params, job_names[0], hashtag_args)
