@@ -285,3 +285,29 @@ def field_flattening_complex(connection_params, field_params):
 
     # Clean Up
     dbo["temp_" + field_name_base].drop()
+
+def retweet_removal(connection_params):
+    """Bulk operation to delete all retweets.
+
+    Prerocessing Pipeline Stage 5.
+
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+    """
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
+    dbo = client[db_name]
+
+    pipeline = [
+        DeleteMany({"retweeted_status": {"$exists": True}})
+    ]
+
+    result = dbo[collection].bulk_write(pipeline, ordered=False)
+    return result
+    
