@@ -14,11 +14,35 @@ Identify the language of tweets with an und lang.
 from pymongo import InsertOne, UpdateOne, DeleteOne, DeleteMany, ReplaceOne, UpdateMany, ASCENDING, errors
 from ..utils import file_ops
 
+def retweet_removal(connection_params):
+    """Bulk operation to delete all retweets.
+
+    Prerocessing Pipeline Stage 1.
+
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+    """
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
+    dbo = client[db_name]
+
+    pipeline = [
+        DeleteMany({"retweeted_status": {"$exists": True}})
+    ]
+
+    result = dbo[collection].bulk_write(pipeline, ordered=False)
+    return result
 
 def create_indexes(connection_params):
     """Create index for field existence checks
 
-    Prerocessing Pipeline Stage 1.
+    Prerocessing Pipeline Stage 2.
 
     Filters by any lang not in lang_list. This should ideally be
     run directly through mongo shellfor large collections.
@@ -77,7 +101,7 @@ def create_indexes(connection_params):
 def field_removal(connection_params):
     """Bulk operation to remove unwanted fields from the tweet object
 
-    Prerocessing Pipeline Stage 2.
+    Prerocessing Pipeline Stage 3.
 
     Args:
         connection_params  (list): Contains connection objects and params as follows:
@@ -130,7 +154,7 @@ def field_removal(connection_params):
 def language_trimming(connection_params, lang_list):
     """Bulk operation to trim the list of languages present.
 
-    Prerocessing Pipeline Stage 3.
+    Prerocessing Pipeline Stage 4.
 
     Args:
         connection_params  (list): Contains connection objects and params as follows:
@@ -157,7 +181,7 @@ def language_trimming(connection_params, lang_list):
 def field_flattening_base(connection_params, field_name, field_to_set, field_to_extract):
     """Aggregate operation to unwind entries in the various entities object.
 
-    Prerocessing Pipeline Stage 4.
+    Prerocessing Pipeline Stage 5.
     Entities include hashtags, user_mentions, urls and media.
 
     Args:
@@ -218,7 +242,7 @@ def field_flattening_base(connection_params, field_name, field_to_set, field_to_
 def field_flattening_complex(connection_params, field_params):
     """Aggregate operation to unwind entries in the various entities object.
 
-    Prerocessing Pipeline Stage 4.
+    Prerocessing Pipeline Stage 5.
     Entities include hashtags, user_mentions, urls and media.
 
     Args:
@@ -286,28 +310,4 @@ def field_flattening_complex(connection_params, field_params):
     # Clean Up
     dbo["temp_" + field_name_base].drop()
 
-def retweet_removal(connection_params):
-    """Bulk operation to delete all retweets.
-
-    Prerocessing Pipeline Stage 5.
-
-    Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
-    """
-
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
-
-    dbo = client[db_name]
-
-    pipeline = [
-        DeleteMany({"retweeted_status": {"$exists": True}})
-    ]
-
-    result = dbo[collection].bulk_write(pipeline, ordered=False)
-    return result
     
