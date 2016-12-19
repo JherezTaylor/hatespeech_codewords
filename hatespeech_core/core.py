@@ -179,7 +179,7 @@ def run_retweet_removal(connection_params):
 
     print "%s function took %0.3f ms" % ("retweet_removal", time_diff)
     send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": Language trimming took " + str(time_diff) + " ms", result)
+        settings.MONGO_SOURCE + ": Retweet removal took " + str(time_diff) + " ms", result)
     print send_notification.content
 
 
