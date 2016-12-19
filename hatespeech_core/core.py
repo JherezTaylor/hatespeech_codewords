@@ -170,7 +170,7 @@ def run_language_trimming(connection_params):
     print send_notification.content
 
 
-def run_field_flattening(connection_params, job_name, field_params):
+def run_field_flattening(connection_params, depth, job_name, field_params):
     """Start the field flattening task.
 
     Stage 5 in preprocessing pipeline.
@@ -183,10 +183,10 @@ def run_field_flattening(connection_params, job_name, field_params):
     time1 = file_ops.time()
     if len(field_params) == 3:
         mongo_data_filters.field_flattening_base(
-            connection_params, field_name, field_to_set, field_to_extract)
-    else:
+            connection_params, depth, field_name, field_to_set, field_to_extract)
+    if len(field_params) == 6:
         mongo_data_filters.field_flattening_complex(
-            connection_params, field_params)
+            connection_params, depth, field_params)
 
     time2 = file_ops.time()
     time_diff = (time2 - time1) * 1000.0
@@ -224,28 +224,40 @@ def runner():
     # run_retweet_removal(connection_params)
 
     # Create Indexes
-    run_create_indexes(connection_params)
+    # run_create_indexes(connection_params)
 
     # Remove unwanted and redundant fields
-    run_field_removal(connection_params)
+    # run_field_removal(connection_params)
 
     # run_language_trimming(connection_params)
 
     # # Hashtags
-    # run_field_flattening(
-    #     connection_params, job_names[0], hashtag_args)
+    run_field_flattening(
+        connection_params, "top_level", job_names[0], hashtag_args)
 
     # # Urls
     # run_field_flattening(
-    #     connection_params, job_names[1], url_args)
+    #     connection_params, "top_level", job_names[1], url_args)
 
     # User mentions
     # run_field_flattening(
-    #     connection_params, job_names[2], user_mentions_args)
+    #     connection_params, "top_level", job_names[2], user_mentions_args)
 
     # # Media
     # run_field_flattening(
-    #     connection_params, job_names[3], media_args)
+    #     connection_params, "top_level", job_names[3], media_args)
+
+    # Quoted_status Hashtags
+    # run_field_flattening(connection_params, "quoted_status", job_names[0], hashtag_args)
+
+    # Quoted_status Urls
+    # run_field_flattening(connection_params, "quoted_status", job_names[1], url_args)
+
+    # Quoted_status User mentions
+    # run_field_flattening(connection_params, "quoted_status", job_names[2], user_mentions_args)
+
+    # Quoted_status Media
+    # run_field_flattening(connection_params, "quoted_status", job_names[3], media_args)
 
 
 def main():
