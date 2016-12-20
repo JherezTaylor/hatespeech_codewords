@@ -209,8 +209,8 @@ def runner():
                         ".screen_name", ".id_str", ".media_url", ".type"]
 
     client = mongo_base.connect()
-    connection_params = [client, "twitter", "tweets"]
-    # connection_params = [client, "uselections", "tweets"]
+    # connection_params = [client, "twitter", "tweets"]
+    connection_params = [client, "uselections", "tweets"]
     # connection_params = [client, "test_database", "random_sample"]
 
     hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
@@ -221,19 +221,19 @@ def runner():
         6], fields_to_set[7], field_to_extract[4], field_to_extract[5]]
 
     # Remove retweets
-    # run_retweet_removal(connection_params)
+    run_retweet_removal(connection_params)
 
     # Create Indexes
-    # run_create_indexes(connection_params)
+    run_create_indexes(connection_params)
 
     # Remove unwanted and redundant fields
-    # run_field_removal(connection_params)
+    run_field_removal(connection_params)
 
     # run_language_trimming(connection_params)
 
     # # Hashtags
-    # run_field_flattening(
-    #     connection_params, "top_level", job_names[0], hashtag_args)
+    run_field_flattening(
+        connection_params, "top_level", job_names[0], hashtag_args)
 
     # # Urls
     run_field_flattening(
