@@ -18,7 +18,7 @@ from ..utils import file_ops
 def retweet_removal(connection_params):
     """Bulk operation to delete all retweets.
 
-    Prerocessing Pipeline Stage 1.
+    Preprocessing Pipeline Stage 1.
 
     Args:
         connection_params  (list): Contains connection objects and params as follows:
@@ -44,7 +44,7 @@ def retweet_removal(connection_params):
 def create_indexes(connection_params):
     """Create index for field existence checks
 
-    Prerocessing Pipeline Stage 2.
+    Preprocessing Pipeline Stage 2.
 
     Filters by any lang not in lang_list. This should ideally be
     run directly through mongo shellfor large collections.
@@ -91,7 +91,7 @@ def create_indexes(connection_params):
 def field_removal(connection_params):
     """Bulk operation to remove unwanted fields from the tweet object
 
-    Prerocessing Pipeline Stage 3.
+    Preprocessing Pipeline Stage 3.
 
     Args:
         connection_params  (list): Contains connection objects and params as follows:
@@ -144,7 +144,7 @@ def field_removal(connection_params):
 def quoted_status_field_removal(connection_params):
     """Bulk operation to remove unwanted fields from the quoted_status tweet object
 
-    Prerocessing Pipeline Stage 3.
+    Preprocessing Pipeline Stage 3.
 
     Args:
         connection_params  (list): Contains connection objects and params as follows:
@@ -197,7 +197,7 @@ def quoted_status_field_removal(connection_params):
 def language_trimming(connection_params, lang_list):
     """Bulk operation to trim the list of languages present.
 
-    Prerocessing Pipeline Stage 4.
+    Preprocessing Pipeline Stage 4.
 
     Args:
         connection_params  (list): Contains connection objects and params as follows:
@@ -225,7 +225,7 @@ def language_trimming(connection_params, lang_list):
 def field_flattening_base(connection_params, depth, field_name, field_to_set, field_to_extract):
     """Aggregate operation to unwind entries in the various entities object.
 
-    Prerocessing Pipeline Stage 5.
+    Preprocessing Pipeline Stage 5.
     Entities include hashtags, user_mentions, urls and media.
 
     Args:
@@ -247,7 +247,7 @@ def field_flattening_base(connection_params, depth, field_name, field_to_set, fi
         field_name = "$" + field_name
     elif depth == "quoted_status":
         field_name_base = "quoted_status." + field_name
-        field_name = "$" + field_name
+        field_name = "$" + "quoted_status." + field_name
     # Store the documents for our bulkwrite
     operations = []
 
@@ -291,7 +291,7 @@ def field_flattening_base(connection_params, depth, field_name, field_to_set, fi
 def field_flattening_complex(connection_params, depth, field_params):
     """Aggregate operation to unwind entries in the various entities object.
 
-    Prerocessing Pipeline Stage 5.
+    Preprocessing Pipeline Stage 5.
     Entities include hashtags, user_mentions, urls and media.
 
     Args:
