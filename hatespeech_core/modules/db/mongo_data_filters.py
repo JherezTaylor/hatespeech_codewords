@@ -367,3 +367,112 @@ def field_flattening_complex(connection_params, depth, field_params):
 
     # Clean Up
     dbo["temp_" + field_name_base].drop()
+
+
+def parse_extended_tweet(connection_params, depth, field_name):
+    """Aggregate operation to parse extended tweet and append contents to top level.
+
+    Preprocessing Pipeline Stage 6.
+    Entities include hashtags, user_mentions, urls and media.
+    http://stackoverflow.com/questions/28827516/using-unwind-twice-with-group-and-sum-mongodb
+
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+        depth (str): Extract from top level of tweet or from nested quote tweet.
+    """
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
+    dbo = client[db_name]
+
+    if depth == "top_level":
+        field_name_base = "extended_tweet." + field_name
+        field_name = "$" + "extended_tweet." + field_name
+    elif depth == "quoted_status":
+        field_name_base = "quoted_status.extended_tweet" + field_name
+        field_name = "$" + "quoted_status.extended_tweet" + field_name
+    # Store the documents for our bulkwrite
+    operations = []
+
+    pipeline = [
+        {"$match": {field_name_base: {"$exists": True}}},
+        {"$project": {field_name_base: 1, "_id": 1}},
+
+        {"$unwind": field_name + ".entities.hashtags"},
+        {"$group": {
+            "_id": "$_id",
+            "extended_tweet": {"$first": field_name},
+            "full_text": {"$first": field_name + ".full_text"}
+            "hashtags": {"$addToSet": field_name + ".entities.hashtags.text"},
+        }},
+
+        {"$unwind": field_name + ".entities.user_mentions"},
+        {"$group": {
+            "_id": "$_id",
+            "extended_tweet": {"$first": field_name},
+            "full_text": {"$first": "$full_text"},
+            "hashtags": {"$first": "$hashtags"},
+            "user_mentions": {"$addToSet": {"screen_name": field_name +
+                                            ".entities.user_mentions.screen_name",
+                                            "id_str": field_name + ".entities.user_mentions.id_str"}},
+        }},
+
+        {"$unwind": field_name + ".entities.urls"},
+        {"$group": {
+            "_id": "$_id",
+            "extended_tweet": {"$first": field_name},
+            "full_text": {"$first": "$full_text"},
+            "hashtags": {"$first": "$hashtags"},
+            "user_mentions": {"$first": "$user_mentions"},
+            "urls": {"$addToSet": field_name + ".entities.urls.expanded_url"}
+        }},
+
+        {"$unwind": field_name + ".entities.media"},
+        {"$group": {
+            "_id": "$_id",
+            "full_text": {"$first": "$full_text"},
+            "hashtags": {"$first": "$hashtags"},
+            "user_mentions": {"$first": "$user_mentions"},
+            "urls": {"$first": "$urls"},
+            "media": {"$addToSet": {"media_url": field_name + ".entities.media.media_url",
+                                    "id_str": field_name + ".entities.media.type"}},
+        }},
+
+        {"$out": "temp_" + field_name_base}
+    ]
+
+    dbo[collection].aggregate(pipeline, allowDiskUse=True)
+    cursor = dbo["temp_" + field_name_base].find({}, no_cursor_timeout=True)
+
+    for document in cursor:
+        operations.append(
+            UpdateOne({"_id": document["_id"]},
+                      {
+                          "$set": {
+                              "text": document["full_text"],
+                              "hashtags": document["hashtags"],
+                              "user_mentions": document["user_mentions"],
+                              "urls": document["urls"],
+                              "media": document["media"],
+                              field_to_set + "_extracted": True
+                          }
+                        #   "$unset": {
+                        #       str(field_name_base): ""
+                        #   }
+            }, upsert=False))
+
+        # Send once every 1000 in batch
+        if (len(operations) % 1000) == 0:
+            dbo[collection].bulk_write(operations, ordered=False)
+            operations = []
+
+    if (len(operations) % 1000) != 0:
+        dbo[collection].bulk_write(operations, ordered=False)
+
+    # Clean Up
+    dbo["temp_" + field_name_base].drop()
