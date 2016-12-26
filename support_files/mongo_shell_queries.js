@@ -233,8 +233,38 @@ db.random_sample.aggregate([
     { $group: {
         _id: "$_id",
         hashtags: { $first: "$hashtags" },
+        full_text:{$first: "$full_text"},
         user_mentions:{$addToSet:"$extended_tweet.entities.user_mentions.screen_name"}, 
         user_mentions_id_str:{$addToSet:"$extended_tweet.entities.user_mentions.id_str"},
-        full_text:{$first: "$extended_tweet.full_text"}
-    }}
+    }},
+
+    { $unwind: "$extended_tweet.entities.urls" },
+    { $group: {
+        _id: "$_id",
+        hashtags: { $first: "$hashtags" },
+        full_text:{$first: "$full_text"},
+        user_mentions:{$first: "$user_mentions"},
+        user_mentions_id_str:{$first: "$user_mentions_id_str"},
+        urls:{$addToSet:"$extended_tweet.entities.urls.expanded_url"}
+    }},
+
+    { $unwind: "$extended_tweet.entities.media" },
+    { $group: {
+        _id: "$_id",
+        hashtags: { $first: "$hashtags" },
+        full_text:{$first: "$full_text"},
+        user_mentions:{$first: "$user_mentions"},
+        user_mentions_id_str:{$first: "$user_mentions_id_str"},
+        media:{$addToSet:"$extended_tweet.entities.media.media_url"}
+    }},
+
+    {"$group": {
+        "_id": "$_id",
+            "hashtags": { $first: "$hashtags" },
+            "full_text": { $first: "$full_text" },
+            "user_mentions": { $first: "$user_mentions" },
+            "user_mentions_id_str": { $first: "$user_mentions_id_str" },
+            "media": { $first: "$media" },
+    }},
+    {"$out": "temp_" + "extended_tweet"}
 ])

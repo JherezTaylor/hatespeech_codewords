@@ -196,6 +196,22 @@ def run_field_flattening(connection_params, depth, job_name, field_params):
         settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
     print send_notification.content
 
+def run_parse_extended_tweet(connection_params, depth, job_name):
+    """Start the field flattening task.
+
+    Stage 6 in preprocessing pipeline.
+    """
+
+    time1 = file_ops.time()
+    mongo_data_filters.parse_extended_tweet(connection_params, depth)
+
+    time2 = file_ops.time()
+    time_diff = (time2 - time1) * 1000.0
+
+    print "%s function took %0.3f ms" % (job_name, time_diff)
+    send_notification = file_ops.send_job_notification(
+        settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
+    print send_notification.content
 
 def runner():
     """ Handle DB operations"""
@@ -210,8 +226,8 @@ def runner():
 
     client = mongo_base.connect()
     # connection_params = [client, "twitter", "tweets"]
-    connection_params = [client, "uselections", "tweets"]
-    # connection_params = [client, "test_database", "random_sample"]
+    # connection_params = [client, "uselections", "tweets"]
+    connection_params = [client, "test_database", "random_sample"]
 
     hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
     url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
@@ -248,12 +264,12 @@ def runner():
     #     connection_params, "top_level", job_names[3], media_args)
 
     # Quoted_status Hashtags
-    run_field_flattening(connection_params, "quoted_status",
-                         job_names[0], hashtag_args)
+    # run_field_flattening(connection_params, "quoted_status",
+    #                      job_names[0], hashtag_args)
 
     # Quoted_status Urls
-    run_field_flattening(connection_params, "quoted_status",
-                         job_names[1], url_args)
+    # run_field_flattening(connection_params, "quoted_status",
+    #                      job_names[1], url_args)
 
     # # Quoted_status User mentions
     # run_field_flattening(connection_params, "quoted_status",
@@ -263,6 +279,8 @@ def runner():
     # run_field_flattening(connection_params, "quoted_status",
     #                      job_names[3], media_args)
 
+    # Parse extended tweet
+    # run_parse_extended_tweet(connection_params, "top_level", "Top Level Extended Tweet")
 
 def main():
     """

@@ -369,8 +369,10 @@ def field_flattening_complex(connection_params, depth, field_params):
     dbo["temp_" + field_name_base].drop()
 
 
-def parse_extended_tweet(connection_params, depth, field_name):
+def parse_extended_tweet(connection_params, depth):
     """Aggregate operation to parse extended tweet and append contents to top level.
+
+    HAS BUGS, DOES NOT COMPLETE AGGREGATION, VALUES GETTING LOST IN THE GROUP BY
 
     Preprocessing Pipeline Stage 6.
     Entities include hashtags, user_mentions, urls and media.
@@ -391,11 +393,11 @@ def parse_extended_tweet(connection_params, depth, field_name):
     dbo = client[db_name]
 
     if depth == "top_level":
-        field_name_base = "extended_tweet." + field_name
-        field_name = "$" + "extended_tweet." + field_name
+        field_name_base = "extended_tweet"
+        field_name = "$" + "extended_tweet"
     elif depth == "quoted_status":
-        field_name_base = "quoted_status.extended_tweet" + field_name
-        field_name = "$" + "quoted_status.extended_tweet" + field_name
+        field_name_base = "quoted_status.extended_tweet"
+        field_name = "$" + "quoted_status.extended_tweet"
     # Store the documents for our bulkwrite
     operations = []
 
@@ -407,8 +409,8 @@ def parse_extended_tweet(connection_params, depth, field_name):
         {"$group": {
             "_id": "$_id",
             "extended_tweet": {"$first": field_name},
-            "full_text": {"$first": field_name + ".full_text"}
-            "hashtags": {"$addToSet": field_name + ".entities.hashtags.text"},
+            "full_text": {"$first": field_name + ".full_text"},
+            "hashtags": {"$addToSet": field_name + ".entities.hashtags.text"}
         }},
 
         {"$unwind": field_name + ".entities.user_mentions"},
@@ -459,7 +461,7 @@ def parse_extended_tweet(connection_params, depth, field_name):
                               "user_mentions": document["user_mentions"],
                               "urls": document["urls"],
                               "media": document["media"],
-                              field_to_set + "_extracted": True
+                              "extended_tweet_extracted": True
                           }
                         #   "$unset": {
                         #       str(field_name_base): ""
