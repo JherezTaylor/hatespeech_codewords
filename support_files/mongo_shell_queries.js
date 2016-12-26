@@ -216,3 +216,25 @@ db.tweets.aggregate([{$match: {'lang': {$in: ['und']}}}, {$project: {'entities.u
 
 // Spanish
 db.tweets.aggregate([{$match: {'lang': {$in: ['es']}}}, {$project: {'entities.user_mentions': 1, _id: 0}}, {$unwind: '$entities.user_mentions'}, {$group: {_id: {id_str: '$entities.user_mentions.id_str', 'screen_name': '$entities.user_mentions.screen_name'}, count: {$sum: 1}}}, {$project: {id_str: '$_id.id_str', 'screen_name': '$_id.screen_name', 'count': 1, '_id': 0}}, {$sort: {count: -1}}, { $out : "user_mentions_dist_es" }], {allowDiskUse:true})
+
+db.random_sample.aggregate([
+    {$match: {extended_tweet:{$exists:true}}},
+    {$project: {extended_tweet: 1, _id:1}},
+    
+    { $unwind: "$extended_tweet.entities.hashtags"},
+    { $group: {
+        _id: "$_id",
+        extended_tweet: { $first: "$extended_tweet" },
+        hashtags:{$addToSet:"$extended_tweet.entities.hashtags.text"},
+        full_text:{$first: "$extended_tweet.full_text"}
+    }},
+
+    { $unwind: "$extended_tweet.entities.user_mentions" },
+    { $group: {
+        _id: "$_id",
+        hashtags: { $first: "$hashtags" },
+        user_mentions:{$addToSet:"$extended_tweet.entities.user_mentions.screen_name"}, 
+        user_mentions_id_str:{$addToSet:"$extended_tweet.entities.user_mentions.id_str"},
+        full_text:{$first: "$extended_tweet.full_text"}
+    }}
+])
