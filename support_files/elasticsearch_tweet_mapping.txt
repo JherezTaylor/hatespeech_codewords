@@ -29,12 +29,16 @@
 					"index": true
 				},
 				"user_mentions": {
-					"type": "keyword",
-					"index": true
-				},
-				"user_mention_id_str": {
-					"type": "keyword",
-					"index": true
+					"properties": {
+						"screen_name": {
+							"type": "keyword",
+							"index": "true"
+						},
+						"id_str": {
+							"type": "keyword",
+							"index": "true"
+						}
+					}
 				},
 				"media": {
 					"properties": {
@@ -44,7 +48,7 @@
 						},
 						"type": {
 							"type": "keyword",
-							"index": "false"
+							"index": "true"
 						}
 					}
 				},
@@ -52,17 +56,15 @@
 					"type": "long"
 				},
 				"preprocessed": {
-					"type": "boolean"
+					"type": "boolean",
+					"index": "true"
 				},
 				"filter_level": {
 					"type": "keyword",
-					"index": "false"
+					"index": "true"
 				},
 				"geo": {
 					"type": "geo_shape"
-				},
-				"id": {
-					"type": "long"
 				},
 				"id_str": {
 					"type": "keyword",
@@ -78,7 +80,7 @@
 							"type": "object"
 						},
 						"country": {
-							"index": "false",
+							"index": "true",
 							"type": "keyword"
 						},
 						"country_code": {
@@ -92,7 +94,7 @@
 							"type": "keyword"
 						},
 						"name": {
-							"index": "false",
+							"index": "true",
 							"type": "keyword"
 						},
 						"place_type": {
@@ -141,9 +143,6 @@
 						},
 						"geo_enabled": {
 							"type": "boolean"
-						},
-						"id": {
-							"type": "long"
 						},
 						"id_str": {
 							"type": "keyword"
