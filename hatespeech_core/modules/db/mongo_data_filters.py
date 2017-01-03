@@ -483,7 +483,11 @@ def iterate_cursor(dbo, source_coll, target_coll, field_to_set, depth):
     """
 
     # Store the documents for our bulkwrite
-    if depth == "quoted_status":
+    if depth == "top_level":
+        field = field_to_set
+        field_to_set = field_to_set
+
+    elif depth == "quoted_status":
         field = field_to_set
         field_to_set = "quoted_status." + field_to_set
     operations = []
