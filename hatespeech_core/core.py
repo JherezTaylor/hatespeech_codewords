@@ -146,14 +146,11 @@ def run_field_removal(connection_params):
     print send_notification.content
 
 
-def run_language_trimming(connection_params):
+def run_language_trimming(connection_params, lang_list):
     """Start the language trimming task.
 
     Stage 4 in preprocessing pipeline.
     """
-
-    lang_list = ['en', 'und', 'es', 'ru', 'pt',
-                 'it', 'ja', 'fr', 'de', 'ar', 'zh']
 
     time1 = file_ops.time()
     db_response = mongo_data_filters.language_trimming(
@@ -224,10 +221,13 @@ def runner():
     field_to_extract = [".text", ".expanded_url",
                         ".screen_name", ".id_str", ".media_url", ".type"]
 
+    lang_list = ['en', 'und', 'es', 'ru', 'pt',
+                 'it', 'ja', 'fr', 'de', 'ar', 'zh']
+
     client = mongo_base.connect()
-    # connection_params = [client, "twitter", "tweets"]
+    connection_params = [client, "twitter", "tweets"]
     # connection_params = [client, "uselections", "tweets"]
-    connection_params = [client, "test_database", "random_sample"]
+    # connection_params = [client, "test_database", "random_sample"]
 
     hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
     url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
@@ -245,7 +245,7 @@ def runner():
     # # Remove unwanted and redundant fields
     # run_field_removal(connection_params)
 
-    # # run_language_trimming(connection_params)
+    # run_language_trimming(connection_params, ['en', 'und'])
 
     # # # Hashtags
     # run_field_flattening(
@@ -281,6 +281,7 @@ def runner():
 
     # Parse extended tweet
     # run_parse_extended_tweet(connection_params, "top_level", "Top Level Extended Tweet")
+    # run_parse_extended_tweet(connection_params, "quoted_status", "Quoted Status Extended Tweet")
 
 def main():
     """
