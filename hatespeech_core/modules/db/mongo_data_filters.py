@@ -11,6 +11,7 @@ Keyword searches. Only provided as a sample, for large collections ElasticSearch
 Identify the language of tweets with an und lang.
 """
 
+from bs4 import BeautifulSoup as BSHTML
 from pymongo import UpdateOne, DeleteMany, UpdateMany, ASCENDING, errors
 from ..utils import file_ops
 
@@ -515,7 +516,6 @@ def iterate_cursor(dbo, source_coll, target_coll, field_to_set, depth):
     # Clean Up
     dbo[source_coll].drop()
 
-
 @file_ops.timing
 def final_field_removal(connection_params):
     """Bulk operation to remove unwanted fields from the tweet object
@@ -553,3 +553,44 @@ def final_field_removal(connection_params):
         print werrors
         raise
     return result
+
+def clean_source_field(connection_params):
+    """Parse the HTML in the source field.
+
+    Preprocessing Pipeline Stage 8.
+
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+    """
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
+    dbo = client[db_name]
+    operations = []
+
+    cursor = dbo[collection].find({"source": {"$exists": True}}, {
+                                  "source": 1}, no_cursor_timeout=True)
+    for document in cursor:
+        cleaned_source = BSHTML(
+            "'" + document["source"] + "'", "html.parser").a.contents[0].encode('utf-8').strip()
+        cleaned_source = str(cleaned_source)
+        operations.append(
+            UpdateOne({"_id": document["_id"]},
+                      {
+                          "$set": {
+                              "source": cleaned_source
+                          }
+            }, upsert=False))
+
+        # Send once every 1000 in batch
+        if (len(operations) % 1000) == 0:
+            dbo[collection].bulk_write(operations, ordered=False)
+            operations = []
+
+    if (len(operations) % 1000) != 0:
+        dbo[collection].bulk_write(operations, ordered=False)
