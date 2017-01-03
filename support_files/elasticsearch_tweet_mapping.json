@@ -1,0 +1,37 @@
+{
+    "template": "twitter*",
+    "settings": {
+        "number_of_shards": 1
+    },
+    "mappings": {
+        "tweets": {
+            "properties": {
+                "coordinates": {
+                    "properties": {
+                        "coordinates": {
+                            "type": "geo_point"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "created_at": {
+                    "type": "date",
+                    "format": "dateOptionalTime"
+                },
+                "timestamp_ms": {
+                    "type": "date"
+                },
+                "user": {
+                    "properties": {
+                        "created_at": {
+                            "type": "date",
+                            "format": "dateOptionalTime"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

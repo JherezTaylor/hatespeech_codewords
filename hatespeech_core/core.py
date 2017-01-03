@@ -6,16 +6,16 @@
 Preprocessing module
 """
 
-import multiprocessing
+# import multiprocessing
 from modules.utils import settings
 from modules.utils import file_ops
 from modules.db import mongo_base
 from modules.db import mongo_data_filters
 from modules.db import mongo_complex
-from modules.utils import twokenize
-from joblib import Parallel, delayed
+# from modules.utils import twokenize
+# from joblib import Parallel, delayed
 import plotly
-from textblob import TextBlob
+# from textblob import TextBlob
 from plotly.graph_objs import Scatter, Layout
 
 
@@ -210,31 +210,48 @@ def run_parse_extended_tweet(connection_params, depth, job_name):
         settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
     print send_notification.content
 
+def run_final_field_removal(connection_params, job_name):
+    """Start the final field removal task.
+
+    Stage 7 in preprocessing pipeline.
+    """
+    
+    time1 = file_ops.time()
+    mongo_data_filters.final_field_removal(connection_params)
+
+    time2 = file_ops.time()
+    time_diff = (time2 - time1) * 1000.0
+
+    print "%s function took %0.3f ms" % (job_name, time_diff)
+    send_notification = file_ops.send_job_notification(
+        settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
+    print send_notification.content
+
 def runner():
     """ Handle DB operations"""
 
-    job_names = ["hashtags", "entities.urls", "user_mentions", "media"]
-    field_names = ["entities.hashtags", "entities.urls",
-                   "entities.user_mentions", "entities.media"]
-    fields_to_set = ["hashtags", "urls",
-                     "user_mentions", "screen_name", "id_str", "media", "url", "type"]
-    field_to_extract = [".text", ".expanded_url",
-                        ".screen_name", ".id_str", ".media_url", ".type"]
+    # job_names = ["hashtags", "entities.urls", "user_mentions", "media"]
+    # field_names = ["entities.hashtags", "entities.urls",
+    #                "entities.user_mentions", "entities.media"]
+    # fields_to_set = ["hashtags", "urls",
+    #                  "user_mentions", "screen_name", "id_str", "media", "url", "type"]
+    # field_to_extract = [".text", ".expanded_url",
+    #                     ".screen_name", ".id_str", ".media_url", ".type"]
 
-    lang_list = ['en', 'und', 'es', 'ru', 'pt',
-                 'it', 'ja', 'fr', 'de', 'ar', 'zh']
+    # lang_list = ['en', 'und', 'es', 'ru', 'pt',
+    #              'it', 'ja', 'fr', 'de', 'ar', 'zh']
 
     client = mongo_base.connect()
     connection_params = [client, "twitter", "tweets"]
     # connection_params = [client, "uselections", "tweets"]
     # connection_params = [client, "test_database", "random_sample"]
 
-    hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
-    url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
-    user_mentions_args = [field_names[2], fields_to_set[2], fields_to_set[
-        3], fields_to_set[4], field_to_extract[2], field_to_extract[3]]
-    media_args = [field_names[3], fields_to_set[5], fields_to_set[
-        6], fields_to_set[7], field_to_extract[4], field_to_extract[5]]
+    # hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
+    # url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
+    # user_mentions_args = [field_names[2], fields_to_set[2], fields_to_set[
+    #     3], fields_to_set[4], field_to_extract[2], field_to_extract[3]]
+    # media_args = [field_names[3], fields_to_set[5], fields_to_set[
+    #     6], fields_to_set[7], field_to_extract[4], field_to_extract[5]]
 
     # # Remove retweets
     # run_retweet_removal(connection_params)
@@ -280,8 +297,11 @@ def runner():
     #                      job_names[3], media_args)
 
     # Parse extended tweet
-    # run_parse_extended_tweet(connection_params, "top_level", "Top Level Extended Tweet")
-    # run_parse_extended_tweet(connection_params, "quoted_status", "Quoted Status Extended Tweet")
+    run_parse_extended_tweet(connection_params, "top_level", "Top Level Extended Tweet")
+    run_parse_extended_tweet(connection_params, "quoted_status", "Quoted Status Extended Tweet")
+
+    # Remove final field set
+    run_final_field_removal(connection_params, "Final Field Removal")
 
 def main():
     """
@@ -292,19 +312,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    # test_get_language_distribution(client)
-    # file_ops.filter_hatebase_categories()
-    # generate_bar_chart()
-    # mongo_complex.parse_undefined_lang(client, "twitter", "und_backup", "und")
-    # test_file_operations()
-    # test_get_language_collection(client)
-
-    # mongo_base.filter_object_ids(client, "twitter", "tweets", ["und"], "collection_objectId")
-    # mongo_base.create_lang_collection(client, "twitter", "tweets" "ru")
-    # mongo_complex.get_hashtag_collection(client, "twitter", "hashtag_dist_und")
-
-    # user_mentions_map_reduce(client, "twitter", "collection_ru")
-    # hashtag_map_reduce(client, "twitter", "collection_ru", "hashtag_ru")
-    # test_get_top_k_users(client, "twitter", ["ru"], USER_MENTIONS)
-    # test_get_top_k_hashtags(client, "twitter", ["ru"], HASHTAGS, 20)
