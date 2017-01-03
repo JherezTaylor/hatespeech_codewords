@@ -193,6 +193,7 @@ def run_field_flattening(connection_params, depth, job_name, field_params):
         settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
     print send_notification.content
 
+
 def run_parse_extended_tweet(connection_params, depth, job_name):
     """Start the field flattening task.
 
@@ -210,12 +211,13 @@ def run_parse_extended_tweet(connection_params, depth, job_name):
         settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
     print send_notification.content
 
+
 def run_final_field_removal(connection_params, job_name):
     """Start the final field removal task.
 
     Stage 7 in preprocessing pipeline.
     """
-    
+
     time1 = file_ops.time()
     mongo_data_filters.final_field_removal(connection_params)
 
@@ -226,6 +228,24 @@ def run_final_field_removal(connection_params, job_name):
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
     print send_notification.content
+
+def run_clean_source_field(connection_params, job_name):
+    """Start the clean source field task.
+
+    Stage 8 in preprocessing pipeline.
+    """
+
+    time1 = file_ops.time()
+    mongo_data_filters.clean_source_field(connection_params)
+
+    time2 = file_ops.time()
+    time_diff = (time2 - time1) * 1000.0
+
+    print "%s function took %0.3f ms" % (job_name, time_diff)
+    send_notification = file_ops.send_job_notification(
+        settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
+    print send_notification.content
+
 
 def runner():
     """ Handle DB operations"""
@@ -297,11 +317,15 @@ def runner():
     #                      job_names[3], media_args)
 
     # Parse extended tweet
-    run_parse_extended_tweet(connection_params, "top_level", "Top Level Extended Tweet")
-    run_parse_extended_tweet(connection_params, "quoted_status", "Quoted Status Extended Tweet")
+    # run_parse_extended_tweet(connection_params, "top_level", "Top Level Extended Tweet")
+    # run_parse_extended_tweet(connection_params, "quoted_status", "Quoted Status Extended Tweet")
 
     # Remove final field set
-    run_final_field_removal(connection_params, "Final Field Removal")
+    # run_final_field_removal(connection_params, "Final Field Removal")
+
+    # Clean source field
+    run_clean_source_field(connection_params, "Clean Source Field")
+
 
 def main():
     """
