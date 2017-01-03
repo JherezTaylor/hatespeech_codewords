@@ -392,64 +392,97 @@ def parse_extended_tweet(connection_params, depth):
 
     dbo = client[db_name]
 
+    hashtag_field = "hashtags"
+    user_mention_field = "user_mentions"
+    url_field = "urls"
+    media_field = "media"
+
     if depth == "top_level":
         field_name_base = "extended_tweet"
         field_name = "$" + "extended_tweet"
+
     elif depth == "quoted_status":
         field_name_base = "quoted_status.extended_tweet"
         field_name = "$" + "quoted_status.extended_tweet"
-    # Store the documents for our bulkwrite
-    operations = []
 
-    pipeline = [
-        {"$match": {field_name_base: {"$exists": True}}},
+    pipeline_hashtags = [
+        {"$match": {field_name_base + ".entities.hashtags": {"$exists": True}}},
         {"$project": {field_name_base: 1, "_id": 1}},
-
         {"$unwind": field_name + ".entities.hashtags"},
         {"$group": {
             "_id": "$_id",
-            "extended_tweet": {"$first": field_name},
             "full_text": {"$first": field_name + ".full_text"},
             "hashtags": {"$addToSet": field_name + ".entities.hashtags.text"}
         }},
+        {"$out": "temp_hs_" + field_name_base}
+    ]
 
+    pipeline_user_mentions = [
+        {"$match": {field_name_base + ".entities.user_mentions": {"$exists": True}}},
+        {"$project": {field_name_base: 1, "_id": 1}},
         {"$unwind": field_name + ".entities.user_mentions"},
         {"$group": {
             "_id": "$_id",
-            "extended_tweet": {"$first": field_name},
             "full_text": {"$first": "$full_text"},
-            "hashtags": {"$first": "$hashtags"},
             "user_mentions": {"$addToSet": {"screen_name": field_name +
                                             ".entities.user_mentions.screen_name",
                                             "id_str": field_name + ".entities.user_mentions.id_str"}},
         }},
+        {"$out": "temp_um" + field_name_base}
+    ]
 
+    pipeline_urls = [
+        {"$match": {field_name_base + ".entities.urls": {"$exists": True}}},
+        {"$project": {field_name_base: 1, "_id": 1}},
         {"$unwind": field_name + ".entities.urls"},
         {"$group": {
             "_id": "$_id",
-            "extended_tweet": {"$first": field_name},
             "full_text": {"$first": "$full_text"},
-            "hashtags": {"$first": "$hashtags"},
-            "user_mentions": {"$first": "$user_mentions"},
             "urls": {"$addToSet": field_name + ".entities.urls.expanded_url"}
         }},
+        {"$out": "temp_url" + field_name_base}
+    ]
 
+    pipeline_media = [
+        {"$match": {field_name_base + ".entities.media": {"$exists": True}}},
+        {"$project": {field_name_base: 1, "_id": 1}},
         {"$unwind": field_name + ".entities.media"},
         {"$group": {
             "_id": "$_id",
             "full_text": {"$first": "$full_text"},
-            "hashtags": {"$first": "$hashtags"},
-            "user_mentions": {"$first": "$user_mentions"},
-            "urls": {"$first": "$urls"},
             "media": {"$addToSet": {"media_url": field_name + ".entities.media.media_url",
                                     "id_str": field_name + ".entities.media.type"}},
         }},
-
-        {"$out": "temp_" + field_name_base}
+        {"$out": "temp_md" + field_name_base}
     ]
 
-    dbo[collection].aggregate(pipeline, allowDiskUse=True)
-    cursor = dbo["temp_" + field_name_base].find({}, no_cursor_timeout=True)
+    dbo[collection].aggregate(pipeline_hashtags, allowDiskUse=True)
+    iterate_cursor(dbo, "temp_hs_" + field_name_base,
+                   collection, hashtag_field, depth)
+
+    dbo[collection].aggregate(pipeline_user_mentions, allowDiskUse=True)
+    iterate_cursor(dbo, "temp_um" + field_name_base,
+                   collection, user_mention_field, depth)
+
+    dbo[collection].aggregate(pipeline_urls, allowDiskUse=True)
+    iterate_cursor(dbo, "temp_url" + field_name_base,
+                   collection, url_field, depth)
+
+    dbo[collection].aggregate(pipeline_media, allowDiskUse=True)
+    iterate_cursor(dbo, "temp_md" + field_name_base,
+                   collection, media_field, depth)
+
+
+def iterate_cursor(dbo, source_coll, target_coll, field_to_set, depth):
+    """ Iterate the specified collections and apply the updates
+    """
+
+    # Store the documents for our bulkwrite
+    if depth == "quoted_status":
+        field = field_to_set
+        field_to_set = "quoted_status." + field_to_set
+    operations = []
+    cursor = dbo[source_coll].find({}, no_cursor_timeout=True)
 
     for document in cursor:
         operations.append(
@@ -457,24 +490,57 @@ def parse_extended_tweet(connection_params, depth):
                       {
                           "$set": {
                               "text": document["full_text"],
-                              "hashtags": document["hashtags"],
-                              "user_mentions": document["user_mentions"],
-                              "urls": document["urls"],
-                              "media": document["media"],
+                              field_to_set: document[field],
                               "extended_tweet_extracted": True
                           }
-                        #   "$unset": {
-                        #       str(field_name_base): ""
-                        #   }
             }, upsert=False))
 
         # Send once every 1000 in batch
         if (len(operations) % 1000) == 0:
-            dbo[collection].bulk_write(operations, ordered=False)
+            dbo[target_coll].bulk_write(operations, ordered=False)
             operations = []
 
     if (len(operations) % 1000) != 0:
-        dbo[collection].bulk_write(operations, ordered=False)
+        dbo[target_coll].bulk_write(operations, ordered=False)
 
     # Clean Up
-    dbo["temp_" + field_name_base].drop()
+    dbo[source_coll].drop()
+
+
+@file_ops.timing
+def final_field_removal(connection_params):
+    """Bulk operation to remove unwanted fields from the tweet object
+
+    Preprocessing Pipeline Stage 7.
+
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+    """
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+
+    dbo = client[db_name]
+
+    pipeline = [
+        UpdateMany({},
+                   {
+                       "$unset": {
+                           "entities": "", "quoted_status.entities": "",
+                           "id": "", "quoted_status.id": "", "quoted_status_id": "",
+                           "quoted_status.quoted_status_id": "", "quoted_status.extended_entities": "",
+                           "extended_entities": "", "extended_tweet": "", "quoted_status.extended_tweet": ""
+                       }}, upsert=False)
+    ]
+    try:
+        result = dbo[collection].bulk_write(pipeline, ordered=False)
+    except errors.BulkWriteError as bwe:
+        print bwe.details
+        werrors = bwe.details['writeErrors']
+        print werrors
+        raise
+    return result
