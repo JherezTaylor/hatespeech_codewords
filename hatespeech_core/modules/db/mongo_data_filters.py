@@ -372,8 +372,6 @@ def field_flattening_complex(connection_params, depth, field_params):
 def parse_extended_tweet(connection_params, depth):
     """Aggregate operation to parse extended tweet and append contents to top level.
 
-    HAS BUGS, DOES NOT COMPLETE AGGREGATION, VALUES GETTING LOST IN THE GROUP BY
-
     Preprocessing Pipeline Stage 6.
     Entities include hashtags, user_mentions, urls and media.
     http://stackoverflow.com/questions/28827516/using-unwind-twice-with-group-and-sum-mongodb
@@ -475,6 +473,13 @@ def parse_extended_tweet(connection_params, depth):
 
 def iterate_cursor(dbo, source_coll, target_coll, field_to_set, depth):
     """ Iterate the specified collections and apply the updates
+
+    Args:
+        dbo (MongoClient):    MongoClient connection object
+        source_coll  (str):  Collection containing aggregate results.
+        target_coll  (str):  Collection to update.
+        field_to_set (str):  Name of field to append to collection.
+        depth (str): Extract from top level of tweet or from nested quote tweet.
     """
 
     # Store the documents for our bulkwrite
