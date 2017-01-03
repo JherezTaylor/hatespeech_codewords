@@ -576,9 +576,11 @@ def clean_source_field(connection_params):
     cursor = dbo[collection].find({"source": {"$exists": True}}, {
                                   "source": 1}, no_cursor_timeout=True)
     for document in cursor:
-        cleaned_source = BSHTML(
-            "'" + document["source"] + "'", "html.parser").a.contents[0].encode('utf-8').strip()
-        cleaned_source = str(cleaned_source)
+        try:
+            cleaned_source = BSHTML("'" + document["source"] + "'", "html.parser").a.contents[0].encode('utf-8').strip()
+        except AttributeError:
+            cleaned_source = document["source"]
+
         operations.append(
             UpdateOne({"_id": document["_id"]},
                       {
@@ -594,3 +596,4 @@ def clean_source_field(connection_params):
 
     if (len(operations) % 1000) != 0:
         dbo[collection].bulk_write(operations, ordered=False)
+        
