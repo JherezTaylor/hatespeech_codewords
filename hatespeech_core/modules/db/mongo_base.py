@@ -204,35 +204,3 @@ def get_object_ids(connection_params, lang_list, output_name):
 
     file_ops.write_json_file(output_name, settings.DATA_PATH, result)
 
-
-# DEPRECATED
-
-# def filter_by_language(connection_params, lang_list, output_name):
-#     """Bulk operation to remove tweets by the lang field.
-
-#     Filters by any lang not in lang_list. This should ideally be
-#     run directly through mongo shellfor large collections.
-
-#     Args:
-#         connection_params  (list): Contains connection objects and params as follows:
-#             0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-#             1: db_name     (str): Name of database to query.
-#             2: collection  (str): Name of collection to use.
-
-#         lang_list   (list): List of languages to match on.
-#         output_name (str):  Name of the collection to store ids of non removed tweets.
-#     """
-
-#     client = connection_params[0]
-#     db_name = connection_params[1]
-#     collection = connection_params[2]
-
-#     dbo = client[db_name]
-#     bulk = dbo[collection].initialize_unordered_bulk_op()
-
-#     bulk.find({"lang": {"$nin": lang_list}}).remove()
-#     result = bulk.execute()
-#     print "Finished remove operation"
-#     pprint(result)
-
-#     get_object_ids(connection_params, lang_list, output_name)

@@ -17,8 +17,7 @@ from bson.code import Code
 from bson.son import SON
 from bson.objectid import ObjectId
 from langid.langid import LanguageIdentifier, model
-from pymongo import UpdateOne
-from pymongo import InsertOne
+from pymongo import UpdateOne, InsertOne, errors
 from ..utils import settings
 from ..utils import file_ops
 
@@ -280,6 +279,78 @@ def parse_undefined_lang(connection_params, lang):
 
     print Counter(lang_dist)
     print reduce(lambda x, y: x + y, accuracy) / len(accuracy)
+
+
+@file_ops.do_cprofile
+def select_hs_candidates(connection_params):
+    """ Iterate the specified collection and store the ObjectId
+    of documents that have been tagged as being subjective with a negative sentiment.
+
+    Outputs value to new collection.
+
+    Args:
+        connection_params (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+    """
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+    dbo = client[db_name]
+
+    # Store the documents for our bulkwrite
+    staging = []
+    operations = []
+
+    cursor_count = dbo[collection].count()
+    progress = 0
+    cursor = dbo[collection].find({}, {"text": 1}, no_cursor_timeout=True)
+    for document in cursor:
+
+        # Check if the text consists primarily of links, mentions and tags
+        if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
+            progress = progress + 1
+            staging.append(document)
+        else:
+            pass
+
+        # Send once every 1000 in batch
+        if len(staging) == 1000:
+            print "Progress: ", (progress * 100) / cursor_count, "%"
+            for job in file_ops.parallel_preprocess(staging):
+                if job:
+                    operations.append(InsertOne(job))
+                else:
+                    pass
+            staging = []
+
+        if len(operations) == 1000:
+            try:
+                result = dbo["hs_candidates"].bulk_write(
+                    operations, ordered=False)
+            except errors.BulkWriteError as bwe:
+                print bwe.details
+                print result
+                raise
+
+            dbo["hs_candidates"].bulk_write(operations, ordered=False)
+            operations = []
+
+    if len(staging) > 0:
+        for job in file_ops.parallel_preprocess(staging):
+            if job:
+                operations.append(InsertOne(job))
+            else:
+                pass
+
+    try:
+        result = dbo["hs_candidates"].bulk_write(operations, ordered=False)
+    except errors.BulkWriteError as bwe:
+        print bwe.details
+        print result
+        raise
 
 
 @file_ops.do_cprofile
