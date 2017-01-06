@@ -22,7 +22,6 @@ from . import twokenize
 from nltk.corpus import stopwords
 from textblob import TextBlob
 from joblib import Parallel, delayed
-from pymongo import InsertOne
 
 
 def unicode_to_utf(unicode_list):
@@ -363,8 +362,7 @@ def preprocess_text(raw_text):
     stop_list = stopwords.words("english") + punctuation + ["rt", "via", "RT"]
 
     # Remove urls
-    clean_text = re.sub(
-        r"(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?", "", raw_text)
+    clean_text = remove_urls(raw_text)
     clean_text = twokenize.tokenize(clean_text)
 
     # Remove numbers
@@ -407,44 +405,74 @@ def preprocess_tweet(tweet_obj):
     Returns:
         dict: Tweet with vectorized text appended.
     """
-    punctuation = list(string.punctuation)
-    stop_list = stopwords.words("english") + punctuation + ["rt", "via", "RT"]
 
-    # Remove urls
-    clean_text = clean_text = re.sub(
-        r"(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?", "", tweet_obj["text"])
-    clean_text = twokenize.tokenize(clean_text)
+    sentiment = TextBlob(tweet_obj["text"]).sentiment
 
-    # Remove numbers
-    clean_text = [token for token in clean_text if len(
-        token.strip(string.digits)) == len(token)]
+    # Value between -1 and 1 - TextBlob Polarity explanation in layman's
+    # terms: http://planspace.org/20150607-textblob_sentiment/
+    # Negative sentiment and possibly subjective
+    if sentiment.polarity < 0 and sentiment.subjectivity >= 0:
+        punctuation = list(string.punctuation)
+        stop_list = stopwords.words("english") + \
+            punctuation + ["rt", "via", "RT"]
 
-    # Record single instances of a term only
-    terms_single = set(clean_text)
+        # Remove urls
+        clean_text = clean_text = remove_urls(tweet_obj["text"])
+        clean_text = twokenize.tokenize(clean_text)
 
-    # unigrams = [ w for doc in documents for w in doc if len(w)==1]
-    # bigrams  = [ w for doc in documents for w in doc if len(w)==2]
+        # Remove numbers
+        clean_text = [token for token in clean_text if len(
+            token.strip(string.digits)) == len(token)]
 
-    hashtags_only = []
-    user_mentions_only = []
-    terms_only = []
+        # Record single instances of a term only
+        terms_single = set(clean_text)
 
-    for token in terms_single:
-        if token.startswith("#"):
-            hashtags_only.append(token)
+        terms_only = []
+        stopwords_only = []
 
-        if token.startswith("@"):
-            user_mentions_only.append(token)
+        for token in terms_single:
+            if token in stop_list:
+                stopwords_only.append(token)
 
-        if not token.startswith(("#", "@")) and token not in stop_list:
-            terms_only.append(token)
+            if not token.startswith(("#", "@")) and token not in stop_list:
+                terms_only.append(token)
 
-    sentiment = TextBlob(str(terms_single)).sentiment
-    tweet_obj["vector"] = {"hashtags": hashtags_only, "user_mentions": user_mentions_only,
-                           "tokens": terms_only, "sentiment": list(sentiment)}
+        tweet_obj["stopwords"] = stopwords_only
+        tweet_obj["tokens"] = terms_only
+        tweet_obj["subjectivity"] = sentiment.subjectivity
+        tweet_obj["polarity"] = sentiment.polarity
+        return tweet_obj
+    else:
+        pass
 
-    print hashtags_only
-    return InsertOne(tweet_obj)
+
+def is_garbage(raw_text, precision):
+    """ Check if a tweet consists primarly of hashtags, mentions or urls
+
+    Args:
+        tweet_obj  (dict): Tweet to preprocess.
+    """
+
+    garbage_check = ""
+    word_list = raw_text.split()
+    for token in word_list:
+        if not token.startswith(("#", "@", "http")):
+            garbage_check = garbage_check + token + " "
+
+    if ((len(raw_text) - len(garbage_check)) / len(raw_text)) >= precision:
+        return True
+    else:
+        return False
+
+
+def remove_urls(raw_text):
+    """ Removes urls from text
+
+    Args:
+        raw_text (str): Text to filter.
+    """
+    return re.sub(
+        r"(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?", "", raw_text)
 
 
 def parallel_preprocess(tweet_list):

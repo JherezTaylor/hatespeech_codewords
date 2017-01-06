@@ -20,3 +20,4 @@ HASHTAGS = "entities.hashtags"
 USER_MENTIONS = "entities.user_mentions"
 HASHTAG_LIMIT = 50
 USER_MENTIONS_LIMIT = 50
+GARBAGE_TWEET_DIFF = 0.4
