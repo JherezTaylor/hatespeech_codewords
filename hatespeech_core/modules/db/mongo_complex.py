@@ -306,7 +306,7 @@ def select_hs_candidates(connection_params):
 
     cursor_count = dbo[collection].count()
     progress = 0
-    cursor = dbo[collection].find({}, {"text": 1}, no_cursor_timeout=True)
+    cursor = dbo[collection].find({}, {"text": 1, "created_at": 1}, no_cursor_timeout=True)
     for document in cursor:
 
         # Check if the text consists primarily of links, mentions and tags

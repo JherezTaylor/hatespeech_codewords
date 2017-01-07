@@ -248,7 +248,7 @@ def run_update_missing_text():
     """
 
     client = mongo_base.connect()
-    connection_params = [client, "twitter_test", "empty_text_test"]
+    connection_params = [client, "twitter_test", "tweets"]
     time1 = file_ops.time()
     db_response = mongo_base.update_missing_text(connection_params)
 
