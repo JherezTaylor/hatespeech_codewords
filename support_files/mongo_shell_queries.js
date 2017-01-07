@@ -194,7 +194,7 @@ db.tweets.aggregate( [
    {$limit: 1100},
    {$out: "empty_text_test"}
 ] )
-
+db.tweets.deleteMany({"text":null})
 db.tweets.aggregate([ { $match: { 'lang': {$in: ['en','und']} } }, { $out: "dataset" } ],  {allowDiskUse:true})
 db.tweets.aggregate([ { $match: { 'lang': {$in: ['und']} } }, {'$limit' : 500}, { $out: "und_backup" } ])
 db.tweets.aggregate([{$match : {lang : "en"}},{$group : { _id : "$lang", total : { $sum : 1 } }}])
