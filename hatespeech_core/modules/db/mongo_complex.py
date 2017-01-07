@@ -5,7 +5,7 @@
 """
 This module provides complex methods that interact with the MongoDB instance.
 
-Aggreagate users and hashtags.
+Aggregate users and hashtags.
 Map reduce samples.
 Keyword searches. Only provided as a sample, for large collections ElasticSearch should be used.
 Identify the language of tweets with an und lang.
@@ -274,7 +274,7 @@ def parse_undefined_lang(connection_params, lang):
         # if doclang[0] == "en" and doclang[1] >= 0.70:
         #     print document["text"]
 
-    if len(operations) > 0:
+    if (len(operations) % 1000) != 0:
         dbo[collection].bulk_write(operations, ordered=False)
 
     print Counter(lang_dist)
@@ -338,7 +338,7 @@ def select_hs_candidates(connection_params):
             dbo["hs_candidates"].bulk_write(operations, ordered=False)
             operations = []
 
-    if len(staging) > 0:
+    if (len(staging) % 1000) != 0:
         for job in file_ops.parallel_preprocess(staging):
             if job:
                 operations.append(InsertOne(job))
@@ -406,12 +406,12 @@ def keyword_search(connection_params, keyword_list, lang_list):
             # operations.append(InsertOne(document))
 
             # Send once every 1000 in batch
-            if len(operations) == 1000:
+            if (len(operations) % 1000) == 0:
                 operations = file_ops.parallel_preprocess(operations)
                 dbo["keyword_collection"].bulk_write(operations, ordered=False)
                 operations = []
 
-    if len(operations) > 0:
+    if (len(operations) % 1000) != 0:
         operations = file_ops.parallel_preprocess(operations)
         dbo["keywords_collection"].bulk_write(operations, ordered=False)
 

@@ -189,6 +189,11 @@ db.tweets.find({$text: {$search:"trump"}}).limit(5)
 db.tweets.count({"lang":"en"})
 db.tweets.distinct("lang")
 db.tweets.find({ 'extended_tweet' : { '$exists' : true }})
+db.tweets.aggregate( [
+   {$match: { "text": null } },
+   {$limit: 1100},
+   {$out: "empty_text_test"}
+] )
 
 db.tweets.aggregate([ { $match: { 'lang': {$in: ['en','und']} } }, { $out: "dataset" } ],  {allowDiskUse:true})
 db.tweets.aggregate([ { $match: { 'lang': {$in: ['und']} } }, {'$limit' : 500}, { $out: "und_backup" } ])
