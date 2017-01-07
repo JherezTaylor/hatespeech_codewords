@@ -495,14 +495,25 @@ def iterate_cursor(dbo, source_coll, target_coll, field_to_set, depth):
     cursor = dbo[source_coll].find({}, no_cursor_timeout=True)
 
     for document in cursor:
-        operations.append(
-            UpdateOne({"_id": document["_id"]},
-                      {
-                          "$set": {
-                              "text": document["full_text"],
-                              field_to_set: document[field],
-                              "extended_tweet_extracted": True
-                          }
+        # Some tweets appear to be missing text, do this check just in case
+        if document["full_text"]:
+            operations.append(
+                UpdateOne({"_id": document["_id"]},
+                        {
+                            "$set": {
+                                "text": document["full_text"],
+                                field_to_set: document[field],
+                                "extended_tweet_extracted": True
+                            }
+                }, upsert=False))
+        else:
+            operations.append(
+                UpdateOne({"_id": document["_id"]},
+                          {
+                            "$set": {
+                                field_to_set: document[field],
+                                "extended_tweet_extracted": True
+                            }
             }, upsert=False))
 
         # Send once every 1000 in batch

@@ -243,6 +243,25 @@ def run_clean_source_field(connection_params, job_name):
         settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
     print send_notification.content
 
+def run_update_missing_text():
+    """ Start the missing tweet text replacement job
+    """
+
+    client = mongo_base.connect()
+    connection_params = [client, "twitter_test", "empty_text_test"]
+    time1 = file_ops.time()
+    db_response = mongo_base.update_missing_text(connection_params)
+
+    time2 = file_ops.time()
+    time_diff = (time2 - time1) * 1000.0
+
+    print "%s function took %0.3f ms" % ("update_missing_text", time_diff)
+    send_notification = file_ops.send_job_notification(
+        settings.MONGO_SOURCE + ": Replace missing text took " + str(int(time_diff)) + " ms"
+        , "Found: " + str(db_response[0]) + "Not Found: " + str(db_response[1]) + "Total Requests: "
+        + str(db_response[2]) + "Complete")
+    print send_notification.content
+
 
 def preprocessing_pipeline():
     """ Handle DB operations"""
