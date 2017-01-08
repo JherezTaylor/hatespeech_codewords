@@ -194,6 +194,12 @@ db.tweets.aggregate( [
    {$limit: 1100},
    {$out: "empty_text_test"}
 ] )
+
+
+db.tweets.aggregate(
+   [ { $sample: { size: 500000 } },
+   {$out: "sample"}], { "allowDiskUse": true}
+)
 db.tweets.deleteMany({"text":null})
 db.tweets.aggregate([ { $match: { 'lang': {$in: ['en','und']} } }, { $out: "dataset" } ],  {allowDiskUse:true})
 db.tweets.aggregate([ { $match: { 'lang': {$in: ['und']} } }, {'$limit' : 500}, { $out: "und_backup" } ])
