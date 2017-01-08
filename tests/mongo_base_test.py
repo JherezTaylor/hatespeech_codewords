@@ -15,10 +15,10 @@ class TestMongoMethods(object):
     def __init__(self):
         self.client = hatespeech_core.mongo_base.connect()
         self.db_name = "twitter_test"
-        self.collection = "sample_backup"
+        self.collection = "test_suite"
         self.connection_params = [self.client,
-                                  "twitter_test", "sample_backup"]
-        self.lang_list_length = 23
+                                  "twitter_test", "test_suite"]
+        self.lang_list_length = 2
         self.lang_list = ["en", "und"]
 
     def setup(self):
@@ -45,8 +45,8 @@ class TestMongoMethods(object):
         """Test the language distribution of tweets"""
         db_result = hatespeech_core.mongo_base.get_language_distribution(
             self.connection_params, self.lang_list)
-        expected = [{"language": "en", "count": 8999},
-                    {"language": "und", "count": 690}]
+        expected = [{"language": "en", "count": 941},
+                    {"language": "und", "count": 59}]
 
         result = list(db_result)
         assert_equals(list(result), expected)
