@@ -363,7 +363,7 @@ def preprocess_text(raw_text):
 
     # Remove urls
     clean_text = remove_urls(raw_text)
-    clean_text = twokenize.tokenize(clean_text)
+    clean_text = twokenize.tokenizeRawTweetText(clean_text)
 
     # Remove numbers
     clean_text = [token for token in clean_text if len(
@@ -406,6 +406,7 @@ def preprocess_tweet(tweet_obj):
         dict: Tweet with vectorized text appended.
     """
 
+    # TODO compare this with NLTK
     sentiment = TextBlob(tweet_obj["text"]).sentiment
 
     # Value between -1 and 1 - TextBlob Polarity explanation in layman's
@@ -418,7 +419,8 @@ def preprocess_tweet(tweet_obj):
 
         # Remove urls
         clean_text = clean_text = remove_urls(tweet_obj["text"])
-        clean_text = twokenize.tokenize(clean_text)
+        # TODO Check if this lowercases text
+        clean_text = twokenize.tokenizeRawTweetText(clean_text)
 
         # Remove numbers
         clean_text = [token for token in clean_text if len(
