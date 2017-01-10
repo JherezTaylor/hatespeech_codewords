@@ -34,4 +34,6 @@ def sentiment_pipeline():
     # client = mongo_base.connect()
     # connection_params = [client, "twitter_test", "tweets"]
     # run_select_hs_candidates(connection_params)
-    print twokenize.tokenizeRawTweetText("I predict &amp; I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh")
+    doc = "I predict &amp; :D RT rt I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh"
+    # print twokenize.tokenizeRawTweetText("I predict &amp; I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh")
+    print file_ops.preprocess_text(doc)

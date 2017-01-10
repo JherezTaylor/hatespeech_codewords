@@ -346,6 +346,7 @@ def parse_category_files():
     return result
 
 
+@timing
 def preprocess_text(raw_text):
     """Preprocessing pipeline for raw text.
 
@@ -359,7 +360,8 @@ def preprocess_text(raw_text):
     """
 
     punctuation = list(string.punctuation)
-    stop_list = stopwords.words("english") + punctuation + ["rt", "via", "RT"]
+    stop_list = dict.fromkeys(stopwords.words(
+        "english") + punctuation + ["rt", "via", "RT"])
 
     # Remove urls
     clean_text = remove_urls(raw_text)
@@ -371,6 +373,23 @@ def preprocess_text(raw_text):
 
     # Record single instances of a term only
     terms_single = set(clean_text)
+    terms_single = dict.fromkeys(terms_single)
+
+    # Store any emoji in the text and prevent it from being lowercased then
+    # append items marked as Protected by the twokenize library.
+    # This protected object covers tokens that shouldn't be split or lowercased so
+    # we take advantage of it and use it as quick and dirty way to
+    # identify emoji rather than calling a separate regex function.
+    emoji = []
+    for token in terms_single:
+        for match in twokenize.Protected.finditer(token):
+            emoji.append(token)
+
+    # If the token is not in the emoji dict, lowercase it
+    emoji = dict.fromkeys(emoji)
+    for token in terms_single.copy():
+        if not token in emoji:
+            terms_single[token.lower()] = terms_single.pop(token)
 
     # unigrams = [ w for doc in documents for w in doc if len(w)==1]
     # bigrams  = [ w for doc in documents for w in doc if len(w)==2]
@@ -414,12 +433,11 @@ def preprocess_tweet(tweet_obj):
     # Negative sentiment and possibly subjective
     if sentiment.polarity < 0 and sentiment.subjectivity >= 0:
         punctuation = list(string.punctuation)
-        stop_list = stopwords.words("english") + \
-            punctuation + ["rt", "via", "RT"]
+        stop_list = dict.fromkeys(stopwords.words(
+            "english") + punctuation + ["rt", "via", "RT"])
 
         # Remove urls
         clean_text = clean_text = remove_urls(tweet_obj["text"])
-        # TODO Check if this lowercases text
         clean_text = twokenize.tokenizeRawTweetText(clean_text)
 
         # Remove numbers
@@ -428,9 +446,26 @@ def preprocess_tweet(tweet_obj):
 
         # Record single instances of a term only
         terms_single = set(clean_text)
+        terms_single = dict.fromkeys(terms_single)
 
         terms_only = []
         stopwords_only = []
+
+        # Store any emoji in the text and prevent it from being lowercased then
+        # append items marked as Protected by the twokenize library.
+        # This protected object covers tokens that shouldn't be split or lowercased so
+        # we take advantage of it and use it as quick and dirty way to
+        # identify emoji rather than calling a separate regex function.
+        emoji = []
+        for token in terms_single:
+            for match in twokenize.Protected.finditer(token):
+                emoji.append(token)
+
+        # If the token is not in the emoji dict, lowercase it
+        emoji = dict.fromkeys(emoji)
+        for token in terms_single.copy():
+            if not token in emoji:
+                terms_single[token.lower()] = terms_single.pop(token)
 
         for token in terms_single:
             if token in stop_list:
