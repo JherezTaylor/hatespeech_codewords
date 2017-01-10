@@ -9,7 +9,6 @@ hatespeech
 
 from ..utils import settings
 from ..utils import file_ops
-from ..utils import twokenize
 from ..db import mongo_base
 from ..db import mongo_complex
 
@@ -31,9 +30,18 @@ def run_select_hs_candidates(connection_params):
 
 def sentiment_pipeline():
     """Handle sentiment analysis tasks"""
-    # client = mongo_base.connect()
-    # connection_params = [client, "twitter_test", "tweets"]
-    # run_select_hs_candidates(connection_params)
-    doc = "I predict &amp; :D RT rt I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh"
-    # print twokenize.tokenizeRawTweetText("I predict &amp; I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh")
-    print file_ops.preprocess_text(doc)
+    client = mongo_base.connect()
+    connection_params = [client, "twitter_test", "tweets"]
+    run_select_hs_candidates(connection_params)
+
+    # TODO Make this a test case
+    # doc = {}
+    # doc["text"] = "I sex predict &amp; :D RT rt I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh"
+    # print file_ops.preprocess_tweet(doc, doc["text"].split(), black_list, hs_keywords)
+    # print file_ops.preprocess_text(doc["text"])
+    # black_list = dict.fromkeys(file_ops.read_csv_file(
+    #     "blacklist", settings.WORDLIST_PATH))
+
+    # hs_keywords = dict.fromkeys(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
+    #                             file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
+    # file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))

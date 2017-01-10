@@ -294,6 +294,15 @@ def select_hs_candidates(connection_params):
             1: db_name     (str): Name of database to query.
             2: collection  (str): Name of collection to use.
     """
+    # Load keywords once and avoid redudant disk reads
+    # Load our blacklist and filter any tweet that has a matching keyword
+
+    black_list = dict.fromkeys(file_ops.read_csv_file(
+        "blacklist", settings.WORDLIST_PATH))
+
+    hs_keywords = dict.fromkeys(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
+                                file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
+                                file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
 
     client = connection_params[0]
     db_name = connection_params[1]
@@ -313,14 +322,21 @@ def select_hs_candidates(connection_params):
         # Check if the text consists primarily of links, mentions and tags
         if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
             progress = progress + 1
-            staging.append(document)
+
+            tweet_split = set(document["text"].split())
+            # Set operations are faster than list iterations.
+            # Here we check if the tweet contains any blacklisted words.
+            if (not set(black_list).intersection(tweet_split)) and (set(hs_keywords).intersection(tweet_split)):
+                staging.append(document)
+            else:
+                pass
         else:
             pass
 
         # Send once every 1000 in batch
         if len(staging) == 1000:
             print "Progress: ", (progress * 100) / cursor_count, "%"
-            for job in file_ops.parallel_preprocess(staging):
+            for job in file_ops.parallel_preprocess(staging, tweet_split, hs_keywords):
                 if job:
                     operations.append(InsertOne(job))
                 else:
@@ -340,7 +356,7 @@ def select_hs_candidates(connection_params):
             operations = []
 
     if (len(staging) % 1000) != 0:
-        for job in file_ops.parallel_preprocess(staging):
+        for job in file_ops.parallel_preprocess(staging, tweet_split, hs_keywords):
             if job:
                 operations.append(InsertOne(job))
             else:

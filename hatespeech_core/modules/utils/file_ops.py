@@ -17,11 +17,16 @@ import glob
 import cProfile
 import requests
 import ujson
-from . import settings
-from . import twokenize
 from nltk.corpus import stopwords
+from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
+# from nltk.sentiment.util import demo_sent_subjectivity as SUBJ
 from textblob import TextBlob
 from joblib import Parallel, delayed
+from . import settings
+from . import twokenize
+# import sys
+# reload(sys)
+# sys.setdefaultencoding("utf8")
 
 
 def unicode_to_utf(unicode_list):
@@ -413,25 +418,37 @@ def preprocess_text(raw_text):
             "tokens": terms_only, "sentiment": list(sentiment)}
 
 
-def preprocess_tweet(tweet_obj):
+def preprocess_tweet(tweet_obj, tweet_split, hs_keywords):
     """Preprocessing pipeline for Tweet body.
 
     Tokenize and remove stopwords.
 
     Args:
-        tweet_obj  (dict): Tweet to preprocess.
+        tweet_obj   (dict): Tweet to preprocess.
+        tweet_split (list): List of tokens in the tweet text.
+        hs_keywords (dict): Keywords to match on.
 
     Returns:
         dict: Tweet with vectorized text appended.
     """
 
-    # TODO compare this with NLTK
-    sentiment = TextBlob(tweet_obj["text"]).sentiment
+    # Use VADER approach. The compound score is a normalized value of the
+    # pos, neg and neu values with -1 being most negative and +1 being most positive.
+    # pos, neu and neg are ratios for the proportion of text that fall into
+    # each category
+    sent_analyzer = SIA()
+    sentiment = sent_analyzer.polarity_scores(tweet_obj["text"])
+
+    # Use TextBlob subjectivity for now
+    # SUBJ is a trained classifer on the movie dataset in NLTK
+    # SUBJ(tweet_obj["text"])
+    subjectivity = TextBlob(tweet_obj["text"]).subjectivity
 
     # Value between -1 and 1 - TextBlob Polarity explanation in layman's
     # terms: http://planspace.org/20150607-textblob_sentiment/
+
     # Negative sentiment and possibly subjective
-    if sentiment.polarity < 0 and sentiment.subjectivity >= 0:
+    if sentiment["compound"] < 0 and sentiment["neg"] >= 0.5 and subjectivity >= 0.4:
         punctuation = list(string.punctuation)
         stop_list = dict.fromkeys(stopwords.words(
             "english") + punctuation + ["rt", "via", "RT"])
@@ -458,7 +475,7 @@ def preprocess_tweet(tweet_obj):
         # identify emoji rather than calling a separate regex function.
         emoji = []
         for token in terms_single:
-            for match in twokenize.Protected.finditer(token):
+            for _match in twokenize.Protected.finditer(token):
                 emoji.append(token)
 
         # If the token is not in the emoji dict, lowercase it
@@ -467,17 +484,20 @@ def preprocess_tweet(tweet_obj):
             if not token in emoji:
                 terms_single[token.lower()] = terms_single.pop(token)
 
+        stopwords_only = set(terms_single).intersection(set(stop_list))
         for token in terms_single:
-            if token in stop_list:
-                stopwords_only.append(token)
-
             if not token.startswith(("#", "@")) and token not in stop_list:
                 terms_only.append(token)
 
-        tweet_obj["stopwords"] = stopwords_only
+        tweet_obj["stopwords"] = list(stopwords_only)
         tweet_obj["tokens"] = terms_only
-        tweet_obj["subjectivity"] = sentiment.subjectivity
-        tweet_obj["polarity"] = sentiment.polarity
+        tweet_obj["subjectivity"] = subjectivity
+        tweet_obj["compound_score"] = sentiment["compound"]
+        tweet_obj["hs_keword_count"] = len(
+            set(hs_keywords).intersection(tweet_split))
+        tweet_obj["neg_score"] = sentiment["neg"]
+        tweet_obj["neu_score"] = sentiment["neu"]
+        tweet_obj["pos_score"] = sentiment["pos"]
         return tweet_obj
     else:
         pass
@@ -512,16 +532,18 @@ def remove_urls(raw_text):
         r"(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?", "", raw_text)
 
 
-def parallel_preprocess(tweet_list):
+def parallel_preprocess(tweet_list, tweet_split, hs_keywords):
     """Passes the incoming raw tweets to our preprocessing function.
 
     Args:
-        tweet_list (list): List of raw tweet texts to preprocess.
+        tweet_list  (list): List of raw tweet texts to preprocess.
+        tweet_split (list): List of tokens in the tweet text.
+        hs_keywords (dict): Keywords to match on.
 
     Returns:
         list: List of vectorized tweets.
     """
     num_cores = multiprocessing.cpu_count()
     results = Parallel(n_jobs=num_cores)(
-        delayed(preprocess_tweet)(tweet) for tweet in tweet_list)
+        delayed(preprocess_tweet)(tweet, tweet_split, hs_keywords) for tweet in tweet_list)
     return results
