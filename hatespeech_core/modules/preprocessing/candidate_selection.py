@@ -66,6 +66,7 @@ def run_select_porn_candidates(connection_params):
         settings.MONGO_SOURCE + ": Porn select candidates took " + str(time_diff) + " ms", "Complete")
     print send_notification.content
 
+
 def run_select_general_candidates(connection_params):
     """ Start the General indentification pipeline
     """
@@ -98,3 +99,5 @@ def sentiment_pipeline():
     client = mongo_base.connect()
     connection_params = [client, "twitter_test", "tweets"]
     run_select_hs_candidates(connection_params)
+    run_select_porn_candidates(connection_params)
+    run_select_general_candidates(connection_params)
