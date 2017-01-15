@@ -547,3 +547,22 @@ def parallel_preprocess(tweet_list, tweet_split, hs_keywords):
     results = Parallel(n_jobs=num_cores)(
         delayed(preprocess_tweet)(tweet, tweet_split, hs_keywords) for tweet in tweet_list)
     return results
+
+
+def create_ngrams(text, length):
+    """Create ngrams of the specified length from a string of text
+    Args:
+        text   (str): Text to process.
+        length (int): Length of ngrams to create.
+    """
+
+    ngrams = TextBlob(text).ngrams(n=length)
+    for index, value in enumerate(ngrams):
+        gram = ""
+        for pos, token in enumerate(value):
+            if pos == len(value) - 1:
+                gram += token
+            else:
+                gram += token + " "
+        ngrams[index] = gram
+    return ngrams

@@ -282,7 +282,7 @@ def parse_undefined_lang(connection_params, lang):
 
 
 @file_ops.do_cprofile
-def select_hs_candidates(connection_params):
+def select_hs_candidates(connection_params, filter_options):
     """ Iterate the specified collection and store the ObjectId
     of documents that have been tagged as being subjective with a negative sentiment.
 
@@ -293,9 +293,15 @@ def select_hs_candidates(connection_params):
             0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
             1: db_name     (str): Name of database to query.
             2: collection  (str): Name of collection to use.
+        filter_options    (list): Contains a list of filter conditions as follows:
+            0: check_garbage (bool): Check for garbage tweet.
+            1: target_collection (str): Name of output collection.
     """
     # Load keywords once and avoid redudant disk reads
     # Load our blacklist and filter any tweet that has a matching keyword
+
+    porn_black_list = dict.fromkeys(file_ops.read_csv_file(
+        "porn_blacklist", settings.WORDLIST_PATH))
 
     black_list = dict.fromkeys(file_ops.read_csv_file(
         "blacklist", settings.WORDLIST_PATH))
@@ -309,6 +315,9 @@ def select_hs_candidates(connection_params):
     collection = connection_params[2]
     dbo = client[db_name]
 
+    check_garbage = filter_options[0]
+    target_collection = filter_options[1]
+
     # Store the documents for our bulkwrite
     staging = []
     operations = []
@@ -318,20 +327,55 @@ def select_hs_candidates(connection_params):
     cursor = dbo[collection].find({"text": {"$ne": None}},
                                   {"text": 1, "created_at": 1}, no_cursor_timeout=True)
     for document in cursor:
+        progress = progress + 1
 
-        # Check if the text consists primarily of links, mentions and tags
-        if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
-            progress = progress + 1
+        if check_garbage:
+            # Check if the text consists primarily of links, mentions and tags
+            if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
+                tweet_split = set(document["text"].split())
 
-            tweet_split = set(document["text"].split())
-            # Set operations are faster than list iterations.
-            # Here we check if the tweet contains any blacklisted words.
-            if (not set(black_list).intersection(tweet_split)) and (set(hs_keywords).intersection(tweet_split)):
+                unigrams = file_ops.create_ngrams(document["text"], 1)
+                bigrams = file_ops.create_ngrams(document["text"], 2)
+                trigrams = file_ops.create_ngrams(document["text"], 3)
+                quadgrams = file_ops.create_ngrams(document["text"], 4)
+
+                ngrams = bigrams + trigrams + quadgrams
+
+                # Set operations are faster than list iterations.
+                # Here we perform a best effort series of filters
+                # to ensure we only get tweets we want.
+                unigram_intersect = set(porn_black_list).intersection(set(unigrams))
+                ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
+                black_list_intersect = set(black_list).intersection(tweet_split)
+                hs_keywords_intersect = set(hs_keywords).intersection(tweet_split)
+
+                # The tweet should not contain any blacklisted keywords, porn ngrams and
+                # the porn unigrams should be <=3.
+                # Finally, check if the tweet contains any hs keywords
+                if not black_list_intersect and not ngrams_intersect and (len(unigram_intersect) <= 3) and hs_keywords_intersect:
+                    staging.append(document)
+                else:
+                    # No intersections, skip entry
+                    pass
+            else:
+                # Tweet is garbage
+                pass
+
+        # Don't check for garbage
+        else:
+            unigrams = file_ops.create_ngrams(document["text"], 1)
+            bigrams = file_ops.create_ngrams(document["text"], 2)
+            trigrams = file_ops.create_ngrams(document["text"], 3)
+            quadgrams = file_ops.create_ngrams(document["text"], 4)
+
+            ngrams = bigrams + trigrams + quadgrams
+            unigram_intersect = set(porn_black_list).intersection(set(unigrams))
+
+            if not black_list_intersect and not ngrams_intersect and (len(unigram_intersect) <= 3) and hs_keywords_intersect:
                 staging.append(document)
             else:
+                # No intersection, skip entry
                 pass
-        else:
-            pass
 
         # Send once every 1000 in batch
         if len(staging) == 1000:
@@ -345,14 +389,14 @@ def select_hs_candidates(connection_params):
 
         if len(operations) == 1000:
             try:
-                result = dbo["hs_candidates"].bulk_write(
+                result = dbo[target_collection].bulk_write(
                     operations, ordered=False)
             except errors.BulkWriteError as bwe:
                 print bwe.details
                 print result
                 raise
 
-            dbo["hs_candidates"].bulk_write(operations, ordered=False)
+            dbo[target_collection].bulk_write(operations, ordered=False)
             operations = []
 
     if (len(staging) % 1000) != 0:
@@ -363,18 +407,17 @@ def select_hs_candidates(connection_params):
                 pass
 
     try:
-        result = dbo["hs_candidates"].bulk_write(operations, ordered=False)
+        result = dbo[target_collection].bulk_write(operations, ordered=False)
     except errors.BulkWriteError as bwe:
         print bwe.details
         print result
         raise
 
-
 @file_ops.do_cprofile
-def keyword_search(connection_params, keyword_list, lang_list):
-    """Perform a text search with the provided keywords.
+def select_porn_candidates(connection_params, filter_options):
+    """ Iterate the specified collection and store the ObjectId
+    of documents that have been tagged as being pornographic in nature.
 
-    We also preprocess the tweet text in order to avoid redundant operations.
     Outputs value to new collection.
 
     Args:
@@ -382,111 +425,111 @@ def keyword_search(connection_params, keyword_list, lang_list):
             0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
             1: db_name     (str): Name of database to query.
             2: collection  (str): Name of collection to use.
-
-        keyword_list    (list): List of keywords to search for.
-        lang_list       (list): List of languages to match on.
+        filter_options    (list): Contains a list of filter conditions as follows:
+            0: check_garbage (bool): Check for garbage tweet.
+            1: target_collection (str): Name of output collection.
     """
+    # Load keywords once and avoid redudant disk reads
+    # Load our blacklist and filter any tweet that has a matching keyword
+
+    porn_black_list = dict.fromkeys(file_ops.read_csv_file(
+        "porn_blacklist", settings.WORDLIST_PATH))
+
+    hs_keywords = dict.fromkeys(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
+                                file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
+                                file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
 
     client = connection_params[0]
     db_name = connection_params[1]
     collection = connection_params[2]
-
-    # Store the documents for our bulkwrite
-    operations = []
-    # Keep track of the tweets that we have already seen, keep distinct.
-    seen_set = set()
     dbo = client[db_name]
-    for search_query in keyword_list:
-        # Run an aggregate search for each keyword, might get better performance
-        # from running n keywords at a time, but I'm not sure.
-        pipeline = [
-            {"$match": {"$and": [{"$text": {"$search": search_query}},
-                                 {"id_str": {"$nin": list(seen_set)}},
-                                 {"lang": {"$in": lang_list}},
-                                 {"retweet_count": 0}]}},
-            {"$project": {"_id": 1, "id_str": 1, "text": 1, "id": 1, "timestamp": 1,
-                          "lang": 1, "user.id_str": 1, "user.screen_name": 1, "user.location": 1}},
-            {"$out": "temp_set"}
-        ]
-        dbo[collection].aggregate(pipeline, allowDiskUse=True)
 
-        cursor = dbo["temp_set"].find({}, no_cursor_timeout=True)
-        entities = cursor[:]
+    check_garbage = filter_options[0]
+    target_collection = filter_options[1]
+    # Store the documents for our bulkwrite
+    staging = []
+    operations = []
 
-        print "Keyword:", search_query, "| Count:", cursor.count(), " | Seen:", len(seen_set)
-        for document in entities:
-            seen_set.add(document["id_str"])
-            # Create a new field and add the preprocessed text to it
-            operations.append(document)
+    cursor_count = dbo[collection].count()
+    progress = 0
+    cursor = dbo[collection].find({"text": {"$ne": None}},
+                                  {"text": 1, "created_at": 1}, no_cursor_timeout=True)
+    for document in cursor:
+        progress = progress + 1
 
-            # document["vector"] = file_ops.preprocess_text(document["text"])
-            # operations.append(InsertOne(document))
+        if check_garbage:
+            # Check if the text consists primarily of links, mentions and tags
+            if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
+                tweet_split = set(document["text"].split())
 
-            # Send once every 1000 in batch
-            if (len(operations) % 1000) == 0:
-                operations = file_ops.parallel_preprocess(operations)
-                dbo["keyword_collection"].bulk_write(operations, ordered=False)
-                operations = []
+                unigrams = file_ops.create_ngrams(document["text"], 1)
+                bigrams = file_ops.create_ngrams(document["text"], 2)
+                trigrams = file_ops.create_ngrams(document["text"], 3)
+                quadgrams = file_ops.create_ngrams(document["text"], 4)
 
-    if (len(operations) % 1000) != 0:
-        operations = file_ops.parallel_preprocess(operations)
-        dbo["keywords_collection"].bulk_write(operations, ordered=False)
+                ngrams = bigrams + trigrams + quadgrams
+                unigram_intersect = set(porn_black_list).intersection(set(unigrams))
+                ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
 
-    # Clean Up
-    dbo["temp_set"].drop()
+                if ngrams_intersect and (len(unigram_intersect) >= 3):
+                    staging.append(document)
+                else:
+                    # No intersection, skip entry
+                    pass
+            else:
+                # Tweet is garbage
+                pass
 
+        # Don't check for garbage
+        else:
+            unigrams = file_ops.create_ngrams(document["text"], 1)
+            bigrams = file_ops.create_ngrams(document["text"], 2)
+            trigrams = file_ops.create_ngrams(document["text"], 3)
+            quadgrams = file_ops.create_ngrams(document["text"], 4)
 
-## DEPRECATED ##
+            ngrams = bigrams + trigrams + quadgrams
+            unigram_intersect = set(porn_black_list).intersection(set(unigrams))
+            ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
 
-# def filter_by_language(connection_params, lang_list, output_name):
-#     """Aggregation pipeline to remove tweets with a lang field not in
-#     lang_list. This should ideally be run directly through mongo shell
-#     for large collections.
+            if ngrams_intersect and (len(unigram_intersect) >= 3):
+                staging.append(document)
+            else:
+                # No intersection, skip entry
+                pass
 
-#     Args:
-#         client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-#         db_name     (str): Name of database to query.
-#         collection      (str): Name of collection to use.
-#         lang_list   (list): List of languages to match on.
-#         output_name (str): Name of the collection to store ids of non removed tweets.
-#     """
-    # client = connection_params[0]
-    # db_name = connection_params[1]
-    # collection = connection_params[2]
-#     dbo = client[db_name]
-#     bulk = dbo[collection].initialize_unordered_bulk_op()
-#     count = 0
+        # Send once every 1000 in batch
+        if len(staging) == 1000:
+            print "Progress: ", (progress * 100) / cursor_count, "%"
+            for job in file_ops.parallel_preprocess(staging, tweet_split, hs_keywords):
+                if job:
+                    operations.append(InsertOne(job))
+                else:
+                    pass
+            staging = []
 
-#     pipeline = [
-#         {"$match": {"lang": {"$nin": lang_list}}},
-#         {"$project": {"lang": 1, "_id": 1}},
-#         {"$group": {
-#             "_id": {
-#                 "lang": "$lang",
-#             },
-#             "ids": {"$push": "$_id"}
-#         }},
-#         {"$project": {"ids": 1}}
-#     ]
-#     cursor = dbo[collection].aggregate(pipeline, allowDiskUse=True)
-#     print "Finished aggregation. Iterating now"
+        if len(operations) == 1000:
+            try:
+                result = dbo[target_collection].bulk_write(
+                    operations, ordered=False)
+            except errors.BulkWriteError as bwe:
+                print bwe.details
+                print result
+                raise
 
-#     for document in cursor:
-#         bulk.find({"_id": {"$in": document["ids"]}}).remove()
-#         count = count + 1
-#         print "Count:", count
+            dbo[target_collection].bulk_write(operations, ordered=False)
+            operations = []
 
-#         if count % 1000 == 0:
-#             print "Running bulk execute"
-#             bulk.execute()
-#             bulk = dbo[collection].initialize_unordered_bulk_op()
+    if (len(staging) % 1000) != 0:
+        for job in file_ops.parallel_preprocess(staging, tweet_split, hs_keywords):
+            if job:
+                operations.append(InsertOne(job))
+            else:
+                pass
 
-#     if count % 1000 != 0:
-#         print "Running bulk execute"
-#         bulk.execute()
-
-#     pipeline = [
-#         {"$project": {"_id": 1}},
-#         {"$out": output_name}
-#     ]
-#     dbo[collection].aggregate(pipeline, allowDiskUse=True)
+    try:
+        result = dbo[target_collection].bulk_write(operations, ordered=False)
+    except errors.BulkWriteError as bwe:
+        print bwe.details
+        print result
+        raise
+        
