@@ -77,7 +77,7 @@ def run_select_general_candidates(connection_params):
 
     print "%s function took %0.3f ms" % ("select_gen_candidates", time_diff)
     send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": Porn select candidates took " + str(time_diff) + " ms", "Complete")
+        settings.MONGO_SOURCE + ": General select candidates took " + str(time_diff) + " ms", "Complete")
     print send_notification.content
 
     # Prep a collection with check garbage set to False
@@ -89,7 +89,7 @@ def run_select_general_candidates(connection_params):
 
     print "%s function took %0.3f ms" % ("select_gen_candidates", time_diff)
     send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": Porn select candidates took " + str(time_diff) + " ms", "Complete")
+        settings.MONGO_SOURCE + ": General select candidates took " + str(time_diff) + " ms", "Complete")
     print send_notification.content
 
 
