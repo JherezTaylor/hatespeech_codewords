@@ -369,7 +369,11 @@ def select_hs_candidates(connection_params, filter_options):
             quadgrams = file_ops.create_ngrams(document["text"], 4)
 
             ngrams = bigrams + trigrams + quadgrams
+
             unigram_intersect = set(porn_black_list).intersection(set(unigrams))
+            ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
+            black_list_intersect = set(black_list).intersection(tweet_split)
+            hs_keywords_intersect = set(hs_keywords).intersection(tweet_split)
 
             if not black_list_intersect and not ngrams_intersect and (len(unigram_intersect) <= 3) and hs_keywords_intersect:
                 staging.append(document)
@@ -471,7 +475,7 @@ def select_porn_candidates(connection_params, filter_options):
                 unigram_intersect = set(porn_black_list).intersection(set(unigrams))
                 ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
 
-                if ngrams_intersect and (len(unigram_intersect) >= 3):
+                if ngrams_intersect or (len(unigram_intersect) >= 3):
                     staging.append(document)
                 else:
                     # No intersection, skip entry
@@ -491,7 +495,135 @@ def select_porn_candidates(connection_params, filter_options):
             unigram_intersect = set(porn_black_list).intersection(set(unigrams))
             ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
 
-            if ngrams_intersect and (len(unigram_intersect) >= 3):
+            if ngrams_intersect or (len(unigram_intersect) >= 3):
+                staging.append(document)
+            else:
+                # No intersection, skip entry
+                pass
+
+        # Send once every 1000 in batch
+        if len(staging) == 1000:
+            print "Progress: ", (progress * 100) / cursor_count, "%"
+            for job in file_ops.parallel_preprocess(staging, tweet_split, hs_keywords):
+                if job:
+                    operations.append(InsertOne(job))
+                else:
+                    pass
+            staging = []
+
+        if len(operations) == 1000:
+            try:
+                result = dbo[target_collection].bulk_write(
+                    operations, ordered=False)
+            except errors.BulkWriteError as bwe:
+                print bwe.details
+                print result
+                raise
+
+            dbo[target_collection].bulk_write(operations, ordered=False)
+            operations = []
+
+    if (len(staging) % 1000) != 0:
+        for job in file_ops.parallel_preprocess(staging, tweet_split, hs_keywords):
+            if job:
+                operations.append(InsertOne(job))
+            else:
+                pass
+
+    try:
+        result = dbo[target_collection].bulk_write(operations, ordered=False)
+    except errors.BulkWriteError as bwe:
+        print bwe.details
+        print result
+        raise
+
+@file_ops.do_cprofile
+def select_general_candidates(connection_params, filter_options):
+    """ Iterate the specified collection and store the ObjectId
+    of documents that do not match any hs or pornographic keywords.
+
+    Outputs value to new collection.
+
+    Args:
+        connection_params (list): Contains connection objects and params as follows:
+            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
+            1: db_name     (str): Name of database to query.
+            2: collection  (str): Name of collection to use.
+        filter_options    (list): Contains a list of filter conditions as follows:
+            0: check_garbage (bool): Check for garbage tweet.
+            1: target_collection (str): Name of output collection.
+    """
+    # Load keywords once and avoid redudant disk reads
+    # Load our blacklist and filter any tweet that has a matching keyword
+
+    porn_black_list = dict.fromkeys(file_ops.read_csv_file(
+        "porn_blacklist", settings.WORDLIST_PATH))
+
+    black_list = dict.fromkeys(file_ops.read_csv_file(
+        "blacklist", settings.WORDLIST_PATH))
+
+    hs_keywords = dict.fromkeys(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
+                                file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
+                                file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
+
+    client = connection_params[0]
+    db_name = connection_params[1]
+    collection = connection_params[2]
+    dbo = client[db_name]
+
+    check_garbage = filter_options[0]
+    target_collection = filter_options[1]
+    # Store the documents for our bulkwrite
+    staging = []
+    operations = []
+
+    cursor_count = dbo[collection].count()
+    progress = 0
+    cursor = dbo[collection].find({"text": {"$ne": None}},
+                                  {"text": 1, "created_at": 1}, no_cursor_timeout=True)
+    for document in cursor:
+        progress = progress + 1
+
+        if check_garbage:
+            # Check if the text consists primarily of links, mentions and tags
+            if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
+                tweet_split = set(document["text"].split())
+
+                unigrams = file_ops.create_ngrams(document["text"], 1)
+                bigrams = file_ops.create_ngrams(document["text"], 2)
+                trigrams = file_ops.create_ngrams(document["text"], 3)
+                quadgrams = file_ops.create_ngrams(document["text"], 4)
+
+                ngrams = bigrams + trigrams + quadgrams
+                unigram_intersect = set(porn_black_list).intersection(set(unigrams))
+                ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
+                black_list_intersect = set(black_list).intersection(tweet_split)
+                hs_keywords_intersect = set(hs_keywords).intersection(tweet_split)
+
+                # No porn or hs intersect
+                if not ngrams_intersect and (len(unigram_intersect) > 1) and not black_list_intersect and not hs_keywords_intersect:
+                    staging.append(document)
+                else:
+                    # No intersection, skip entry
+                    pass
+            else:
+                # Tweet is garbage
+                pass
+
+        # Don't check for garbage
+        else:
+            unigrams = file_ops.create_ngrams(document["text"], 1)
+            bigrams = file_ops.create_ngrams(document["text"], 2)
+            trigrams = file_ops.create_ngrams(document["text"], 3)
+            quadgrams = file_ops.create_ngrams(document["text"], 4)
+
+            ngrams = bigrams + trigrams + quadgrams
+            unigram_intersect = set(porn_black_list).intersection(set(unigrams))
+            ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
+            black_list_intersect = set(black_list).intersection(tweet_split)
+            hs_keywords_intersect = set(hs_keywords).intersection(tweet_split)
+
+            if not ngrams_intersect and (len(unigram_intersect) > 1) and not black_list_intersect and not hs_keywords_intersect:
                 staging.append(document)
             else:
                 # No intersection, skip entry
