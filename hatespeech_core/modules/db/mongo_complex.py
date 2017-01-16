@@ -332,7 +332,6 @@ def select_hs_candidates(connection_params, filter_options):
         if check_garbage:
             # Check if the text consists primarily of links, mentions and tags
             if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
-                tweet_split = set(document["text"].split())
 
                 unigrams = file_ops.create_ngrams(document["text"], 1)
                 bigrams = file_ops.create_ngrams(document["text"], 2)
@@ -340,14 +339,16 @@ def select_hs_candidates(connection_params, filter_options):
                 quadgrams = file_ops.create_ngrams(document["text"], 4)
 
                 ngrams = bigrams + trigrams + quadgrams
+                unigrams = set(unigrams)
+                ngrams = set(ngrams)
 
                 # Set operations are faster than list iterations.
                 # Here we perform a best effort series of filters
                 # to ensure we only get tweets we want.
-                unigram_intersect = set(porn_black_list).intersection(set(unigrams))
-                ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
-                black_list_intersect = set(black_list).intersection(tweet_split)
-                hs_keywords_intersect = set(hs_keywords).intersection(tweet_split)
+                unigram_intersect = set(porn_black_list).intersection(unigrams)
+                ngrams_intersect = set(porn_black_list).intersection(ngrams)
+                black_list_intersect = set(black_list).intersection(unigrams)
+                hs_keywords_intersect = set(hs_keywords).intersection(unigrams)
 
                 # The tweet should not contain any blacklisted keywords, porn ngrams and
                 # the porn unigrams should be <=3.
@@ -369,11 +370,13 @@ def select_hs_candidates(connection_params, filter_options):
             quadgrams = file_ops.create_ngrams(document["text"], 4)
 
             ngrams = bigrams + trigrams + quadgrams
+            unigrams = set(unigrams)
+            ngrams = set(ngrams)
 
-            unigram_intersect = set(porn_black_list).intersection(set(unigrams))
-            ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
-            black_list_intersect = set(black_list).intersection(tweet_split)
-            hs_keywords_intersect = set(hs_keywords).intersection(tweet_split)
+            unigram_intersect = set(porn_black_list).intersection(unigrams)
+            ngrams_intersect = set(porn_black_list).intersection(ngrams)
+            black_list_intersect = set(black_list).intersection(unigrams)
+            hs_keywords_intersect = set(hs_keywords).intersection(unigrams)
 
             if not black_list_intersect and not ngrams_intersect and (len(unigram_intersect) <= 3) and hs_keywords_intersect:
                 staging.append(document)
@@ -384,7 +387,7 @@ def select_hs_candidates(connection_params, filter_options):
         # Send once every 1000 in batch
         if len(staging) == 1000:
             print "Progress: ", (progress * 100) / cursor_count, "%"
-            for job in file_ops.parallel_preprocess(staging, tweet_split, hs_keywords):
+            for job in file_ops.parallel_preprocess(staging, hs_keywords):
                 if job:
                     operations.append(InsertOne(job))
                 else:
@@ -404,7 +407,7 @@ def select_hs_candidates(connection_params, filter_options):
             operations = []
 
     if (len(staging) % 1000) != 0:
-        for job in file_ops.parallel_preprocess(staging, tweet_split, hs_keywords):
+        for job in file_ops.parallel_preprocess(staging, hs_keywords):
             if job:
                 operations.append(InsertOne(job))
             else:
@@ -464,7 +467,6 @@ def select_porn_candidates(connection_params, filter_options):
         if check_garbage:
             # Check if the text consists primarily of links, mentions and tags
             if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
-                tweet_split = set(document["text"].split())
 
                 unigrams = file_ops.create_ngrams(document["text"], 1)
                 bigrams = file_ops.create_ngrams(document["text"], 2)
@@ -472,8 +474,11 @@ def select_porn_candidates(connection_params, filter_options):
                 quadgrams = file_ops.create_ngrams(document["text"], 4)
 
                 ngrams = bigrams + trigrams + quadgrams
-                unigram_intersect = set(porn_black_list).intersection(set(unigrams))
-                ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
+                unigrams = set(unigrams)
+                ngrams = set(ngrams)
+
+                unigram_intersect = set(porn_black_list).intersection(unigrams)
+                ngrams_intersect = set(porn_black_list).intersection(ngrams)
 
                 if ngrams_intersect or (len(unigram_intersect) >= 3):
                     staging.append(document)
@@ -492,8 +497,11 @@ def select_porn_candidates(connection_params, filter_options):
             quadgrams = file_ops.create_ngrams(document["text"], 4)
 
             ngrams = bigrams + trigrams + quadgrams
-            unigram_intersect = set(porn_black_list).intersection(set(unigrams))
-            ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
+            unigrams = set(unigrams)
+            ngrams = set(ngrams)
+
+            unigram_intersect = set(porn_black_list).intersection(unigrams)
+            ngrams_intersect = set(porn_black_list).intersection(ngrams)
 
             if ngrams_intersect or (len(unigram_intersect) >= 3):
                 staging.append(document)
@@ -504,7 +512,7 @@ def select_porn_candidates(connection_params, filter_options):
         # Send once every 1000 in batch
         if len(staging) == 1000:
             print "Progress: ", (progress * 100) / cursor_count, "%"
-            for job in file_ops.parallel_preprocess(staging, tweet_split, hs_keywords):
+            for job in file_ops.parallel_preprocess(staging, hs_keywords):
                 if job:
                     operations.append(InsertOne(job))
                 else:
@@ -524,7 +532,7 @@ def select_porn_candidates(connection_params, filter_options):
             operations = []
 
     if (len(staging) % 1000) != 0:
-        for job in file_ops.parallel_preprocess(staging, tweet_split, hs_keywords):
+        for job in file_ops.parallel_preprocess(staging, hs_keywords):
             if job:
                 operations.append(InsertOne(job))
             else:
@@ -587,7 +595,6 @@ def select_general_candidates(connection_params, filter_options):
         if check_garbage:
             # Check if the text consists primarily of links, mentions and tags
             if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
-                tweet_split = set(document["text"].split())
 
                 unigrams = file_ops.create_ngrams(document["text"], 1)
                 bigrams = file_ops.create_ngrams(document["text"], 2)
@@ -595,10 +602,13 @@ def select_general_candidates(connection_params, filter_options):
                 quadgrams = file_ops.create_ngrams(document["text"], 4)
 
                 ngrams = bigrams + trigrams + quadgrams
-                unigram_intersect = set(porn_black_list).intersection(set(unigrams))
-                ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
-                black_list_intersect = set(black_list).intersection(tweet_split)
-                hs_keywords_intersect = set(hs_keywords).intersection(tweet_split)
+                unigrams = set(unigrams)
+                ngrams = set(ngrams)
+
+                unigram_intersect = set(porn_black_list).intersection(unigrams)
+                ngrams_intersect = set(porn_black_list).intersection(ngrams)
+                black_list_intersect = set(black_list).intersection(unigrams)
+                hs_keywords_intersect = set(hs_keywords).intersection(unigrams)
 
                 # No porn or hs intersect
                 if not ngrams_intersect and (len(unigram_intersect) > 1) and not black_list_intersect and not hs_keywords_intersect:
@@ -618,10 +628,10 @@ def select_general_candidates(connection_params, filter_options):
             quadgrams = file_ops.create_ngrams(document["text"], 4)
 
             ngrams = bigrams + trigrams + quadgrams
-            unigram_intersect = set(porn_black_list).intersection(set(unigrams))
-            ngrams_intersect = set(porn_black_list).intersection(set(ngrams))
-            black_list_intersect = set(black_list).intersection(tweet_split)
-            hs_keywords_intersect = set(hs_keywords).intersection(tweet_split)
+            unigram_intersect = set(porn_black_list).intersection(unigrams)
+            ngrams_intersect = set(porn_black_list).intersection(ngrams)
+            black_list_intersect = set(black_list).intersection(unigrams)
+            hs_keywords_intersect = set(hs_keywords).intersection(unigrams)
 
             if not ngrams_intersect and (len(unigram_intersect) > 1) and not black_list_intersect and not hs_keywords_intersect:
                 staging.append(document)
@@ -632,7 +642,7 @@ def select_general_candidates(connection_params, filter_options):
         # Send once every 1000 in batch
         if len(staging) == 1000:
             print "Progress: ", (progress * 100) / cursor_count, "%"
-            for job in file_ops.parallel_preprocess(staging, tweet_split, hs_keywords):
+            for job in file_ops.parallel_preprocess(staging, hs_keywords):
                 if job:
                     operations.append(InsertOne(job))
                 else:
@@ -652,7 +662,7 @@ def select_general_candidates(connection_params, filter_options):
             operations = []
 
     if (len(staging) % 1000) != 0:
-        for job in file_ops.parallel_preprocess(staging, tweet_split, hs_keywords):
+        for job in file_ops.parallel_preprocess(staging, hs_keywords):
             if job:
                 operations.append(InsertOne(job))
             else:
