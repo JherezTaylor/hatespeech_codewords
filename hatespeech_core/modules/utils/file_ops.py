@@ -418,14 +418,13 @@ def preprocess_text(raw_text):
             "tokens": terms_only, "sentiment": list(sentiment)}
 
 
-def preprocess_tweet(tweet_obj, tweet_split, hs_keywords):
+def preprocess_tweet(tweet_obj, hs_keywords):
     """Preprocessing pipeline for Tweet body.
 
     Tokenize and remove stopwords.
 
     Args:
         tweet_obj   (dict): Tweet to preprocess.
-        tweet_split (list): List of tokens in the tweet text.
         hs_keywords (dict): Keywords to match on.
 
     Returns:
@@ -467,6 +466,9 @@ def preprocess_tweet(tweet_obj, tweet_split, hs_keywords):
 
         terms_only = []
         stopwords_only = []
+        hashtags = []
+        mentions = []
+        unigrams = set(create_ngrams(tweet_obj["text"], 1))
 
         # Store any emoji in the text and prevent it from being lowercased then
         # append items marked as Protected by the twokenize library.
@@ -488,13 +490,20 @@ def preprocess_tweet(tweet_obj, tweet_split, hs_keywords):
         for token in terms_single:
             if not token.startswith(("#", "@")) and token not in stop_list:
                 terms_only.append(token)
+            if token.startswith(("#")):
+                hashtags.append(token)
+            if token.startswith(("@")):
+                mentions.append(token)
+
 
         tweet_obj["stopwords"] = list(stopwords_only)
         tweet_obj["tokens"] = terms_only
+        tweet_obj["hashtags"] = hashtags
+        tweet_obj["user_mentions"] = mentions
         tweet_obj["subjectivity"] = subjectivity
         tweet_obj["compound_score"] = sentiment["compound"]
         tweet_obj["hs_keword_count"] = len(
-            set(hs_keywords).intersection(tweet_split))
+            set(hs_keywords).intersection(unigrams))
         tweet_obj["neg_score"] = sentiment["neg"]
         tweet_obj["neu_score"] = sentiment["neu"]
         tweet_obj["pos_score"] = sentiment["pos"]
@@ -532,7 +541,7 @@ def remove_urls(raw_text):
         r"(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?", "", raw_text)
 
 
-def parallel_preprocess(tweet_list, tweet_split, hs_keywords):
+def parallel_preprocess(tweet_list, hs_keywords):
     """Passes the incoming raw tweets to our preprocessing function.
 
     Args:
@@ -545,7 +554,7 @@ def parallel_preprocess(tweet_list, tweet_split, hs_keywords):
     """
     num_cores = multiprocessing.cpu_count()
     results = Parallel(n_jobs=num_cores)(
-        delayed(preprocess_tweet)(tweet, tweet_split, hs_keywords) for tweet in tweet_list)
+        delayed(preprocess_tweet)(tweet, hs_keywords) for tweet in tweet_list)
     return results
 
 
@@ -556,7 +565,7 @@ def create_ngrams(text, length):
         length (int): Length of ngrams to create.
     """
 
-    ngrams = TextBlob(text).ngrams(n=length)
+    ngrams = TextBlob(text.lower()).ngrams(n=length)
     for index, value in enumerate(ngrams):
         gram = ""
         for pos, token in enumerate(value):
