@@ -17,6 +17,7 @@ import glob
 import cProfile
 import requests
 import ujson
+from nltk.util import ngrams
 from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 # from nltk.sentiment.util import demo_sent_subjectivity as SUBJ
@@ -418,7 +419,7 @@ def preprocess_text(raw_text):
             "tokens": terms_only, "sentiment": list(sentiment)}
 
 
-def preprocess_tweet(tweet_obj, hs_keywords):
+def preprocess_tweet(tweet_obj, hs_keywords, args):
     """Preprocessing pipeline for Tweet body.
 
     Tokenize and remove stopwords.
@@ -426,22 +427,20 @@ def preprocess_tweet(tweet_obj, hs_keywords):
     Args:
         tweet_obj   (dict): Tweet to preprocess.
         hs_keywords (dict): Keywords to match on.
+        args        (list): Contains a list of conditions as follows:
+            0: subj_check (bool): Check text for subjectivity.
+            1: sent_check (bool): Check text for sentiment.
+            2: intensity_measure (bool) Retain tokens with all uppercase.
 
     Returns:
         dict: Tweet with vectorized text appended.
     """
 
-    # Use VADER approach. The compound score is a normalized value of the
-    # pos, neg and neu values with -1 being most negative and +1 being most positive.
-    # pos, neu and neg are ratios for the proportion of text that fall into
-    # each category
-    sent_analyzer = SIA()
-    sentiment = sent_analyzer.polarity_scores(tweet_obj["text"])
-
-    # Use TextBlob subjectivity for now
     # SUBJ is a trained classifer on the movie dataset in NLTK
     # SUBJ(tweet_obj["text"])
-    subjectivity = TextBlob(tweet_obj["text"]).subjectivity
+    subj_sent = get_sent_subj(tweet_obj["text"])
+    sentiment = subj_sent[0]
+    subjectivity = subj_sent[1]
 
     # Value between -1 and 1 - TextBlob Polarity explanation in layman's
     # terms: http://planspace.org/20150607-textblob_sentiment/
@@ -453,7 +452,7 @@ def preprocess_tweet(tweet_obj, hs_keywords):
             "english") + punctuation + ["rt", "via", "RT"])
 
         # Remove urls
-        clean_text = clean_text = remove_urls(tweet_obj["text"])
+        clean_text = remove_urls(tweet_obj["text"])
         clean_text = twokenize.tokenizeRawTweetText(clean_text)
 
         # Remove numbers
@@ -495,13 +494,13 @@ def preprocess_tweet(tweet_obj, hs_keywords):
             if token.startswith(("@")):
                 mentions.append(token)
 
-
         tweet_obj["stopwords"] = list(stopwords_only)
         tweet_obj["tokens"] = terms_only
         tweet_obj["hashtags"] = hashtags
         tweet_obj["user_mentions"] = mentions
         tweet_obj["subjectivity"] = subjectivity
         tweet_obj["compound_score"] = sentiment["compound"]
+        # TODO combine the ngrams and check the intersection
         tweet_obj["hs_keword_count"] = len(
             set(hs_keywords).intersection(unigrams))
         tweet_obj["neg_score"] = sentiment["neg"]
@@ -510,6 +509,116 @@ def preprocess_tweet(tweet_obj, hs_keywords):
         return tweet_obj
     else:
         pass
+
+
+def get_sent_subj(raw_text):
+    """ Return the subjectivity and sentiment scores of the text.
+
+    Args:
+        raw_text  (str): String to preprocess.
+
+    Returns:
+        list: subjectivity and sentiment scores.
+    """
+
+    # Use VADER approach. The compound score is a normalized value of the
+    # pos, neg and neu values with -1 being most negative and +1 being most positive.
+    # pos, neu and neg are ratios for the proportion of text that fall into
+    # each category
+    sent_analyzer = SIA()
+    sentiment = sent_analyzer.polarity_scores(raw_text)
+
+    # Use TextBlob subjectivity for now
+    subjectivity = TextBlob(raw_text).subjectivity
+    return [sentiment, subjectivity]
+
+
+def prepare_text(raw_text, args):
+    """ Clean and tokenize text. Create ngrams.
+
+    Args:
+        raw_text  (str): String to preprocess.
+        args      (list): Contains the following:
+            0: stop_list (list): English stopwords and punctuation.
+            1: hs_keywords (list) HS corpus. 
+            2: intensity_measure (bool) Retain tokens with all uppercase.
+
+    Returns:
+        list: terms_only, stopword_only, hashtags, mentions, hs_keyword_count, ngrams
+    """
+
+    stop_list = args[0]
+    hs_keywords = args[1]
+
+    # Remove urls
+    clean_text = remove_urls(raw_text)
+    clean_text = twokenize.tokenizeRawTweetText(clean_text)
+
+    # Remove numbers
+    clean_text = [token for token in clean_text if len(
+        token.strip(string.digits)) == len(token)]
+
+    # Record single instances of a term only
+    terms_single = set(clean_text)
+    terms_single = dict.fromkeys(terms_single)
+
+    # Store any emoji in the text and prevent it from being lowercased then
+    # append items marked as Protected by the twokenize library.
+    # This protected object covers tokens that shouldn't be split or lowercased so
+    # we take advantage of it and use it as quick and dirty way to
+    # identify emoji rather than calling a separate regex function.
+    emoji = []
+    for token in clean_text:
+        for _match in twokenize.Protected.finditer(token):
+            emoji.append(token)
+
+    # If the token is not in the emoji dict, lowercase it
+    # TODO preserve tokens with all uppercase chars as a measure of intensity
+    emoji = dict.fromkeys(emoji)
+    for token in terms_single.copy():
+        if not token in emoji:
+            terms_single[token.lower()] = terms_single.pop(token)
+
+    stopwords_only = set(terms_single).intersection(set(stop_list))
+    terms_only = []
+    hashtags = []
+    mentions = []
+
+    for token in terms_single:
+        if not token.startswith(("#", "@")) and token not in stop_list:
+            terms_only.append(token)
+        if token.startswith(("#")):
+            hashtags.append(token)
+        if token.startswith(("@")):
+            mentions.append(token)
+
+    temp = " ".join(clean_text)
+    xgrams = ([(create_ngrams(temp, i)) for i in range(1, 6)])
+
+    grams = xgrams[0]+ xgrams[1] + xgrams[2] + xgrams[3] + xgrams[4]
+    hs_keyword_count = len(set(hs_keywords).intersection(grams))
+
+    return [terms_only, list(stopwords_only), hashtags, mentions, hs_keyword_count, xgrams]
+
+
+def create_ngrams(text, length):
+    """Create ngrams of the specified length from a string of text
+    Args:
+        text   (str): Text to process.
+        length (int): Length of ngrams to create.
+    """
+
+    tokens = twokenize.tokenizeRawTweetText(text)
+    punctuation = list(string.punctuation)
+    clean_tokens = []
+    for token in tokens:
+        if token not in punctuation:
+            clean_tokens.append(token)
+
+    result = []
+    for ngram in ngrams(clean_tokens, length):
+        result.append(' '.join(str(i) for i in ngram))
+    return result
 
 
 def is_garbage(raw_text, precision):
@@ -556,22 +665,3 @@ def parallel_preprocess(tweet_list, hs_keywords):
     results = Parallel(n_jobs=num_cores)(
         delayed(preprocess_tweet)(tweet, hs_keywords) for tweet in tweet_list)
     return results
-
-
-def create_ngrams(text, length):
-    """Create ngrams of the specified length from a string of text
-    Args:
-        text   (str): Text to process.
-        length (int): Length of ngrams to create.
-    """
-
-    ngrams = TextBlob(text.lower()).ngrams(n=length)
-    for index, value in enumerate(ngrams):
-        gram = ""
-        for pos, token in enumerate(value):
-            if pos == len(value) - 1:
-                gram += token
-            else:
-                gram += token + " "
-        ngrams[index] = gram
-    return ngrams
