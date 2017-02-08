@@ -5,8 +5,10 @@
 """Test file_ops module
 """
 
+import string
 from nose.tools import *
 from context import hatespeech_core
+from nltk.corpus import stopwords
 
 
 class TestFileOps(object):
@@ -16,6 +18,9 @@ class TestFileOps(object):
         self.pushbullet_message_title = "Test"
         self.pushbullet_message_body = "Test"
         self.test_list = ["hello", "world", "how", "are", "you"]
+        self.sub_sent_string = "Today only kinda sux! But I'll get by, lol"
+        self.ngram_string = "the cat is mad, I'm glad"
+        self.tweet_text = "#testing is my code good @dev :) fuck"
 
     def setup(self):
         """This method is run once before _each_ test method is executed"""
@@ -23,7 +28,7 @@ class TestFileOps(object):
     def teardown(self):
         """This method is run once after _each_ test method is executed"""
 
-    # @nottest
+    @nottest
     def test_send_job_notification(self):
         """This method tests the pushbullet notification function"""
         response = hatespeech_core.file_ops.send_job_notification(
@@ -39,12 +44,53 @@ class TestFileOps(object):
         assert_equals(response_string, result_string)
 
     def test_file_operations(self):
-        """Test previous methods
+        """Combined test for file based ops
         """
 
-        file_list = hatespeech_core.file_ops.get_filenames(hatespeech_core.settings.JSON_PATH)
+        file_list = hatespeech_core.file_ops.get_filenames(
+            hatespeech_core.settings.JSON_PATH)
         hatespeech_core.file_ops.extract_corpus(file_list)
         response = hatespeech_core.file_ops.read_csv_file("about_sexual_orientation_eng_pg1",
                                                           hatespeech_core.settings.CSV_PATH)
         result = hatespeech_core.file_ops.build_query_string(response)
         assert_equals(len(result), 67)
+
+    def test_get_subj_sent(self):
+        """Test the subj_sent function.
+        """
+        result = hatespeech_core.file_ops.get_sent_subj(self.sub_sent_string)
+        assert_equals(result[0]["neg"], 0.179)
+        assert_equals(result[0]["compound"], 0.2228)
+        assert_equals(result[1], 0.85)
+
+    def test_create_ngrams(self):
+        """Test create_ngrams function.
+        """
+        result = hatespeech_core.file_ops.create_ngrams(self.ngram_string, 2)
+        assert_equals(result, ["the cat", "cat is",
+                               "is mad", "mad I'm", "I'm glad"])
+        result = hatespeech_core.file_ops.create_ngrams(self.ngram_string, 1)
+        assert_equals(result, ["the", "cat", "is", "mad", "I'm", "glad"])
+
+    def test_prepare_text(self):
+        """Test prepare text function.
+        """
+        punctuation = list(string.punctuation)
+        stop_list = dict.fromkeys(stopwords.words(
+            "english") + punctuation + ["rt", "via", "RT"])
+
+        result = hatespeech_core.file_ops.prepare_text(
+            self.tweet_text, [stop_list, ["fuck", "shit"]])
+        # Terms only
+        assert_equals(result[0], ["good", "code", ":)", "fuck"])
+        # Stopwords
+        assert_equals(result[1], ["is", "my"])
+        # Hashtags
+        assert_equals(result[2], ["#testing"])
+        # Mentions
+        assert_equals(result[3], ["@dev"])
+        # HS keyword count
+        assert_equals(result[4], 1)
+        # Ngrams
+        assert_equals(result[5][1], ['#testing is', 'is my', 'my code',
+                                     'code good', 'good @dev', '@dev :)', ":) fuck"])
