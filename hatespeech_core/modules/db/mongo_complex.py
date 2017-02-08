@@ -296,7 +296,10 @@ def select_hs_candidates(connection_params, filter_options):
         filter_options    (list): Contains a list of filter conditions as follows:
             0: check_garbage (bool): Check for garbage tweet.
             1: target_collection (str): Name of output collection.
+            2: subj_check (bool): Check text for subjectivity.
+            3: sent_check (bool): Check text for sentiment.
     """
+
     # Load keywords once and avoid redudant disk reads
     # Load our blacklist and filter any tweet that has a matching keyword
 
@@ -317,6 +320,8 @@ def select_hs_candidates(connection_params, filter_options):
 
     check_garbage = filter_options[0]
     target_collection = filter_options[1]
+    subj_check = filter_options[2]
+    sent_check = filter_options[3]
 
     # Store the documents for our bulkwrite
     staging = []
@@ -387,7 +392,7 @@ def select_hs_candidates(connection_params, filter_options):
         # Send once every 1000 in batch
         if len(staging) == 1000:
             print "Progress: ", (progress * 100) / cursor_count, "%"
-            for job in file_ops.parallel_preprocess(staging, hs_keywords):
+            for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
                 else:
@@ -407,7 +412,7 @@ def select_hs_candidates(connection_params, filter_options):
             operations = []
 
     if (len(staging) % 1000) != 0:
-        for job in file_ops.parallel_preprocess(staging, hs_keywords):
+        for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
             if job:
                 operations.append(InsertOne(job))
             else:
@@ -419,6 +424,7 @@ def select_hs_candidates(connection_params, filter_options):
         print bwe.details
         print result
         raise
+
 
 @file_ops.do_cprofile
 def select_porn_candidates(connection_params, filter_options):
@@ -435,6 +441,8 @@ def select_porn_candidates(connection_params, filter_options):
         filter_options    (list): Contains a list of filter conditions as follows:
             0: check_garbage (bool): Check for garbage tweet.
             1: target_collection (str): Name of output collection.
+            2: subj_check (bool): Check text for subjectivity.
+            3: sent_check (bool): Check text for sentiment.
     """
     # Load keywords once and avoid redudant disk reads
     # Load our blacklist and filter any tweet that has a matching keyword
@@ -453,6 +461,8 @@ def select_porn_candidates(connection_params, filter_options):
 
     check_garbage = filter_options[0]
     target_collection = filter_options[1]
+    subj_check = filter_options[2]
+    sent_check = filter_options[3]
     # Store the documents for our bulkwrite
     staging = []
     operations = []
@@ -512,7 +522,7 @@ def select_porn_candidates(connection_params, filter_options):
         # Send once every 1000 in batch
         if len(staging) == 1000:
             print "Progress: ", (progress * 100) / cursor_count, "%"
-            for job in file_ops.parallel_preprocess(staging, hs_keywords):
+            for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
                 else:
@@ -532,7 +542,7 @@ def select_porn_candidates(connection_params, filter_options):
             operations = []
 
     if (len(staging) % 1000) != 0:
-        for job in file_ops.parallel_preprocess(staging, hs_keywords):
+        for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
             if job:
                 operations.append(InsertOne(job))
             else:
@@ -544,6 +554,7 @@ def select_porn_candidates(connection_params, filter_options):
         print bwe.details
         print result
         raise
+
 
 @file_ops.do_cprofile
 def select_general_candidates(connection_params, filter_options):
@@ -560,6 +571,8 @@ def select_general_candidates(connection_params, filter_options):
         filter_options    (list): Contains a list of filter conditions as follows:
             0: check_garbage (bool): Check for garbage tweet.
             1: target_collection (str): Name of output collection.
+            2: subj_check (bool): Check text for subjectivity.
+            3: sent_check (bool): Check text for sentiment.
     """
     # Load keywords once and avoid redudant disk reads
     # Load our blacklist and filter any tweet that has a matching keyword
@@ -581,6 +594,8 @@ def select_general_candidates(connection_params, filter_options):
 
     check_garbage = filter_options[0]
     target_collection = filter_options[1]
+    subj_check = filter_options[2]
+    sent_check = filter_options[3]
     # Store the documents for our bulkwrite
     staging = []
     operations = []
@@ -642,7 +657,7 @@ def select_general_candidates(connection_params, filter_options):
         # Send once every 1000 in batch
         if len(staging) == 1000:
             print "Progress: ", (progress * 100) / cursor_count, "%"
-            for job in file_ops.parallel_preprocess(staging, hs_keywords):
+            for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
                 else:
@@ -662,7 +677,7 @@ def select_general_candidates(connection_params, filter_options):
             operations = []
 
     if (len(staging) % 1000) != 0:
-        for job in file_ops.parallel_preprocess(staging, hs_keywords):
+        for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
             if job:
                 operations.append(InsertOne(job))
             else:
@@ -674,4 +689,3 @@ def select_general_candidates(connection_params, filter_options):
         print bwe.details
         print result
         raise
-        

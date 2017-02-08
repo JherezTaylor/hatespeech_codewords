@@ -16,19 +16,20 @@ from ..db import mongo_complex
 def run_select_hs_candidates(connection_params):
     """ Start the HS indentification pipeline
     """
-    args = [True, "candidates_hs_exp3_nogarb_15_Jan"]
-    time1 = file_ops.time()
-    mongo_complex.select_hs_candidates(connection_params, args)
-    time2 = file_ops.time()
-    time_diff = (time2 - time1) * 1000.0
+    # args = [True, "candidates_hs_exp3_nogarb_15_Jan"]
+    # time1 = file_ops.time()
+    # mongo_complex.select_hs_candidates(connection_params, args)
+    # time2 = file_ops.time()
+    # time_diff = (time2 - time1) * 1000.0
 
-    print "%s function took %0.3f ms" % ("select_hs_candidates", time_diff)
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": HS select candidates took " + str(time_diff) + " ms", "Complete")
-    print send_notification.content
+    # print "%s function took %0.3f ms" % ("select_hs_candidates", time_diff)
+    # send_notification = file_ops.send_job_notification(
+    #     settings.MONGO_SOURCE + ": HS select candidates took " + str(time_diff) + " ms", "Complete")
+    # print send_notification.content
 
     # Prep a collection with check garbage set to False
-    args2 = [False, "candidates_hs_exp3_garb_15_Jan"]
+    # Garbage check seems to have no effect
+    args2 = [False, "candidates_hs_exp3_garb_no_subjsent_08_Feb", False, False]
     time1 = file_ops.time()
     mongo_complex.select_hs_candidates(connection_params, args2)
     time2 = file_ops.time()
@@ -99,5 +100,5 @@ def sentiment_pipeline():
     client = mongo_base.connect()
     connection_params = [client, "twitter_test", "tweets"]
     run_select_hs_candidates(connection_params)
-    run_select_porn_candidates(connection_params)
-    run_select_general_candidates(connection_params)
+    # run_select_porn_candidates(connection_params)
+    # run_select_general_candidates(connection_params)

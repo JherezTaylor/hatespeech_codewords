@@ -442,6 +442,10 @@ def preprocess_tweet(tweet_obj, hs_keywords, args):
     subj_check = args[0]
     sent_check = args[1]
 
+    punctuation = list(string.punctuation)
+    stop_list = dict.fromkeys(stopwords.words(
+        "english") + punctuation + ["rt", "via", "RT"])
+
     if subj_check and sent_check:
         subj_sent = get_sent_subj(tweet_obj["text"])
         sentiment = subj_sent[0]
@@ -451,9 +455,6 @@ def preprocess_tweet(tweet_obj, hs_keywords, args):
 
         # Negative sentiment and possibly subjective
         if sentiment["compound"] < 0 and sentiment["neg"] >= 0.5 and subjectivity >= 0.4:
-            punctuation = list(string.punctuation)
-            stop_list = dict.fromkeys(stopwords.words(
-                "english") + punctuation + ["rt", "via", "RT"])
 
             processed_text = prepare_text(
                 tweet_obj["text"], [stop_list, hs_keywords])
@@ -617,6 +618,7 @@ def create_ngrams(text, length):
         length (int): Length of ngrams to create.
     """
 
+    text = text.encode('utf-8').strip()
     tokens = twokenize.tokenizeRawTweetText(text)
     punctuation = list(string.punctuation)
     clean_tokens = []
@@ -659,18 +661,20 @@ def remove_urls(raw_text):
         r"(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?", "", raw_text)
 
 
-def parallel_preprocess(tweet_list, hs_keywords):
+def parallel_preprocess(tweet_list, hs_keywords, subj_check, sent_check):
     """Passes the incoming raw tweets to our preprocessing function.
 
     Args:
         tweet_list  (list): List of raw tweet texts to preprocess.
         tweet_split (list): List of tokens in the tweet text.
         hs_keywords (dict): Keywords to match on.
+        subj_check (bool): Check text for subjectivity.
+        sent_check (bool): Check text for sentiment.
 
     Returns:
         list: List of vectorized tweets.
     """
     num_cores = multiprocessing.cpu_count()
     results = Parallel(n_jobs=num_cores)(
-        delayed(preprocess_tweet)(tweet, hs_keywords) for tweet in tweet_list)
+        delayed(preprocess_tweet)(tweet, hs_keywords, [subj_check, sent_check]) for tweet in tweet_list)
     return results
