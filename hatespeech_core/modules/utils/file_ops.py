@@ -438,77 +438,45 @@ def preprocess_tweet(tweet_obj, hs_keywords, args):
 
     # SUBJ is a trained classifer on the movie dataset in NLTK
     # SUBJ(tweet_obj["text"])
-    subj_sent = get_sent_subj(tweet_obj["text"])
-    sentiment = subj_sent[0]
-    subjectivity = subj_sent[1]
 
-    # Value between -1 and 1 - TextBlob Polarity explanation in layman's
-    # terms: http://planspace.org/20150607-textblob_sentiment/
+    subj_check = args[0]
+    sent_check = args[1]
 
-    # Negative sentiment and possibly subjective
-    if sentiment["compound"] < 0 and sentiment["neg"] >= 0.5 and subjectivity >= 0.4:
-        punctuation = list(string.punctuation)
-        stop_list = dict.fromkeys(stopwords.words(
-            "english") + punctuation + ["rt", "via", "RT"])
+    if subj_check and sent_check:
+        subj_sent = get_sent_subj(tweet_obj["text"])
+        sentiment = subj_sent[0]
+        subjectivity = subj_sent[1]
+        # Value between -1 and 1 - TextBlob Polarity explanation in layman's
+        # terms: http://planspace.org/20150607-textblob_sentiment/
 
-        # Remove urls
-        clean_text = remove_urls(tweet_obj["text"])
-        clean_text = twokenize.tokenizeRawTweetText(clean_text)
+        # Negative sentiment and possibly subjective
+        if sentiment["compound"] < 0 and sentiment["neg"] >= 0.5 and subjectivity >= 0.4:
+            punctuation = list(string.punctuation)
+            stop_list = dict.fromkeys(stopwords.words(
+                "english") + punctuation + ["rt", "via", "RT"])
 
-        # Remove numbers
-        clean_text = [token for token in clean_text if len(
-            token.strip(string.digits)) == len(token)]
+            processed_text = prepare_text(
+                tweet_obj["text"], [stop_list, hs_keywords])
 
-        # Record single instances of a term only
-        terms_single = set(clean_text)
-        terms_single = dict.fromkeys(terms_single)
+            tweet_obj = prep_tweet_body(
+                tweet_obj, [True, subjectivity, sentiment], processed_text)
+            return tweet_obj
+        else:
+            pass
 
-        terms_only = []
-        stopwords_only = []
-        hashtags = []
-        mentions = []
-        unigrams = set(create_ngrams(tweet_obj["text"], 1))
-
-        # Store any emoji in the text and prevent it from being lowercased then
-        # append items marked as Protected by the twokenize library.
-        # This protected object covers tokens that shouldn't be split or lowercased so
-        # we take advantage of it and use it as quick and dirty way to
-        # identify emoji rather than calling a separate regex function.
-        emoji = []
-        for token in terms_single:
-            for _match in twokenize.Protected.finditer(token):
-                emoji.append(token)
-
-        # If the token is not in the emoji dict, lowercase it
-        emoji = dict.fromkeys(emoji)
-        for token in terms_single.copy():
-            if not token in emoji:
-                terms_single[token.lower()] = terms_single.pop(token)
-
-        stopwords_only = set(terms_single).intersection(set(stop_list))
-        for token in terms_single:
-            if not token.startswith(("#", "@")) and token not in stop_list:
-                terms_only.append(token)
-            if token.startswith(("#")):
-                hashtags.append(token)
-            if token.startswith(("@")):
-                mentions.append(token)
-
-        tweet_obj["stopwords"] = list(stopwords_only)
-        tweet_obj["tokens"] = terms_only
-        tweet_obj["hashtags"] = hashtags
-        tweet_obj["user_mentions"] = mentions
-        tweet_obj["subjectivity"] = subjectivity
-        tweet_obj["compound_score"] = sentiment["compound"]
-        # TODO combine the ngrams and check the intersection
-        tweet_obj["hs_keword_count"] = len(
-            set(hs_keywords).intersection(unigrams))
-        tweet_obj["neg_score"] = sentiment["neg"]
-        tweet_obj["neu_score"] = sentiment["neu"]
-        tweet_obj["pos_score"] = sentiment["pos"]
-        return tweet_obj
-    else:
+    if subj_check and not sent_check:
         pass
+
+    if not subj_check and sent_check:
+        pass
+
+    elif not subj_check and not sent_check:
+        processed_text = prepare_text(
+            tweet_obj["text"], [stop_list, hs_keywords])
+
+        tweet_obj = prep_tweet_body(
+            tweet_obj, [False], processed_text)
+        return tweet_obj
 
 
 def get_sent_subj(raw_text):
@@ -540,7 +508,7 @@ def prepare_text(raw_text, args):
         raw_text  (str): String to preprocess.
         args      (list): Contains the following:
             0: stop_list (list): English stopwords and punctuation.
-            1: hs_keywords (list) HS corpus. 
+            1: hs_keywords (list) HS corpus.
             2: intensity_measure (bool) Retain tokens with all uppercase.
 
     Returns:
@@ -595,10 +563,51 @@ def prepare_text(raw_text, args):
     temp = " ".join(clean_text)
     xgrams = ([(create_ngrams(temp, i)) for i in range(1, 6)])
 
-    grams = xgrams[0]+ xgrams[1] + xgrams[2] + xgrams[3] + xgrams[4]
+    grams = xgrams[0] + xgrams[1] + xgrams[2] + xgrams[3] + xgrams[4]
     hs_keyword_count = len(set(hs_keywords).intersection(grams))
 
     return [terms_only, list(stopwords_only), hashtags, mentions, hs_keyword_count, xgrams]
+
+
+def prep_tweet_body(tweet_obj, args, processed_text):
+    """ Format the incoming tweet
+
+    Args:
+        tweet_obj (dict): Tweet to preprocess.
+        args (list): Various datafields to append to the object.
+            0: subj_sent_check (bool): Check for subjectivity and sentiment.
+            1: subjectivity (num): Subjectivity result.
+            2: sentiment (dict): Sentiment result.
+        processed_text (list): List of tokens and ngrams etc.
+
+    Returns:
+        dict: Tweet with formatted fields
+    """
+
+    subj_sent_check = args[0]
+    result = tweet_obj
+
+    if subj_sent_check:
+        subjectivity = args[1]
+        sentiment = args[2]
+        result["subjectivity"] = subjectivity
+        result["compound_score"] = sentiment["compound"]
+        result["neg_score"] = sentiment["neg"]
+        result["neu_score"] = sentiment["neu"]
+        result["pos_score"] = sentiment["pos"]
+
+    result["hs_keword_count"] = processed_text[4]
+    result["tokens"] = processed_text[0]
+    result["stopwords"] = processed_text[1]
+    result["hashtags"] = processed_text[2]
+    result["user_mentions"] = processed_text[3]
+    result["unigrams"] = processed_text[5][0]
+    result["bigrams"] = processed_text[5][1]
+    result["trigrams"] = processed_text[5][2]
+    result["quadgrams"] = processed_text[5][3]
+    result["pentagrams"] = processed_text[5][4]
+
+    return result
 
 
 def create_ngrams(text, length):
