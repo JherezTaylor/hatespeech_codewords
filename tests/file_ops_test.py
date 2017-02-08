@@ -20,7 +20,7 @@ class TestFileOps(object):
         self.test_list = ["hello", "world", "how", "are", "you"]
         self.sub_sent_string = "Today only kinda sux! But I'll get by, lol"
         self.ngram_string = "the cat is mad, I'm glad"
-        self.tweet_text = "#testing is my code good @dev :) fuck"
+        self.tweet_text = " I'm #testing is my code good @dev :) fuck"
 
     def setup(self):
         """This method is run once before _each_ test method is executed"""
@@ -82,7 +82,7 @@ class TestFileOps(object):
         result = hatespeech_core.file_ops.prepare_text(
             self.tweet_text, [stop_list, ["fuck", "shit"]])
         # Terms only
-        assert_equals(result[0], ["good", "code", ":)", "fuck"])
+        assert_equals(result[0], ["good", "code", "I'm", ":)", "fuck"])
         # Stopwords
         assert_equals(result[1], ["is", "my"])
         # Hashtags
@@ -92,5 +92,5 @@ class TestFileOps(object):
         # HS keyword count
         assert_equals(result[4], 1)
         # Ngrams
-        assert_equals(result[5][1], ['#testing is', 'is my', 'my code',
-                                     'code good', 'good @dev', '@dev :)', ":) fuck"])
+        assert_equals(result[5][1], ["I'm #testing", "#testing is", "is my",
+                                     "my code", "code good", "good @dev", "@dev :)", ":) fuck"])
