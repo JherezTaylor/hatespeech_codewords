@@ -618,7 +618,13 @@ def create_ngrams(text, length):
         length (int): Length of ngrams to create.
     """
 
-    text = text.encode('utf-8').strip()
+    text = text.lower()
+    try:
+        text.encode("utf-8").strip()
+    except UnicodeDecodeError:
+        print type(text)
+        text.decode().encode("utf-8")
+
     tokens = twokenize.tokenizeRawTweetText(text)
     punctuation = list(string.punctuation)
     clean_tokens = []
@@ -628,7 +634,7 @@ def create_ngrams(text, length):
 
     result = []
     for ngram in ngrams(clean_tokens, length):
-        result.append(' '.join(str(i) for i in ngram))
+        result.append(' '.join(i.encode("utf-8") for i in ngram))
     return result
 
 
