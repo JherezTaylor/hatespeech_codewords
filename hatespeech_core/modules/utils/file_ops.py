@@ -25,9 +25,9 @@ from textblob import TextBlob
 from joblib import Parallel, delayed
 from . import settings
 from . import twokenize
-# import sys
-# reload(sys)
-# sys.setdefaultencoding("utf8")
+import sys
+reload(sys)
+sys.setdefaultencoding("utf8")
 
 
 def unicode_to_utf(unicode_list):
@@ -618,12 +618,12 @@ def create_ngrams(text, length):
         length (int): Length of ngrams to create.
     """
 
-    text = text.lower()
-    try:
-        text.encode("utf-8").strip()
-    except UnicodeDecodeError:
-        print type(text)
-        text.decode().encode("utf-8")
+    # text = text.lower()
+    # try:
+    #     text.encode("utf-8").strip()
+    # except UnicodeDecodeError:
+    #     print type(text)
+    #     text.decode().encode("utf-8")
 
     tokens = twokenize.tokenizeRawTweetText(text)
     punctuation = list(string.punctuation)
@@ -634,7 +634,7 @@ def create_ngrams(text, length):
 
     result = []
     for ngram in ngrams(clean_tokens, length):
-        result.append(' '.join(i.encode("utf-8") for i in ngram))
+        result.append(' '.join(str(i) for i in ngram))
     return result
 
 
