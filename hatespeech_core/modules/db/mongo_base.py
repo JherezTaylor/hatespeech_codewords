@@ -245,7 +245,7 @@ def update_missing_text(connection_params):
             not_found_count += response[2]
             raw_docs.clear()
 
-        if len(operations) != 0 and (len(operations) % 1000) == 0:
+        if len(operations) != 0 and (len(operations) % settings.BULK_BATCH_SIZE) == 0:
             try:
                 result = dbo[collection].bulk_write(operations, ordered=False)
             except errors.BulkWriteError as bwe:
