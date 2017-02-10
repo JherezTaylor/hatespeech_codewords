@@ -14,6 +14,7 @@ Identify the language of tweets with an und lang.
 from bs4 import BeautifulSoup as BSHTML
 from pymongo import UpdateOne, DeleteMany, UpdateMany, ASCENDING, errors
 from ..utils import file_ops
+from ..utils import settings
 
 
 def retweet_removal(connection_params):
@@ -277,12 +278,12 @@ def field_flattening_base(connection_params, depth, field_name, field_to_set, fi
                           }
             }, upsert=False))
 
-        # Send once every 1000 in batch
-        if (len(operations) % 1000) == 0:
+        # Send once every settings.BULK_BATCH_SIZE in batch
+        if (len(operations) % settings.BULK_BATCH_SIZE) == 0:
             dbo[collection].bulk_write(operations, ordered=False)
             operations = []
 
-    if (len(operations) % 1000) != 0:
+    if (len(operations) % settings.BULK_BATCH_SIZE) != 0:
         dbo[collection].bulk_write(operations, ordered=False)
 
     # Clean Up
@@ -358,12 +359,12 @@ def field_flattening_complex(connection_params, depth, field_params):
                           }
             }, upsert=False))
 
-        # Send once every 1000 in batch
-        if (len(operations) % 1000) == 0:
+        # Send once every settings.BULK_BATCH_SIZE in batch
+        if (len(operations) % settings.BULK_BATCH_SIZE) == 0:
             dbo[collection].bulk_write(operations, ordered=False)
             operations = []
 
-    if (len(operations) % 1000) != 0:
+    if (len(operations) % settings.BULK_BATCH_SIZE) != 0:
         dbo[collection].bulk_write(operations, ordered=False)
 
     # Clean Up
@@ -516,12 +517,12 @@ def iterate_cursor(dbo, source_coll, target_coll, field_to_set, depth):
                             }
             }, upsert=False))
 
-        # Send once every 1000 in batch
-        if (len(operations) % 1000) == 0:
+        # Send once every settings.BULK_BATCH_SIZE in batch
+        if (len(operations) % settings.BULK_BATCH_SIZE) == 0:
             dbo[target_coll].bulk_write(operations, ordered=False)
             operations = []
 
-    if (len(operations) % 1000) != 0:
+    if (len(operations) % settings.BULK_BATCH_SIZE) != 0:
         dbo[target_coll].bulk_write(operations, ordered=False)
 
     # Clean Up
@@ -600,11 +601,11 @@ def clean_source_field(connection_params):
                           }
             }, upsert=False))
 
-        # Send once every 1000 in batch
-        if (len(operations) % 1000) == 0:
+        # Send once every settings.BULK_BATCH_SIZE in batch
+        if (len(operations) % settings.BULK_BATCH_SIZE) == 0:
             dbo[collection].bulk_write(operations, ordered=False)
             operations = []
 
-    if (len(operations) % 1000) != 0:
+    if (len(operations) % settings.BULK_BATCH_SIZE) != 0:
         dbo[collection].bulk_write(operations, ordered=False)
         

@@ -266,15 +266,15 @@ def parse_undefined_lang(connection_params, lang):
                 UpdateOne({"_id": document["_id"]}, {
                     "$set": {"lang": "en"}})
             )
-        # Send once every 1000 in batch
-        if len(operations) == 1000:
+        # Send once every settings.BULK_BATCH_SIZE in batch
+        if len(operations) == settings.BULK_BATCH_SIZE:
             dbo[collection].bulk_write(operations, ordered=False)
             operations = []
 
         # if doclang[0] == "en" and doclang[1] >= 0.70:
         #     print document["text"]
 
-    if (len(operations) % 1000) != 0:
+    if (len(operations) % settings.BULK_BATCH_SIZE) != 0:
         dbo[collection].bulk_write(operations, ordered=False)
 
     print Counter(lang_dist)
@@ -389,8 +389,8 @@ def select_hs_candidates(connection_params, filter_options):
                 # No intersection, skip entry
                 pass
 
-        # Send once every 1000 in batch
-        if len(staging) == 1000:
+        # Send once every settings.BULK_BATCH_SIZE in batch
+        if len(staging) == settings.BULK_BATCH_SIZE:
             print "Progress: ", (progress * 100) / cursor_count, "%"
             for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
@@ -399,7 +399,7 @@ def select_hs_candidates(connection_params, filter_options):
                     pass
             staging = []
 
-        if len(operations) == 1000:
+        if len(operations) == settings.BULK_BATCH_SIZE:
             try:
                 result = dbo[target_collection].bulk_write(
                     operations, ordered=False)
@@ -407,11 +407,9 @@ def select_hs_candidates(connection_params, filter_options):
                 print bwe.details
                 print result
                 raise
-
-            dbo[target_collection].bulk_write(operations, ordered=False)
             operations = []
 
-    if (len(staging) % 1000) != 0:
+    if (len(staging) % settings.BULK_BATCH_SIZE) != 0:
         for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
             if job:
                 operations.append(InsertOne(job))
@@ -519,8 +517,8 @@ def select_porn_candidates(connection_params, filter_options):
                 # No intersection, skip entry
                 pass
 
-        # Send once every 1000 in batch
-        if len(staging) == 1000:
+        # Send once every settings.BULK_BATCH_SIZE in batch
+        if len(staging) == settings.BULK_BATCH_SIZE:
             print "Progress: ", (progress * 100) / cursor_count, "%"
             for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
@@ -529,7 +527,7 @@ def select_porn_candidates(connection_params, filter_options):
                     pass
             staging = []
 
-        if len(operations) == 1000:
+        if len(operations) == settings.BULK_BATCH_SIZE:
             try:
                 result = dbo[target_collection].bulk_write(
                     operations, ordered=False)
@@ -537,11 +535,9 @@ def select_porn_candidates(connection_params, filter_options):
                 print bwe.details
                 print result
                 raise
-
-            dbo[target_collection].bulk_write(operations, ordered=False)
             operations = []
 
-    if (len(staging) % 1000) != 0:
+    if (len(staging) % settings.BULK_BATCH_SIZE) != 0:
         for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
             if job:
                 operations.append(InsertOne(job))
@@ -654,8 +650,8 @@ def select_general_candidates(connection_params, filter_options):
                 # No intersection, skip entry
                 pass
 
-        # Send once every 1000 in batch
-        if len(staging) == 1000:
+        # Send once every settings.BULK_BATCH_SIZE in batch
+        if len(staging) == settings.BULK_BATCH_SIZE:
             print "Progress: ", (progress * 100) / cursor_count, "%"
             for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
@@ -664,7 +660,7 @@ def select_general_candidates(connection_params, filter_options):
                     pass
             staging = []
 
-        if len(operations) == 1000:
+        if len(operations) == settings.BULK_BATCH_SIZE:
             try:
                 result = dbo[target_collection].bulk_write(
                     operations, ordered=False)
@@ -672,11 +668,9 @@ def select_general_candidates(connection_params, filter_options):
                 print bwe.details
                 print result
                 raise
-
-            dbo[target_collection].bulk_write(operations, ordered=False)
             operations = []
 
-    if (len(staging) % 1000) != 0:
+    if (len(staging) % settings.BULK_BATCH_SIZE) != 0:
         for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
             if job:
                 operations.append(InsertOne(job))
