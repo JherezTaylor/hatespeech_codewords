@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup as BSHTML
 from pymongo import UpdateOne, DeleteMany, UpdateMany, ASCENDING, errors
 from ..utils import file_ops
 from ..utils import settings
+from . import mongo_base
 
 
 def retweet_removal(connection_params):
@@ -39,7 +40,7 @@ def retweet_removal(connection_params):
         DeleteMany({"retweeted_status": {"$exists": True}})
     ]
 
-    result = dbo[collection].bulk_write(pipeline, ordered=False)
+    result = mongo_base.do_bulk_op(dbo, collection, pipeline)
     return result
 
 
@@ -132,13 +133,7 @@ def field_removal(connection_params):
                        "$set": {"fields_removed": True}}, upsert=False)
     ]
 
-    try:
-        result = dbo[collection].bulk_write(pipeline, ordered=False)
-    except errors.BulkWriteError as bwe:
-        print bwe.details
-        werrors = bwe.details['writeErrors']
-        print werrors
-        raise
+    result = mongo_base.do_bulk_op(dbo, collection, pipeline)
     return result
 
 
@@ -185,13 +180,7 @@ def quoted_status_field_removal(connection_params):
                        "$set": {"fields_removed": True}}, upsert=False)
     ]
 
-    try:
-        result = dbo[collection].bulk_write(pipeline, ordered=False)
-    except errors.BulkWriteError as bwe:
-        print bwe.details
-        werrors = bwe.details['writeErrors']
-        print werrors
-        raise
+    result = mongo_base.do_bulk_op(dbo, collection, pipeline)
     return result
 
 
@@ -219,7 +208,7 @@ def language_trimming(connection_params, lang_list):
         DeleteMany({"lang": {"$nin": lang_list}})
     ]
 
-    result = dbo[collection].bulk_write(pipeline, ordered=False)
+    result = mongo_base.do_bulk_op(dbo, collection, pipeline)
     return result
 
 
@@ -280,11 +269,11 @@ def field_flattening_base(connection_params, depth, field_name, field_to_set, fi
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if (len(operations) % settings.BULK_BATCH_SIZE) == 0:
-            dbo[collection].bulk_write(operations, ordered=False)
+            _ = mongo_base.do_bulk_op(dbo, collection, operations)
             operations = []
 
     if (len(operations) % settings.BULK_BATCH_SIZE) != 0:
-        dbo[collection].bulk_write(operations, ordered=False)
+        _ = mongo_base.do_bulk_op(dbo, collection, operations)
 
     # Clean Up
     dbo["temp_" + field_name_base].drop()
@@ -361,11 +350,11 @@ def field_flattening_complex(connection_params, depth, field_params):
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if (len(operations) % settings.BULK_BATCH_SIZE) == 0:
-            dbo[collection].bulk_write(operations, ordered=False)
+            _ = mongo_base.do_bulk_op(dbo, collection, operations)
             operations = []
 
     if (len(operations) % settings.BULK_BATCH_SIZE) != 0:
-        dbo[collection].bulk_write(operations, ordered=False)
+        _ = mongo_base.do_bulk_op(dbo, collection, operations)
 
     # Clean Up
     dbo["temp_" + field_name_base].drop()
@@ -473,13 +462,13 @@ def parse_extended_tweet(connection_params, depth):
                    collection, media_field, depth)
 
 
-def iterate_cursor(dbo, source_coll, target_coll, field_to_set, depth):
+def iterate_cursor(dbo, source_collection, target_collection, field_to_set, depth):
     """ Iterate the specified collections and apply the updates
 
     Args:
         dbo (MongoClient):    MongoClient connection object
-        source_coll  (str):  Collection containing aggregate results.
-        target_coll  (str):  Collection to update.
+        source_collection  (str):  Collection containing aggregate results.
+        target_collection  (str):  Collection to update.
         field_to_set (str):  Name of field to append to collection.
         depth (str): Extract from top level of tweet or from nested quote tweet.
     """
@@ -493,40 +482,41 @@ def iterate_cursor(dbo, source_coll, target_coll, field_to_set, depth):
         field = field_to_set
         field_to_set = "quoted_status." + field_to_set
     operations = []
-    cursor = dbo[source_coll].find({}, no_cursor_timeout=True)
+    cursor = dbo[source_collection].find({}, no_cursor_timeout=True)
 
     for document in cursor:
         # Some tweets appear to be missing text, do this check just in case
         if document["full_text"]:
             operations.append(
                 UpdateOne({"_id": document["_id"]},
-                        {
-                            "$set": {
-                                "text": document["full_text"],
-                                field_to_set: document[field],
-                                "extended_tweet_extracted": True
-                            }
+                          {
+                    "$set": {
+                        "text": document["full_text"],
+                        field_to_set: document[field],
+                        "extended_tweet_extracted": True
+                    }
                 }, upsert=False))
         else:
             operations.append(
                 UpdateOne({"_id": document["_id"]},
                           {
-                            "$set": {
-                                field_to_set: document[field],
-                                "extended_tweet_extracted": True
-                            }
-            }, upsert=False))
+                    "$set": {
+                        field_to_set: document[field],
+                        "extended_tweet_extracted": True
+                    }
+                }, upsert=False))
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if (len(operations) % settings.BULK_BATCH_SIZE) == 0:
-            dbo[target_coll].bulk_write(operations, ordered=False)
+            _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
             operations = []
 
     if (len(operations) % settings.BULK_BATCH_SIZE) != 0:
-        dbo[target_coll].bulk_write(operations, ordered=False)
+        _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
     # Clean Up
-    dbo[source_coll].drop()
+    dbo[source_collection].drop()
+
 
 @file_ops.timing
 def final_field_removal(connection_params):
@@ -557,14 +547,9 @@ def final_field_removal(connection_params):
                            "extended_entities": "", "extended_tweet": "", "quoted_status.extended_tweet": ""
                        }}, upsert=False)
     ]
-    try:
-        result = dbo[collection].bulk_write(pipeline, ordered=False)
-    except errors.BulkWriteError as bwe:
-        print bwe.details
-        werrors = bwe.details['writeErrors']
-        print werrors
-        raise
+    result = mongo_base.do_bulk_op(dbo, collection, pipeline)
     return result
+
 
 def clean_source_field(connection_params):
     """Parse the HTML in the source field.
@@ -589,7 +574,8 @@ def clean_source_field(connection_params):
                                   "source": 1}, no_cursor_timeout=True)
     for document in cursor:
         try:
-            cleaned_source = BSHTML("'" + document["source"] + "'", "html.parser").a.contents[0].encode('utf-8').strip()
+            cleaned_source = BSHTML(
+                "'" + document["source"] + "'", "html.parser").a.contents[0].encode('utf-8').strip()
         except AttributeError:
             cleaned_source = document["source"]
 
@@ -603,9 +589,8 @@ def clean_source_field(connection_params):
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if (len(operations) % settings.BULK_BATCH_SIZE) == 0:
-            dbo[collection].bulk_write(operations, ordered=False)
+            _ = mongo_base.do_bulk_op(dbo, collection, operations)
             operations = []
 
     if (len(operations) % settings.BULK_BATCH_SIZE) != 0:
-        dbo[collection].bulk_write(operations, ordered=False)
-        
+        _ = mongo_base.do_bulk_op(dbo, collection, operations)
