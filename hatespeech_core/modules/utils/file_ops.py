@@ -612,7 +612,7 @@ def prep_tweet_body(tweet_obj, args, processed_text):
 
 
 def create_ngrams(text, length):
-    """Create ngrams of the specified length from a string of text
+    """ Create ngrams of the specified length from a string of text
     Args:
         text   (str): Text to process.
         length (int): Length of ngrams to create.
@@ -629,6 +629,41 @@ def create_ngrams(text, length):
     for ngram in ngrams(clean_tokens, length):
         result.append(" ".join(i for i in ngram))
     return result
+
+
+def do_create_ngram_collections(text, args):
+    """ Create and return ngram collections and set intersections.
+    Args:
+        text   (str): Text to process.
+        args      (list): Can contains the following:
+            0: porn_black_list (list): List of porn keywords.
+            1: hs_keywords (list) HS corpus.
+            2: black_list (list) Custom words to filter on.
+    """
+
+    porn_black_list = args[0]
+    hs_keywords = args[1]
+    if args[2]:
+        black_list = args[2]
+
+    unigrams = create_ngrams(text, 1)
+    bigrams = create_ngrams(text, 2)
+    trigrams = create_ngrams(text, 3)
+    quadgrams = create_ngrams(text, 4)
+
+    xgrams = bigrams + trigrams + quadgrams
+    unigrams = set(unigrams)
+    xgrams = set(xgrams)
+
+    # Set operations are faster than list iterations.
+    # Here we perform a best effort series of filters
+    # to ensure we only get tweets we want.
+    unigram_intersect = set(porn_black_list).intersection(unigrams)
+    xgrams_intersect = set(porn_black_list).intersection(xgrams)
+    hs_keywords_intersect = set(hs_keywords).intersection(unigrams)
+    black_list_intersect = set(black_list).intersection(unigrams)
+
+    return [unigram_intersect, xgrams_intersect, hs_keywords_intersect, black_list_intersect]
 
 
 def is_garbage(raw_text, precision):

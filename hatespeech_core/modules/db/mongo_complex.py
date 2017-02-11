@@ -339,22 +339,13 @@ def select_hs_candidates(connection_params, filter_options):
             # Check if the text consists primarily of links, mentions and tags
             if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
 
-                unigrams = file_ops.create_ngrams(document["text"], 1)
-                bigrams = file_ops.create_ngrams(document["text"], 2)
-                trigrams = file_ops.create_ngrams(document["text"], 3)
-                quadgrams = file_ops.create_ngrams(document["text"], 4)
+                set_intersects = file_ops.do_create_ngram_collections(
+                    document["text"], [porn_black_list, hs_keywords, black_list])
 
-                ngrams = bigrams + trigrams + quadgrams
-                unigrams = set(unigrams)
-                ngrams = set(ngrams)
-
-                # Set operations are faster than list iterations.
-                # Here we perform a best effort series of filters
-                # to ensure we only get tweets we want.
-                unigram_intersect = set(porn_black_list).intersection(unigrams)
-                ngrams_intersect = set(porn_black_list).intersection(ngrams)
-                black_list_intersect = set(black_list).intersection(unigrams)
-                hs_keywords_intersect = set(hs_keywords).intersection(unigrams)
+                unigram_intersect = set_intersects[0]
+                ngrams_intersect = set_intersects[1]
+                hs_keywords_intersect = set_intersects[2]
+                black_list_intersect = set_intersects[3]
 
                 # The tweet should not contain any blacklisted keywords, porn ngrams and
                 # the porn unigrams should be <=3.
@@ -370,19 +361,13 @@ def select_hs_candidates(connection_params, filter_options):
 
         # Don't check for garbage
         else:
-            unigrams = file_ops.create_ngrams(document["text"], 1)
-            bigrams = file_ops.create_ngrams(document["text"], 2)
-            trigrams = file_ops.create_ngrams(document["text"], 3)
-            quadgrams = file_ops.create_ngrams(document["text"], 4)
+            set_intersects = file_ops.do_create_ngram_collections(
+                document["text"], [porn_black_list, hs_keywords, black_list])
 
-            ngrams = bigrams + trigrams + quadgrams
-            unigrams = set(unigrams)
-            ngrams = set(ngrams)
-
-            unigram_intersect = set(porn_black_list).intersection(unigrams)
-            ngrams_intersect = set(porn_black_list).intersection(ngrams)
-            black_list_intersect = set(black_list).intersection(unigrams)
-            hs_keywords_intersect = set(hs_keywords).intersection(unigrams)
+            unigram_intersect = set_intersects[0]
+            ngrams_intersect = set_intersects[1]
+            hs_keywords_intersect = set_intersects[2]
+            black_list_intersect = set_intersects[3]
 
             if not black_list_intersect and not ngrams_intersect and (len(unigram_intersect) <= 3) and hs_keywords_intersect:
                 staging.append(document)
@@ -465,17 +450,11 @@ def select_porn_candidates(connection_params, filter_options):
             # Check if the text consists primarily of links, mentions and tags
             if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
 
-                unigrams = file_ops.create_ngrams(document["text"], 1)
-                bigrams = file_ops.create_ngrams(document["text"], 2)
-                trigrams = file_ops.create_ngrams(document["text"], 3)
-                quadgrams = file_ops.create_ngrams(document["text"], 4)
+                set_intersects = file_ops.do_create_ngram_collections(
+                    document["text"], [porn_black_list, hs_keywords, None])
 
-                ngrams = bigrams + trigrams + quadgrams
-                unigrams = set(unigrams)
-                ngrams = set(ngrams)
-
-                unigram_intersect = set(porn_black_list).intersection(unigrams)
-                ngrams_intersect = set(porn_black_list).intersection(ngrams)
+                unigram_intersect = set_intersects[0]
+                ngrams_intersect = set_intersects[1]
 
                 if ngrams_intersect or (len(unigram_intersect) >= 3):
                     staging.append(document)
@@ -488,17 +467,11 @@ def select_porn_candidates(connection_params, filter_options):
 
         # Don't check for garbage
         else:
-            unigrams = file_ops.create_ngrams(document["text"], 1)
-            bigrams = file_ops.create_ngrams(document["text"], 2)
-            trigrams = file_ops.create_ngrams(document["text"], 3)
-            quadgrams = file_ops.create_ngrams(document["text"], 4)
+            set_intersects = file_ops.do_create_ngram_collections(
+                document["text"], [porn_black_list, hs_keywords, None])
 
-            ngrams = bigrams + trigrams + quadgrams
-            unigrams = set(unigrams)
-            ngrams = set(ngrams)
-
-            unigram_intersect = set(porn_black_list).intersection(unigrams)
-            ngrams_intersect = set(porn_black_list).intersection(ngrams)
+            unigram_intersect = set_intersects[0]
+            ngrams_intersect = set_intersects[1]
 
             if ngrams_intersect or (len(unigram_intersect) >= 3):
                 staging.append(document)
@@ -585,19 +558,13 @@ def select_general_candidates(connection_params, filter_options):
             # Check if the text consists primarily of links, mentions and tags
             if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
 
-                unigrams = file_ops.create_ngrams(document["text"], 1)
-                bigrams = file_ops.create_ngrams(document["text"], 2)
-                trigrams = file_ops.create_ngrams(document["text"], 3)
-                quadgrams = file_ops.create_ngrams(document["text"], 4)
+                set_intersects = file_ops.do_create_ngram_collections(
+                    document["text"], [porn_black_list, hs_keywords, black_list])
 
-                ngrams = bigrams + trigrams + quadgrams
-                unigrams = set(unigrams)
-                ngrams = set(ngrams)
-
-                unigram_intersect = set(porn_black_list).intersection(unigrams)
-                ngrams_intersect = set(porn_black_list).intersection(ngrams)
-                black_list_intersect = set(black_list).intersection(unigrams)
-                hs_keywords_intersect = set(hs_keywords).intersection(unigrams)
+                unigram_intersect = set_intersects[0]
+                ngrams_intersect = set_intersects[1]
+                hs_keywords_intersect = set_intersects[2]
+                black_list_intersect = set_intersects[3]
 
                 # No porn or hs intersect
                 if not ngrams_intersect and (len(unigram_intersect) > 1) and not black_list_intersect and not hs_keywords_intersect:
@@ -611,16 +578,13 @@ def select_general_candidates(connection_params, filter_options):
 
         # Don't check for garbage
         else:
-            unigrams = file_ops.create_ngrams(document["text"], 1)
-            bigrams = file_ops.create_ngrams(document["text"], 2)
-            trigrams = file_ops.create_ngrams(document["text"], 3)
-            quadgrams = file_ops.create_ngrams(document["text"], 4)
+            set_intersects = file_ops.do_create_ngram_collections(
+                document["text"], [porn_black_list, hs_keywords, black_list])
 
-            ngrams = bigrams + trigrams + quadgrams
-            unigram_intersect = set(porn_black_list).intersection(unigrams)
-            ngrams_intersect = set(porn_black_list).intersection(ngrams)
-            black_list_intersect = set(black_list).intersection(unigrams)
-            hs_keywords_intersect = set(hs_keywords).intersection(unigrams)
+            unigram_intersect = set_intersects[0]
+            ngrams_intersect = set_intersects[1]
+            hs_keywords_intersect = set_intersects[2]
+            black_list_intersect = set_intersects[3]
 
             if not ngrams_intersect and (len(unigram_intersect) > 1) and not black_list_intersect and not hs_keywords_intersect:
                 staging.append(document)

@@ -29,7 +29,7 @@ def run_select_hs_candidates(connection_params):
 
     # Prep a collection with check garbage set to False
     # Garbage check seems to have no effect
-    args2 = [False, "candidates_hs_exp3_garb_no_subjsent_08_Feb", False, False]
+    args2 = [False, "candidates_hs_test", False, False]
     time1 = file_ops.time()
     mongo_complex.select_hs_candidates(connection_params, args2)
     time2 = file_ops.time()
