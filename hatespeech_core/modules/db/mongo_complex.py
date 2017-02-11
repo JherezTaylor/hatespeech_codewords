@@ -20,6 +20,7 @@ from langid.langid import LanguageIdentifier, model
 from pymongo import UpdateOne, InsertOne, errors
 from ..utils import settings
 from ..utils import file_ops
+from . import mongo_base
 
 
 def get_top_k_users(connection_params, lang_list, field_name, k_limit):
@@ -268,14 +269,14 @@ def parse_undefined_lang(connection_params, lang):
             )
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(operations) == settings.BULK_BATCH_SIZE:
-            dbo[collection].bulk_write(operations, ordered=False)
+            _ = mongo_base.do_bulk_op(dbo, collection, operations)
             operations = []
 
         # if doclang[0] == "en" and doclang[1] >= 0.70:
         #     print document["text"]
 
     if (len(operations) % settings.BULK_BATCH_SIZE) != 0:
-        dbo[collection].bulk_write(operations, ordered=False)
+        _ = mongo_base.do_bulk_op(dbo, collection, operations)
 
     print Counter(lang_dist)
     print reduce(lambda x, y: x + y, accuracy) / len(accuracy)
@@ -400,13 +401,7 @@ def select_hs_candidates(connection_params, filter_options):
             staging = []
 
         if len(operations) == settings.BULK_BATCH_SIZE:
-            try:
-                result = dbo[target_collection].bulk_write(
-                    operations, ordered=False)
-            except errors.BulkWriteError as bwe:
-                print bwe.details
-                print result
-                raise
+            _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
             operations = []
 
     if (len(staging) % settings.BULK_BATCH_SIZE) != 0:
@@ -415,13 +410,7 @@ def select_hs_candidates(connection_params, filter_options):
                 operations.append(InsertOne(job))
             else:
                 pass
-
-    try:
-        result = dbo[target_collection].bulk_write(operations, ordered=False)
-    except errors.BulkWriteError as bwe:
-        print bwe.details
-        print result
-        raise
+    _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
 
 @file_ops.do_cprofile
@@ -528,13 +517,7 @@ def select_porn_candidates(connection_params, filter_options):
             staging = []
 
         if len(operations) == settings.BULK_BATCH_SIZE:
-            try:
-                result = dbo[target_collection].bulk_write(
-                    operations, ordered=False)
-            except errors.BulkWriteError as bwe:
-                print bwe.details
-                print result
-                raise
+            _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
             operations = []
 
     if (len(staging) % settings.BULK_BATCH_SIZE) != 0:
@@ -544,12 +527,7 @@ def select_porn_candidates(connection_params, filter_options):
             else:
                 pass
 
-    try:
-        result = dbo[target_collection].bulk_write(operations, ordered=False)
-    except errors.BulkWriteError as bwe:
-        print bwe.details
-        print result
-        raise
+    _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
 
 @file_ops.do_cprofile
@@ -661,13 +639,7 @@ def select_general_candidates(connection_params, filter_options):
             staging = []
 
         if len(operations) == settings.BULK_BATCH_SIZE:
-            try:
-                result = dbo[target_collection].bulk_write(
-                    operations, ordered=False)
-            except errors.BulkWriteError as bwe:
-                print bwe.details
-                print result
-                raise
+            _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
             operations = []
 
     if (len(staging) % settings.BULK_BATCH_SIZE) != 0:
@@ -677,9 +649,4 @@ def select_general_candidates(connection_params, filter_options):
             else:
                 pass
 
-    try:
-        result = dbo[target_collection].bulk_write(operations, ordered=False)
-    except errors.BulkWriteError as bwe:
-        print bwe.details
-        print result
-        raise
+    _ = mongo_base.do_bulk_op(dbo, target_collection, operations)

@@ -246,12 +246,7 @@ def update_missing_text(connection_params):
             raw_docs.clear()
 
         if len(operations) != 0 and (len(operations) % settings.BULK_BATCH_SIZE) == 0:
-            try:
-                result = dbo[collection].bulk_write(operations, ordered=False)
-            except errors.BulkWriteError as bwe:
-                print bwe.details
-                print result
-                raise
+            _ = do_bulk_op(dbo, collection, operations)
             operations = []
 
     # Exit loop and flush remaining entries
@@ -264,13 +259,7 @@ def update_missing_text(connection_params):
         not_found_count += response[2]
         raw_docs.clear()
 
-    try:
-        result = dbo[collection].bulk_write(operations, ordered=False)
-    except errors.BulkWriteError as bwe:
-        print bwe.details
-        print result
-        raise
-
+    _ = do_bulk_op(dbo, collection, operations)
     # Do a manual delete many to clean up tweets that weren't found
     return [found_count, not_found_count, request_count]
 
@@ -302,3 +291,21 @@ def do_missing_text_op(raw_docs, request_count):
             pass
     not_found_count = len(raw_docs) - len(api_response)
     return [operations, found_count, not_found_count]
+
+
+def do_bulk_op(dbo, collection, operations):
+    """ Execute bulk operations and return the result.
+
+    Args:
+        dbo (Pymongo DB): DB object
+        collection (str): Name of collection to use.
+        operations (list): List of MongoDB operations.
+    """
+
+    try:
+        result = dbo[collection].bulk_write(operations, ordered=False)
+    except errors.BulkWriteError as bwe:
+        print bwe.details
+        print result
+        raise
+    return result
