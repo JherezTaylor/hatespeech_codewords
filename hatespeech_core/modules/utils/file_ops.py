@@ -661,7 +661,11 @@ def do_create_ngram_collections(text, args):
     unigram_intersect = set(porn_black_list).intersection(unigrams)
     xgrams_intersect = set(porn_black_list).intersection(xgrams)
     hs_keywords_intersect = set(hs_keywords).intersection(unigrams)
-    black_list_intersect = set(black_list).intersection(unigrams)
+
+    if args[2]:
+        black_list_intersect = set(black_list).intersection(unigrams)
+    else:
+        black_list_intersect = None
 
     return [unigram_intersect, xgrams_intersect, hs_keywords_intersect, black_list_intersect]
 
