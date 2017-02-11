@@ -456,7 +456,7 @@ def select_porn_candidates(connection_params, filter_options):
                 unigram_intersect = set_intersects[0]
                 ngrams_intersect = set_intersects[1]
 
-                if ngrams_intersect or (len(unigram_intersect) >= 3):
+                if ngrams_intersect or (len(unigram_intersect) >= 4):
                     staging.append(document)
                 else:
                     # No intersection, skip entry
