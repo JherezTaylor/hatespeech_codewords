@@ -11,6 +11,7 @@ import re
 import csv
 import string
 from time import time
+import copy
 from collections import OrderedDict
 import multiprocessing
 import glob
@@ -563,9 +564,9 @@ def prepare_text(raw_text, args):
         if token.startswith(("@")):
             mentions.append(token)
 
-    temp = " ".join(clean_text)
-    xgrams = ([(create_ngrams(temp, i)) for i in range(1, 6)])
-    stopword_ngrams = xgrams
+    joined_string = " ".join(clean_text)
+    xgrams = ([(create_ngrams(joined_string, i)) for i in range(1, 6)])
+    stopword_ngrams = copy.deepcopy(xgrams)
 
     # Filter out ngrams that consist wholly of stopwords
     for i in range(1, 5):
