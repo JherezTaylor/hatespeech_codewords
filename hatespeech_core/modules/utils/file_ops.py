@@ -577,7 +577,7 @@ def prepare_text(raw_text, args):
         stopword_ngrams[i] = [gram for gram in stopword_ngrams[i] if set(
             twokenize.tokenizeRawTweetText(gram)).issubset(set(stop_list))]
 
-    stopword_ngrams = set(list(chain.from_iterable(stopword_ngrams)))
+    stopword_ngrams = list(chain.from_iterable(stopword_ngrams))
 
     # Check the number of HS keyword instances
     grams = list(chain.from_iterable(xgrams))
