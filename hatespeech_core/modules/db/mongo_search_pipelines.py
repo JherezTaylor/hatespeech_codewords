@@ -187,10 +187,10 @@ def select_porn_candidates(connection_params, filter_options):
                 set_intersects = file_ops.do_create_ngram_collections(
                     document["text"], [porn_black_list, hs_keywords, None])
 
-                unigram_intersect = set_intersects[0]
+                # unigram_intersect = set_intersects[0]
                 ngrams_intersect = set_intersects[1]
 
-                if ngrams_intersect or (len(unigram_intersect) >= 4):
+                if ngrams_intersect:
                     staging.append(document)
                 else:
                     # No intersection, skip entry
@@ -204,10 +204,10 @@ def select_porn_candidates(connection_params, filter_options):
             set_intersects = file_ops.do_create_ngram_collections(
                 document["text"], [porn_black_list, hs_keywords, None])
 
-            unigram_intersect = set_intersects[0]
+            # unigram_intersect = set_intersects[0]
             ngrams_intersect = set_intersects[1]
 
-            if ngrams_intersect or (len(unigram_intersect) >= 3):
+            if ngrams_intersect:
                 staging.append(document)
             else:
                 # No intersection, skip entry
