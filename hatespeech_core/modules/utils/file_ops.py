@@ -15,6 +15,7 @@ from collections import OrderedDict
 import multiprocessing
 import glob
 import cProfile
+from itertools import chain
 import requests
 import ujson
 from nltk.util import ngrams
@@ -513,7 +514,8 @@ def prepare_text(raw_text, args):
             2: intensity_measure (bool) Retain tokens with all uppercase.
 
     Returns:
-        list: terms_only, stopword_only, hashtags, mentions, hs_keyword_count, ngrams
+        list: terms_only, stopword_only, hashtags, mentions, hs_keyword_count, ngrams,
+        stopword_ngrams
     """
 
     stop_list = args[0]
@@ -563,11 +565,26 @@ def prepare_text(raw_text, args):
 
     temp = " ".join(clean_text)
     xgrams = ([(create_ngrams(temp, i)) for i in range(1, 6)])
+    stopword_ngrams = xgrams
 
-    grams = xgrams[0] + xgrams[1] + xgrams[2] + xgrams[3] + xgrams[4]
-    hs_keyword_count = len(set(hs_keywords).intersection(grams))
+    # Filter out ngrams that consist wholly of stopwords
+    for i in range(1, 5):
+        xgrams[i] = [gram for gram in xgrams[i] if not set(
+            twokenize.tokenizeRawTweetText(gram)).issubset(set(stop_list))]
 
-    return [terms_only, list(stopwords_only), hashtags, mentions, hs_keyword_count, xgrams]
+    # Filter out ngrams that don't consist wholly of stopwords
+    for i in range(1, 5):
+        stopword_ngrams[i] = [gram for gram in stopword_ngrams[i] if set(
+            twokenize.tokenizeRawTweetText(gram)).issubset(set(stop_list))]
+
+    stopword_ngrams = set(list(chain.from_iterable(stopword_ngrams)))
+
+    # Check the number of HS keyword instances
+    grams = list(chain.from_iterable(xgrams))
+    hs_keyword_count = len(set(hs_keywords).intersection(set(grams)))
+
+    return [terms_only, list(stopwords_only), hashtags, mentions, hs_keyword_count, xgrams,
+            stopword_ngrams]
 
 
 def prep_tweet_body(tweet_obj, args, processed_text):
@@ -607,6 +624,7 @@ def prep_tweet_body(tweet_obj, args, processed_text):
     result["trigrams"] = processed_text[5][2]
     result["quadgrams"] = processed_text[5][3]
     result["pentagrams"] = processed_text[5][4]
+    result["stopword_ngrams"] = processed_text[6]
 
     return result
 
