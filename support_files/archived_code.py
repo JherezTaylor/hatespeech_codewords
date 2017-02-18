@@ -41,7 +41,7 @@ def keyword_search(connection_params, keyword_list, lang_list):
         cursor = dbo["temp_set"].find({}, no_cursor_timeout=True)
         entities = cursor[:]
 
-        print "Keyword:", search_query, "| Count:", cursor.count(), " | Seen:", len(seen_set)
+        print("Keyword:", search_query, "| Count:", cursor.count(), " | Seen:", len(seen_set))
         for document in entities:
             seen_set.add(document["id_str"])
             # Create a new field and add the preprocessed text to it
@@ -95,20 +95,20 @@ def filter_by_language(connection_params, lang_list, output_name):
         {"$project": {"ids": 1}}
     ]
     cursor = dbo[collection].aggregate(pipeline, allowDiskUse=True)
-    print "Finished aggregation. Iterating now"
+    print("Finished aggregation. Iterating now")
 
     for document in cursor:
         bulk.find({"_id": {"$in": document["ids"]}}).remove()
         count = count + 1
-        print "Count:", count
+        print("Count:", count)
 
         if count % 1000 == 0:
-            print "Running bulk execute"
+            print("Running bulk execute")
             bulk.execute()
             bulk = dbo[collection].initialize_unordered_bulk_op()
 
     if count % 1000 != 0:
-        print "Running bulk execute"
+        print("Running bulk execute")
         bulk.execute()
 
     pipeline = [

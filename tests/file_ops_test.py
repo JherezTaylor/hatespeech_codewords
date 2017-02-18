@@ -40,7 +40,7 @@ class TestFileOps(object):
         result_string = "hello OR world OR how OR are OR you"
         response_string = hatespeech_core.file_ops.build_query_string(
             self.test_list)
-        print response_string
+        print(response_string)
         assert_equals(response_string, result_string)
 
     def test_file_operations(self):
@@ -68,9 +68,9 @@ class TestFileOps(object):
         """
         result = hatespeech_core.file_ops.create_ngrams(self.ngram_string, 2)
         assert_equals(result, ["the cat", "cat is",
-                               "is mad", "mad I'm", "I'm glad"])
+                               "is mad", "mad i'm", "i'm glad"])
         result = hatespeech_core.file_ops.create_ngrams(self.ngram_string, 1)
-        assert_equals(result, ["the", "cat", "is", "mad", "I'm", "glad"])
+        assert_equals(result, ["the", "cat", "is", "mad", "i'm", "glad"])
 
     def test_prepare_text(self):
         """Test prepare text function.
@@ -82,9 +82,10 @@ class TestFileOps(object):
         result = hatespeech_core.file_ops.prepare_text(
             self.tweet_text, [stop_list, ["fuck", "shit"]])
         # Terms only
-        assert_equals(result[0], ["good", "code", "I'm", ":)", "fuck"])
+        assert_equals(sorted(result[0]), sorted(
+            ["good", "code", "I'm", ":)", "fuck"]))
         # Stopwords
-        assert_equals(result[1], ["is", "my"])
+        assert_equals(sorted(result[1]), sorted(["is", "my"]))
         # Hashtags
         assert_equals(result[2], ["#testing"])
         # Mentions
@@ -92,5 +93,5 @@ class TestFileOps(object):
         # HS keyword count
         assert_equals(result[4], 1)
         # Ngrams
-        assert_equals(result[5][1], ["I'm #testing", "#testing is", "is my",
-                                     "my code", "code good", "good @dev", "@dev :)", ":) fuck"])
+        assert_equals(sorted(result[5][1]), sorted(["i'm #testing", "#testing is",
+                                                    "my code", "code good", "good @dev", "@dev :)", ":) fuck"]))

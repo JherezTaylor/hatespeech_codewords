@@ -23,7 +23,7 @@ def run_status_lookup(id_list):
         result = twitter.lookup_status(
             id=query_string, include_entities=False, trim_user=True)
     except TwythonRateLimitError:
-        print "Rate limit reached, taking a break for a minute...\n"
+        print("Rate limit reached, taking a break for a minute...\n")
     except TwythonError as err:
-        print "Some other error occured, taking a break for half a minute: " + str(err)
+        print("Some other error occured, taking a break for half a minute: " + str(err))
     return result

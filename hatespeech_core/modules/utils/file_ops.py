@@ -28,9 +28,6 @@ from textblob import TextBlob
 from joblib import Parallel, delayed
 from . import settings
 from . import twokenize
-# import sys
-# reload(sys)
-# sys.setdefaultencoding("utf8")
 
 
 def unicode_to_utf(unicode_list):
@@ -55,7 +52,8 @@ def timing(func):
         time1 = time()
         ret = func(*args)
         time2 = time()
-        print "%s function took %0.3f ms" % (func.func_name, (time2 - time1) * 1000.0)
+        print("%s function took %0.3f ms" %
+              (func.__name__, (time2 - time1) * 1000.0))
         return ret
 
     return wrap
@@ -177,7 +175,7 @@ def read_json_file(filename, path):
         with open(path + filename + ".json", "r") as entry:
             result = ujson.load(entry)
     except IOError as ex:
-        print "I/O error({0}): {1}".format(ex.errno, ex.strerror)
+        print("I/O error({0}): {1}".format(ex.errno, ex.strerror))
     else:
         entry.close()
         return result
@@ -213,7 +211,7 @@ def read_csv_file(filename, path):
             # flatten to 1D, it gets loaded as 2D array
             result = [x for sublist in temp for x in sublist]
     except IOError as ex:
-        print "I/O error({0}): {1}".format(ex.errno, ex.strerror)
+        print("I/O error({0}): {1}".format(ex.errno, ex.strerror))
     else:
         entry.close()
         return result
@@ -227,7 +225,7 @@ def write_csv_file(filename, path, result):
         path       (str): Directory path to use.
     """
 
-    output = open(path + filename + ".csv", "wb")
+    output = open(path + filename + ".csv", "w")
     writer = csv.writer(output, quoting=csv.QUOTE_ALL, lineterminator="\n")
     for val in result:
         writer.writerow([val])
@@ -249,7 +247,7 @@ def count_entries(file_list):
     for obj in file_list:
         with open(settings.CSV_PATH + obj + ".csv", "r") as entry:
             reader = csv.reader(entry, delimiter=",")
-            col_count = len(reader.next())
+            col_count = len(next(reader))
             res = {"Filename": obj, "Count": col_count}
             result.append(res)
     return result
@@ -640,7 +638,7 @@ def create_ngrams(text, length):
     """
 
     tokens = twokenize.tokenizeRawTweetText(text.lower())
-    punctuation = list(string.punctuation.decode("utf-8"))
+    punctuation = list(string.punctuation)
     clean_tokens = [token for token in tokens if token not in punctuation]
 
     return [" ".join(i for i in ngram) for ngram in ngrams(clean_tokens, length)]

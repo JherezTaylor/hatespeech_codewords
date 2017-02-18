@@ -21,6 +21,7 @@ from pymongo import UpdateOne, InsertOne
 from ..utils import settings
 from ..utils import file_ops
 from . import mongo_base
+from functools import reduce
 
 
 def get_top_k_users(connection_params, lang_list, field_name, k_limit):
@@ -278,5 +279,5 @@ def parse_undefined_lang(connection_params, lang):
     if (len(operations) % settings.BULK_BATCH_SIZE) != 0:
         _ = mongo_base.do_bulk_op(dbo, collection, operations)
 
-    print Counter(lang_dist)
-    print reduce(lambda x, y: x + y, accuracy) / len(accuracy)
+    print(Counter(lang_dist))
+    print(reduce(lambda x, y: x + y, accuracy) / len(accuracy))

@@ -10,7 +10,7 @@ This tokenizer code has gone through a long history:
 (2a) Kevin Gimpel and Daniel Mills modified it for POS tagging for the CMU ARK Twitter POS Tagger
 (2b) Jason Baldridge and David Snyder ported it to Scala
 (3) Brendan bugfixed the Scala port and merged with POS-specific changes
-    for the CMU ARK Twitter POS Tagger  
+    for the CMU ARK Twitter POS Tagger
 (4) Tobi Owoputi ported it back to Java and added many improvements (2012-06)
 
 Current home is http://github.com/brendano/ark-tweet-nlp and http://www.ark.cs.cmu.edu/TweetNLP
@@ -18,14 +18,18 @@ Current home is http://github.com/brendano/ark-tweet-nlp and http://www.ark.cs.c
 There have been at least 2 other Java ports, but they are not in the lineage for the code here.
 
 Ported to Python by Myle Ott <myleott@gmail.com>.
-https://github.com/myleott/ark-twokenize-py.
 """
 
 from __future__ import print_function
 
 import operator
 import re
-import HTMLParser
+try:
+    import HTMLParser
+except ImportError:
+    import html.parser as HTMLParser
+
+unicode = str
 
 
 def regex_or(*items):
@@ -70,8 +74,8 @@ url = regex_or(urlStart1, urlStart2) + urlBody + \
 timeLike = r"\d+(?::\d+){1,2}"
 #numNum     = r"\d+\.\d+"
 numberWithCommas = r"(?:(?<!\d)\d{1,3},)+?\d{3}" + r"(?=(?:[^,\d]|$))"
-numComb = u"[\u0024\u058f\u060b\u09f2\u09f3\u09fb\u0af1\u0bf9\u0e3f\u17db\ua838\ufdfc\ufe69\uff04\uffe0\uffe1\uffe5\uffe6\u00a2-\u00a5\u20a0-\u20b9]?\\d+(?:\\.\\d+)+%?".encode(
-    'utf-8')
+# .encode('utf-8')
+numComb = u"[\u0024\u058f\u060b\u09f2\u09f3\u09fb\u0af1\u0bf9\u0e3f\u17db\ua838\ufdfc\ufe69\uff04\uffe0\uffe1\uffe5\uffe6\u00a2-\u00a5\u20a0-\u20b9]?\\d+(?:\\.\\d+)+%?"
 
 # Abbreviations
 boundaryNotDot = regex_or("$", r"\s", r"[“\"?!,:;]", entity)
@@ -80,7 +84,8 @@ aa2 = r"[^A-Za-z](?:[A-Za-z]\.){1,}[A-Za-z](?=" + boundaryNotDot + ")"
 standardAbbreviations = r"\b(?:[Mm]r|[Mm]rs|[Mm]s|[Dd]r|[Ss]r|[Jj]r|[Rr]ep|[Ss]en|[Ss]t)\."
 arbitraryAbbrev = regex_or(aa1, aa2, standardAbbreviations)
 separators = "(?:--+|―|—|~|–|=)"
-decorations = u"(?:[♫♪]+|[★☆]+|[♥❤♡]+|[\u2639-\u263b]+|[\ue001-\uebbb]+)".encode('utf-8')
+# .encode('utf-8')
+decorations = u"(?:[♫♪]+|[★☆]+|[♥❤♡]+|[\u2639-\u263b]+|[\ue001-\uebbb]+)"
 thingsThatSplitWords = r"[^\s\.,?\"]"
 embeddedApostrophe = thingsThatSplitWords + \
     r"+['’′]" + thingsThatSplitWords + "*"
@@ -103,7 +108,8 @@ otherMouths = r"(?:[oO]+|[/\\]+|[vV]+|[Ss]+|[|]+)"
 
 # myleott: try to be as case insensitive as possible, but still not perfect, e.g., o.O fails
 #bfLeft = u"(♥|0|o|°|v|\\$|t|x|;|\u0ca0|@|ʘ|•|・|◕|\\^|¬|\\*)".encode('utf-8')
-bfLeft = u"(♥|0|[oO]|°|[vV]|\\$|[tT]|[xX]|;|\u0ca0|@|ʘ|•|・|◕|\\^|¬|\\*)".encode('utf-8')
+# .encode('utf-8')
+bfLeft = u"(♥|0|[oO]|°|[vV]|\\$|[tT]|[xX]|;|\u0ca0|@|ʘ|•|・|◕|\\^|¬|\\*)"
 bfCenter = r"(?:[\.]|[_-]+)"
 bfRight = r"\2"
 s3 = r"(?:--['\"])"
@@ -115,7 +121,7 @@ basicface = "(?:" + bfLeft + bfCenter + bfRight + ")|" + \
     s3 + "|" + s4 + "|" + s5
 
 eeLeft = r"[＼\\ƪԄ\(（<>;ヽ\-=~\*]+"
-eeRight = u"[\\-=\\);'\u0022<>ʃ）/／ノﾉ丿╯σっµ~\\*]+".encode('utf-8')
+eeRight = u"[\\-=\\);'\u0022<>ʃ）/／ノﾉ丿╯σっµ~\\*]+"  # .encode('utf-8')
 eeSymbol = r"[^A-Za-z0-9\s\(\)\*:=-]"
 eastEmote = eeLeft + "(?:" + basicface + "|" + eeSymbol + ")+" + eeRight
 
@@ -148,7 +154,7 @@ emoticon = regex_or(
 Hearts = "(?:<+/?3+)+"  # the other hearts are in decorations
 
 Arrows = regex_or(r"(?:<*[-―—=]*>+|<+[-―—=]*>*)",
-                  u"[\u2190-\u21ff]+".encode('utf-8'))
+                  u"[\u2190-\u21ff]+")  # .encode('utf-8'))
 
 # BTO 2011-06: restored Hashtag, AtMention protection (dropped in original scala port) because it fixes
 # "hello (#hashtag)" ==> "hello (#hashtag )"  WRONG
@@ -193,7 +199,8 @@ Protected = re.compile(
         embeddedApostrophe,
         Hashtag,
         AtMention
-    ).decode('utf-8')), re.UNICODE)
+    )  # .decode('utf-8'))
+    ), re.UNICODE)
 
 # Edge punctuation
 # Want: 'foo' => ' foo '

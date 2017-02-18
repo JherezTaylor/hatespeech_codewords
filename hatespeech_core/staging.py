@@ -21,9 +21,9 @@ def check_token_lengths(wordlist):
     unigrams = [word for word in wordlist if len(
         file_ops.twokenize.tokenizeRawTweetText(word)) == 2]
     result = unusual_words(unigrams)
-    print "Single token count: {0}".format(len(unigrams))
-    print "Non dictionary matches: {0}".format(len(result[0]))
-    print "Dictionary matches: {0}".format(len(result[1]))
+    print("Single token count: {0}".format(len(unigrams)))
+    print("Non dictionary matches: {0}".format(len(result[0])))
+    print("Dictionary matches: {0}".format(len(result[1])))
     # pprint(result[0])
 
 
@@ -46,7 +46,7 @@ def ngram_stopword_check(text):
     bigrams = file_ops.create_ngrams(text, 2)
     bigrams = [ngram for ngram in bigrams if not set(
         file_ops.twokenize.tokenizeRawTweetText(ngram)).issubset(set(stop_list))]
-    print bigrams
+    print(bigrams)
 
 
 def main():
