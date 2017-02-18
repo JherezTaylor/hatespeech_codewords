@@ -197,12 +197,9 @@ def get_object_ids(connection_params, lang_list, output_name):
     ]
 
     dbo[collection].aggregate(pipeline, allowDiskUse=True)
-
-    result = []
     cursor = dbo[output_name].find({})
-    for document in cursor:
-        result.append(str(document["_id"]))
 
+    result = [str(document["_id"]) for document in cursor]
     file_ops.write_json_file(output_name, settings.DATA_PATH, result)
 
 

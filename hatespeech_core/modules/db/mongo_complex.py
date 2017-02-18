@@ -196,9 +196,9 @@ def hashtag_map_reduce(connection_params, output_name):
     cursor = dbo[collection].map_reduce(
         map_function, reduce_function, output_name, query={"lang": {"$eq": "en"}})
 
-    for document in cursor.find():
-        frequency.append({"_id": document["_id"], "value": document["value"]})
-
+    frequency = [{"_id": document["_id"], "value": document["value"]}
+                 for document in cursor.find()]
+    
     frequency = sorted(frequency, key=lambda k: k["value"], reverse=True)
     file_ops.write_json_file("hashtag_distribution_mr",
                              settings.DATA_PATH, frequency)
