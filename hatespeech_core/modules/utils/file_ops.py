@@ -687,11 +687,10 @@ def is_garbage(raw_text, precision):
         tweet_obj  (dict): Tweet to preprocess.
     """
 
-    garbage_check = ""
     word_list = raw_text.split()
-    for token in word_list:
-        if not token.startswith(("#", "@", "http")):
-            garbage_check = garbage_check + token + " "
+    garbage_check = [
+        token for token in word_list if not token.startswith(("#", "@", "http"))]
+    garbage_check = " ".join(garbage_check)
 
     if ((len(raw_text) - len(garbage_check)) / len(raw_text)) >= precision:
         return True
