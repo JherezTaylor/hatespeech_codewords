@@ -16,6 +16,7 @@ from collections import OrderedDict
 import multiprocessing
 import glob
 import cProfile
+import pstats
 from itertools import chain
 import requests
 import ujson
@@ -74,7 +75,8 @@ def do_cprofile(func):
             profile.disable()
             return result
         finally:
-            profile.print_stats(sort="time")
+            stats = pstats.Stats(profile)
+            stats.sort_stats("time").print_stats(20)
 
     return profiled_func
 
@@ -639,15 +641,9 @@ def create_ngrams(text, length):
 
     tokens = twokenize.tokenizeRawTweetText(text.lower())
     punctuation = list(string.punctuation.decode("utf-8"))
-    clean_tokens = []
-    for token in tokens:
-        if token not in punctuation:
-            clean_tokens.append(token)
+    clean_tokens = [token for token in tokens if token not in punctuation]
 
-    result = []
-    for ngram in ngrams(clean_tokens, length):
-        result.append(" ".join(i for i in ngram))
-    return result
+    return [" ".join(i for i in ngram) for ngram in ngrams(clean_tokens, length)]
 
 
 def do_create_ngram_collections(text, args):
