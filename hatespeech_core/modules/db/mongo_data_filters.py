@@ -67,27 +67,27 @@ def create_indexes(connection_params):
 
     dbo[collection].create_index(
         [("entities.user_mentions", ASCENDING)], sparse=True, background=True)
-    print "User mentions Index built"
+    print("User mentions Index built")
 
     dbo[collection].create_index(
         [("entities.hashtags", ASCENDING)], sparse=True, background=True)
-    print "Hashtag Index built"
+    print("Hashtag Index built")
 
     dbo[collection].create_index(
         [("quoted_status_id", ASCENDING)], sparse=True, background=True)
-    print "Quoted status Index built"
+    print("Quoted status Index built")
 
     dbo[collection].create_index(
         [("extended_tweet.id_str", ASCENDING)], sparse=True, background=True)
-    print "Extended tweet Index built"
+    print("Extended tweet Index built")
 
     dbo[collection].create_index(
         [("quoted_status.entities.hashtags", ASCENDING)], sparse=True, background=True)
-    print "Quoted status hashtag Index built"
+    print("Quoted status hashtag Index built")
 
     dbo[collection].create_index(
         [("quoted_status.entities.user_mentions", ASCENDING)], sparse=True, background=True)
-    print "Quoted status user_mention Index built"
+    print("Quoted status user_mention Index built")
 
 
 @file_ops.timing

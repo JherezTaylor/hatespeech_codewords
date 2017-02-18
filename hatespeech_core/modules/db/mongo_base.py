@@ -34,9 +34,9 @@ def connect(db_url=None):
         conn = MongoClient(
             db_url, serverSelectionTimeoutMS=max_sev_sel_delay, socketKeepAlive=True)
         conn.server_info()
-        print "Connected to DB at " + db_url + " successfully"
-    except errors.ServerSelectionTimeoutError, ex:
-        print "Could not connect to MongoDB: %s" % ex
+        print("Connected to DB at " + db_url + " successfully")
+    except errors.ServerSelectionTimeoutError as ex:
+        print("Could not connect to MongoDB: %s" % ex)
     return conn
 
 
@@ -239,7 +239,7 @@ def update_missing_text(connection_params):
             request_count += 1
 
             response = do_missing_text_op(raw_docs, request_count)
-            print "Req Count", request_count
+            print("Req Count", request_count)
             operations += response[0]
             found_count += response[1]
             not_found_count += response[2]
@@ -252,7 +252,7 @@ def update_missing_text(connection_params):
     # Exit loop and flush remaining entries
     if (len(raw_docs) % 100) != 0:
         request_count += 1
-        print "Req Count", request_count
+        print("Req Count", request_count)
         response = do_missing_text_op(raw_docs, request_count)
         operations += response[0]
         found_count += response[1]
@@ -281,7 +281,7 @@ def do_missing_text_op(raw_docs, request_count):
     else:
         pass
 
-    api_response = twitter_api.run_status_lookup(raw_docs.keys())
+    api_response = twitter_api.run_status_lookup(list(raw_docs.keys()))
     for doc in api_response:
         if doc["id_str"] in raw_docs:
             found_count += 1
@@ -305,7 +305,7 @@ def do_bulk_op(dbo, collection, operations):
     try:
         result = dbo[collection].bulk_write(operations, ordered=False)
     except errors.BulkWriteError as bwe:
-        print bwe.details
-        print result
+        print(bwe.details)
+        print(result)
         raise
     return result

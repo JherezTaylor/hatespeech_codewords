@@ -111,7 +111,7 @@ def select_hs_candidates(connection_params, filter_options):
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
-            print "Progress: ", (progress * 100) / cursor_count, "%"
+            print("Progress: ", (progress * 100) / cursor_count, "%")
             for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
@@ -215,7 +215,7 @@ def select_porn_candidates(connection_params, filter_options):
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
-            print "Progress: ", (progress * 100) / cursor_count, "%"
+            print("Progress: ", (progress * 100) / cursor_count, "%")
             for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
@@ -328,7 +328,7 @@ def select_general_candidates(connection_params, filter_options):
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
-            print "Progress: ", (progress * 100) / cursor_count, "%"
+            print("Progress: ", (progress * 100) / cursor_count, "%")
             for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))

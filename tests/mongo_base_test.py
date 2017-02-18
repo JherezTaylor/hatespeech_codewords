@@ -31,7 +31,8 @@ class TestMongoMethods(object):
     def test_connection(self):
         """Test mongo db connection"""
         ping = self.client.admin.command("ping")
-        assert ping >= 1
+        assert 'ok' in ping
+        assert ping.get('ok') >= 1
 
     # @nottest
     def test_get_language_list(self):

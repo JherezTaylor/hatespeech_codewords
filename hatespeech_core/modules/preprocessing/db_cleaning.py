@@ -83,12 +83,12 @@ def run_retweet_removal(connection_params):
     time_diff = (time2 - time1) * 1000.0
 
     result = db_response
-    print result.modified_count
+    print(result.modified_count)
 
-    print "%s function took %0.3f ms" % ("retweet_removal", time_diff)
+    print("%s function took %0.3f ms" % ("retweet_removal", time_diff))
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ": Retweet removal took " + str(time_diff) + " ms", result)
-    print send_notification.content
+    print(send_notification.content)
 
 
 def run_create_indexes(connection_params):
@@ -102,10 +102,10 @@ def run_create_indexes(connection_params):
     time2 = file_ops.time()
     time_diff = (time2 - time1) * 1000.0
 
-    print "%s function took %0.3f ms" % ("create_indexes", time_diff)
+    print("%s function took %0.3f ms" % ("create_indexes", time_diff))
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ": Index creation took " + str(time_diff) + " ms", "Complete")
-    print send_notification.content
+    print(send_notification.content)
 
 
 def run_field_removal(connection_params):
@@ -120,12 +120,12 @@ def run_field_removal(connection_params):
     time_diff = (time2 - time1) * 1000.0
 
     result = db_response
-    print result.modified_count
+    print(result.modified_count)
 
-    print "%s function took %0.3f ms" % ("field_removal", time_diff)
+    print("%s function took %0.3f ms" % ("field_removal", time_diff))
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ": Field Removal took " + str(time_diff) + " ms", result)
-    print send_notification.content
+    print(send_notification.content)
 
     time1 = file_ops.time()
     db_response = mongo_data_filters.quoted_status_field_removal(
@@ -134,12 +134,12 @@ def run_field_removal(connection_params):
     time_diff = (time2 - time1) * 1000.0
 
     result = db_response
-    print result.modified_count
+    print(result.modified_count)
 
-    print "%s function took %0.3f ms" % ("quoted_status_field_removal", time_diff)
+    print("%s function took %0.3f ms" % ("quoted_status_field_removal", time_diff))
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ":Quoted_status Field Removal took " + str(time_diff) + " ms", result)
-    print send_notification.content
+    print(send_notification.content)
 
 
 def run_language_trimming(connection_params, lang_list):
@@ -155,12 +155,12 @@ def run_language_trimming(connection_params, lang_list):
     time_diff = (time2 - time1) * 1000.0
 
     result = db_response
-    print result.modified_count
+    print(result.modified_count)
 
-    print "%s function took %0.3f ms" % ("language_trimming", time_diff)
+    print("%s function took %0.3f ms" % ("language_trimming", time_diff))
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ": Language trimming took " + str(time_diff) + " ms", result)
-    print send_notification.content
+    print(send_notification.content)
 
 
 def run_field_flattening(connection_params, depth, job_name, field_params):
@@ -184,10 +184,10 @@ def run_field_flattening(connection_params, depth, job_name, field_params):
     time2 = file_ops.time()
     time_diff = (time2 - time1) * 1000.0
 
-    print "%s function took %0.3f ms" % (job_name, time_diff)
+    print("%s function took %0.3f ms" % (job_name, time_diff))
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
-    print send_notification.content
+    print(send_notification.content)
 
 
 def run_parse_extended_tweet(connection_params, depth, job_name):
@@ -202,10 +202,10 @@ def run_parse_extended_tweet(connection_params, depth, job_name):
     time2 = file_ops.time()
     time_diff = (time2 - time1) * 1000.0
 
-    print "%s function took %0.3f ms" % (job_name, time_diff)
+    print("%s function took %0.3f ms" % (job_name, time_diff))
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
-    print send_notification.content
+    print(send_notification.content)
 
 
 def run_final_field_removal(connection_params, job_name):
@@ -220,10 +220,10 @@ def run_final_field_removal(connection_params, job_name):
     time2 = file_ops.time()
     time_diff = (time2 - time1) * 1000.0
 
-    print "%s function took %0.3f ms" % (job_name, time_diff)
+    print("%s function took %0.3f ms" % (job_name, time_diff))
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
-    print send_notification.content
+    print(send_notification.content)
 
 
 def run_clean_source_field(connection_params, job_name):
@@ -238,10 +238,10 @@ def run_clean_source_field(connection_params, job_name):
     time2 = file_ops.time()
     time_diff = (time2 - time1) * 1000.0
 
-    print "%s function took %0.3f ms" % (job_name, time_diff)
+    print("%s function took %0.3f ms" % (job_name, time_diff))
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
-    print send_notification.content
+    print(send_notification.content)
 
 def run_update_missing_text():
     """ Start the missing tweet text replacement job
@@ -255,12 +255,12 @@ def run_update_missing_text():
     time2 = file_ops.time()
     time_diff = (time2 - time1) * 1000.0
 
-    print "%s function took %0.3f ms" % ("update_missing_text", time_diff)
+    print("%s function took %0.3f ms" % ("update_missing_text", time_diff))
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ": Replace missing text took " + str(int(time_diff)) + " ms"
         , "Found: " + str(db_response[0]) + "Not Found: " + str(db_response[1]) + "Total Requests: "
         + str(db_response[2]) + "Complete")
-    print send_notification.content
+    print(send_notification.content)
 
 
 def preprocessing_pipeline():

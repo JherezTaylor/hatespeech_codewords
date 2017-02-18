@@ -9,3 +9,4 @@ nose
 requests
 bs4
 twython
+pylint
