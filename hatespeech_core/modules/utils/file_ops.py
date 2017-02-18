@@ -267,8 +267,7 @@ def extract_corpus(file_list):
         data = json_data["data"]["datapoint"]
         data.sort(key=count_sightings, reverse=True)
 
-        for entry in data:
-            result.append(str(entry["vocabulary"]))
+        result = [str(entry["vocabulary"]) for entry in data]
         write_csv_file(file_name, settings.CSV_PATH, result)
 
 
@@ -282,9 +281,7 @@ def json_field_filter(json_obj, field_filter):
     Returns:
         list: A list of filtered values
     """
-    result = []
-    for document in json_obj:
-        result.append(document[field_filter])
+    result = [document[field_filter] for document in json_obj]
     return result
 
 

@@ -265,7 +265,7 @@ def field_flattening_base(connection_params, depth, field_name, field_to_set, fi
                           "$unset": {
                               str(field_name_base): ""
                           }
-            }, upsert=False))
+                      }, upsert=False))
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if (len(operations) % settings.BULK_BATCH_SIZE) == 0:
@@ -326,9 +326,9 @@ def field_flattening_complex(connection_params, depth, field_params):
         {"$group": {"_id": "$_id", field_top_level:
                     {"$addToSet": {field_to_set_1: field_name + field_to_extract_1,
                                    field_to_set_2: field_name + field_to_extract_2}
-                     }
                     }
-         },
+                   }
+        },
         {"$out": "temp_" + field_name_base}
     ]
 
@@ -346,7 +346,7 @@ def field_flattening_complex(connection_params, depth, field_params):
                           "$unset": {
                               str(field_name_base): ""
                           }
-            }, upsert=False))
+                      }, upsert=False))
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if (len(operations) % settings.BULK_BATCH_SIZE) == 0:
