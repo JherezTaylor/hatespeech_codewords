@@ -1,6 +1,6 @@
 # Author: Jherez Taylor <jherez.taylor@gmail.com>
 # License: MIT
-# Python 2.7
+# Python 3.5
 
 """
 This module provides complex methods that interact with the MongoDB instance.

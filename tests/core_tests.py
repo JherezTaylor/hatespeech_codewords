@@ -1,6 +1,6 @@
 # Author: Jherez Taylor <jherez.taylor@gmail.com>
 # License: MIT
-# Python 2.7
+# Python 3.5
 
 """http://nullege.com/codes/search?cq=nose.tools"""
 

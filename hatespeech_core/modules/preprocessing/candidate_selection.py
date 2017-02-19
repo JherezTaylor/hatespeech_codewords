@@ -1,6 +1,6 @@
 # Author: Jherez Taylor <jherez.taylor@gmail.com>
 # License: MIT
-# Python 2.7
+# Python 3.5
 
 """
 This module calls functions that deal with idenitfy tweets that might be instances of
@@ -29,7 +29,7 @@ def run_select_hs_candidates(connection_params):
 
     # Prep a collection with check garbage set to False
     # Garbage check seems to have no effect
-    args2 = [False, "candidates_hs_test", False, False]
+    args2 = [False, "candidates_porn_exp5_19_Feb", False, False]
     time1 = file_ops.time()
     mongo_search_pipelines.select_hs_candidates(connection_params, args2)
     time2 = file_ops.time()
@@ -42,8 +42,8 @@ def run_select_hs_candidates(connection_params):
 
 
 def run_select_porn_candidates(connection_params):
-    # """ Start the Porn indentification pipeline
-    # """
+    """ Start the Porn indentification pipeline
+    """
     # args = [True, "candidates_porn_exp3_nogarb_15_Jan", False, False]
     # time1 = file_ops.time()
     # mongo_search_pipelines.select_porn_candidates(connection_params, args)
@@ -99,6 +99,6 @@ def sentiment_pipeline():
     """Handle sentiment analysis tasks"""
     client = mongo_base.connect()
     connection_params = [client, "twitter", "tweets"]
-    #run_select_hs_candidates(connection_params)
-    run_select_porn_candidates(connection_params)
+    run_select_hs_candidates(connection_params)
+    # run_select_porn_candidates(connection_params)
     # run_select_general_candidates(connection_params)

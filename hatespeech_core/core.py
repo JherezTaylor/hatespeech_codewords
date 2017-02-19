@@ -1,6 +1,6 @@
 # Author: Jherez Taylor <jherez.taylor@gmail.com>
 # License: MIT
-# Python 2.7
+# Python 3.5
 
 """
 Core module
@@ -9,6 +9,7 @@ Core module
 from modules.preprocessing import db_cleaning
 from modules.preprocessing import candidate_selection
 from modules.utils import twitter_api
+
 
 def main():
     """
