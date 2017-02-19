@@ -1,6 +1,6 @@
 # Author: Jherez Taylor <jherez.taylor@gmail.com>
 # License: MIT
-# Python 2.7
+# Python 3.5
 
 """
 Staging module, just quick functions
@@ -11,8 +11,6 @@ from modules.utils import file_ops
 from modules.utils import settings
 from nltk.corpus import words
 from nltk.corpus import stopwords
-from pprint import pprint
-from itertools import chain
 
 
 def check_token_lengths(wordlist):

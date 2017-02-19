@@ -1,4 +1,3 @@
-@file_ops.do_cprofile
 def keyword_search(connection_params, keyword_list, lang_list):
     """Perform a text search with the provided keywords.
 

@@ -1,6 +1,6 @@
 # Author: Jherez Taylor <jherez.taylor@gmail.com>
 # License: MIT
-# Python 2.7
+# Python 3.5
 
 """
 This module provides methods that focus on removing and compressing fields.
