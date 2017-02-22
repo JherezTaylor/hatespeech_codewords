@@ -72,7 +72,7 @@ def select_porn_candidates(connection_params, filter_options):
             if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
 
                 set_intersects = file_ops.do_create_ngram_collections(
-                    document["text"], [porn_black_list, hs_keywords, None])
+                    document["text"].lower(), [porn_black_list, hs_keywords, None])
 
                 # unigram_intersect = set_intersects[0]
                 ngrams_intersect = set_intersects[1]
@@ -89,7 +89,7 @@ def select_porn_candidates(connection_params, filter_options):
         # Don't check for garbage
         else:
             set_intersects = file_ops.do_create_ngram_collections(
-                document["text"], [porn_black_list, hs_keywords, None])
+                document["text"].lower(), [porn_black_list, hs_keywords, None])
 
             # unigram_intersect = set_intersects[0]
             ngrams_intersect = set_intersects[1]
@@ -123,7 +123,8 @@ def select_porn_candidates(connection_params, filter_options):
     _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
 
-@file_ops.do_cprofile
+# @file_ops.do_cprofile
+# @profile
 def select_hs_candidates(connection_params, filter_options):
     """ Iterate the specified collection and store the ObjectId
     of documents that have been tagged as being subjective with a negative sentiment.
@@ -188,7 +189,7 @@ def select_hs_candidates(connection_params, filter_options):
             if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
 
                 set_intersects = file_ops.do_create_ngram_collections(
-                    document["text"], [porn_black_list, hs_keywords, black_list])
+                    document["text"].lower(), [porn_black_list, hs_keywords, black_list])
 
                 # unigram_intersect = set_intersects[0]
                 ngrams_intersect = set_intersects[1]
@@ -210,7 +211,7 @@ def select_hs_candidates(connection_params, filter_options):
         # Don't check for garbage
         else:
             set_intersects = file_ops.do_create_ngram_collections(
-                document["text"], [porn_black_list, hs_keywords, black_list])
+                document["text"].lower(), [porn_black_list, hs_keywords, black_list])
 
             # unigram_intersect = set_intersects[0]
             ngrams_intersect = set_intersects[1]
@@ -305,7 +306,7 @@ def select_general_candidates(connection_params, filter_options):
             if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
 
                 set_intersects = file_ops.do_create_ngram_collections(
-                    document["text"], [porn_black_list, hs_keywords, black_list])
+                    document["text"].lower(), [porn_black_list, hs_keywords, black_list])
 
                 unigram_intersect = set_intersects[0]
                 ngrams_intersect = set_intersects[1]
@@ -325,7 +326,7 @@ def select_general_candidates(connection_params, filter_options):
         # Don't check for garbage
         else:
             set_intersects = file_ops.do_create_ngram_collections(
-                document["text"], [porn_black_list, hs_keywords, black_list])
+                document["text"].lower(), [porn_black_list, hs_keywords, black_list])
 
             unigram_intersect = set_intersects[0]
             ngrams_intersect = set_intersects[1]
