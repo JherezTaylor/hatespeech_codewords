@@ -13,7 +13,7 @@ Removes all entries from a collection not matching a given language.
 
 from pprint import pprint
 from time import sleep
-from pymongo import MongoClient, UpdateOne, DeleteOne, errors
+from pymongo import MongoClient, UpdateOne, errors
 from bson.objectid import ObjectId
 from bson.son import SON
 from ..utils import settings

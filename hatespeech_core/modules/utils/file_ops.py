@@ -456,7 +456,7 @@ def preprocess_tweet(tweet_obj, hs_keywords, args):
         if sentiment["compound"] < 0 and sentiment["neg"] >= 0.5 and subjectivity >= 0.4:
 
             processed_text = prepare_text(
-                tweet_obj["text"], [stop_list, hs_keywords])
+                tweet_obj["text"].lower(), [stop_list, hs_keywords])
 
             tweet_obj = prep_tweet_body(
                 tweet_obj, [True, subjectivity, sentiment], processed_text)
@@ -472,7 +472,7 @@ def preprocess_tweet(tweet_obj, hs_keywords, args):
 
     elif not subj_check and not sent_check:
         processed_text = prepare_text(
-            tweet_obj["text"], [stop_list, hs_keywords])
+            tweet_obj["text"].lower(), [stop_list, hs_keywords])
 
         tweet_obj = prep_tweet_body(
             tweet_obj, [False], processed_text)
@@ -503,6 +503,7 @@ def get_sent_subj(raw_text):
 
 def prepare_text(raw_text, args):
     """ Clean and tokenize text. Create ngrams.
+    Ensure that raw_text is lowercased if that's required.
 
     Args:
         raw_text  (str): String to preprocess.
@@ -561,8 +562,7 @@ def prepare_text(raw_text, args):
         if token.startswith(("@")):
             mentions.append(token)
 
-    joined_string = " ".join(clean_text)
-    xgrams = ([(create_ngrams(joined_string, i)) for i in range(1, 6)])
+    xgrams = ([(create_ngrams(clean_text, i)) for i in range(1, 6)])
     stopword_ngrams = copy.deepcopy(xgrams)
 
     # Filter out ngrams that consist wholly of stopwords
@@ -627,22 +627,23 @@ def prep_tweet_body(tweet_obj, args, processed_text):
     return result
 
 
-def create_ngrams(text, length):
+def create_ngrams(text_list, length):
     """ Create ngrams of the specified length from a string of text
     Args:
-        text   (str): Text to process.
-        length (int): Length of ngrams to create.
+        text_list   (list): Pre-tokenized text to process.
+        length      (int):  Length of ngrams to create.
     """
 
-    tokens = twokenize.tokenizeRawTweetText(text.lower())
+    # tokens = twokenize.tokenizeRawTweetText(text.lower())
     punctuation = list(string.punctuation)
-    clean_tokens = [token for token in tokens if token not in punctuation]
+    clean_tokens = [token for token in text_list if token not in punctuation]
 
     return [" ".join(i for i in ngram) for ngram in ngrams(clean_tokens, length)]
 
 
 def do_create_ngram_collections(text, args):
     """ Create and return ngram collections and set intersections.
+    Text must be lowercased if required.
     Args:
         text   (str): Text to process.
         args      (list): Can contains the following:
@@ -656,10 +657,11 @@ def do_create_ngram_collections(text, args):
     if args[2]:
         black_list = args[2]
 
-    unigrams = create_ngrams(text, 1)
-    bigrams = create_ngrams(text, 2)
-    trigrams = create_ngrams(text, 3)
-    quadgrams = create_ngrams(text, 4)
+    tokens = twokenize.tokenizeRawTweetText(text)
+    unigrams = create_ngrams(tokens, 1)
+    bigrams = create_ngrams(tokens, 2)
+    trigrams = create_ngrams(tokens, 3)
+    quadgrams = create_ngrams(tokens, 4)
 
     xgrams = bigrams + trigrams + quadgrams
     unigrams = set(unigrams)

@@ -66,10 +66,12 @@ class TestFileOps(object):
     def test_create_ngrams(self):
         """Test create_ngrams function.
         """
-        result = hatespeech_core.file_ops.create_ngrams(self.ngram_string, 2)
+        result = hatespeech_core.file_ops.create_ngrams(
+            hatespeech_core.file_ops.twokenize.tokenizeRawTweetText(self.ngram_string.lower()), 2)
         assert_equals(result, ["the cat", "cat is",
                                "is mad", "mad i'm", "i'm glad"])
-        result = hatespeech_core.file_ops.create_ngrams(self.ngram_string, 1)
+        result = hatespeech_core.file_ops.create_ngrams(
+            hatespeech_core.file_ops.twokenize.tokenizeRawTweetText(self.ngram_string.lower()), 1)
         assert_equals(result, ["the", "cat", "is", "mad", "i'm", "glad"])
 
     def test_prepare_text(self):
@@ -80,10 +82,10 @@ class TestFileOps(object):
             "english") + punctuation + ["rt", "via", "RT"])
 
         result = hatespeech_core.file_ops.prepare_text(
-            self.tweet_text, [stop_list, ["fuck", "shit"]])
+            self.tweet_text.lower(), [stop_list, ["fuck", "shit"]])
         # Terms only
         assert_equals(sorted(result[0]), sorted(
-            ["good", "code", "I'm", ":)", "fuck"]))
+            ["good", "code", "i'm", ":)", "fuck"]))
         # Stopwords
         assert_equals(sorted(result[1]), sorted(["is", "my"]))
         # Hashtags
