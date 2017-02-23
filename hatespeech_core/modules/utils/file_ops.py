@@ -13,7 +13,6 @@ import string
 from time import time
 import copy
 from collections import OrderedDict
-import multiprocessing
 import glob
 import cProfile
 import pstats
@@ -25,7 +24,7 @@ from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 # from nltk.sentiment.util import demo_sent_subjectivity as SUBJ
 from textblob import TextBlob
-from joblib import Parallel, delayed
+from joblib import Parallel, delayed, cpu_count
 from . import settings
 from . import twokenize
 
@@ -571,6 +570,7 @@ def prepare_text(raw_text, args):
         stopword_ngrams[i] = [gram for gram in stopword_ngrams[i] if set(
             twokenize.tokenizeRawTweetText(gram)).issubset(set(stop_list))]
 
+    # Flatten list of lists
     stopword_ngrams = list(chain.from_iterable(stopword_ngrams))
 
     # Check the number of HS keyword instances
@@ -716,7 +716,7 @@ def parallel_preprocess(tweet_list, hs_keywords, subj_check, sent_check):
     Returns:
         list: List of vectorized tweets.
     """
-    num_cores = multiprocessing.cpu_count()
+    num_cores = cpu_count()
     results = Parallel(n_jobs=num_cores)(
         delayed(preprocess_tweet)(tweet, hs_keywords, [subj_check, sent_check]) for tweet in tweet_list)
     return results

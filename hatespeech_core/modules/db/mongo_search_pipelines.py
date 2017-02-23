@@ -248,7 +248,7 @@ def select_hs_candidates(connection_params, filter_options):
     _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
     file_ops.write_json_file(
         'porn_ngram_hits', settings.DATA_PATH, porn_black_list_counts)
-
+    # dbo[target_collection].drop()
 
 @file_ops.do_cprofile
 def select_general_candidates(connection_params, filter_options):
