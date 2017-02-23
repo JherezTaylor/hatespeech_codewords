@@ -7,14 +7,15 @@ Staging module, just quick functions
 """
 
 import string
+from pprint import pprint
+from itertools import chain
 from modules.utils import file_ops
 from modules.utils import settings
 from modules.db import mongo_base
 from modules.db import mongo_search_pipelines
 from nltk.corpus import words
 from nltk.corpus import stopwords
-import threading
-from pprint import pprint
+from joblib import Parallel, delayed, cpu_count
 
 
 def check_token_lengths(wordlist):
@@ -45,89 +46,78 @@ def ngram_stopword_check(text):
     punctuation = list(string.punctuation)
     stop_list = dict.fromkeys(stopwords.words(
         "english") + punctuation + ["rt", "via", "RT"])
-    bigrams = file_ops.create_ngrams(file_ops.twokenize.tokenizeRawTweetText(text.lower()), 2)
+    bigrams = file_ops.create_ngrams(
+        file_ops.twokenize.tokenizeRawTweetText(text.lower()), 2)
     bigrams = [ngram for ngram in bigrams if not set(
         file_ops.twokenize.tokenizeRawTweetText(ngram)).issubset(set(stop_list))]
     print(bigrams)
 
 
-def test_parallel_scan(client):
-    """ Test pymongo parallel scan
-    """
-
-    connection_params = [client, "twitter_test", "test_suite"]
-
-    db_name = connection_params[1]
-    collection = connection_params[2]
+# @file_ops.do_cprofile
+# @profile
+def test_linear_scan(connection_params, sample_size):
+    """Test linear scan"""
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
     dbo = client[db_name]
 
-    cursors = dbo[collection].parallel_scan(20)
-    threads = [threading.Thread(
-        target=process_cursor, args=(cursor,)) for cursor in cursors]
-
-    for thread in threads:
-        thread.start()
-
-    for thread in threads:
-        thread.join()
+    cursor = dbo[collection].find({}, {"id_str": 1}).limit(sample_size)
+    documents = [str(document["_id"]) for document in cursor]
+    print(len(documents))
 
 
 def process_cursor(cursor):
-    """ Thread safe process
-    """
+    """Return all documents in a cursor"""
     documents = [str(document["_id"]) for document in cursor]
-    print(len(documents))
-    # for document in cursor:
-    #     pprint(str(document["_id"]))
+    return documents
 
-
-@file_ops.do_cprofile
-def runner(length):
-    """ Start job
-    """
-    # 170 seconds
+# @profile
+def process_partition(partition, partition_size, connection_params):
+    """Thread safe process"""
     client = mongo_base.connect()
-    for _ in range(length):
-        test_parallel_scan(client)
-
-
-@file_ops.do_cprofile
-def test_linear_scan(length):
-    """ Test linear scan
-    """
-    # 181 Seconds
-    client = mongo_base.connect()
-    connection_params = [client, "twitter", "tweets"]
-
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    db_name = connection_params[0]
+    collection = connection_params[1]
     dbo = client[db_name]
 
-    for _ in range(length):
-        cursor = dbo[collection].find({}, {"id_str":1}).skip(6500000).limit(100)
-        # TODO Get collection count, split into 5 chunks and create n cursors
-        process_cursor(cursor)
+    cursor = dbo[collection].find({}, {"id_str": 1}).skip(
+        partition).limit(partition_size)
+    documents = [str(document["_id"]) for document in cursor]
+    return documents
 
-def test_pipeline():
-    """ Test pipeline performance
-    """
-    client = mongo_base.connect()
-    connection_params = [client, "twitter_test", "test_performance"]
-    args2 = [False, "perf_output", False, False]
-    mongo_search_pipelines.select_hs_candidates(connection_params, args2)
+
+def parallel_test(num_cores, connection_params, sample_size):
+    """Test parallel functionality"""
+
+    partition_size = sample_size // num_cores
+    partitions = [i for i in range(0, sample_size, partition_size)]
+
+    results = Parallel(n_jobs=num_cores, backend="threading")(
+        delayed(process_partition)(partition, partition_size, connection_params) for partition in partitions)
+    results = list(chain.from_iterable(results))
+    print(len(results))
+
 
 def main():
-    """
-    Run operations
-    """
+    """Run operations"""
     # porn_black_list = dict.fromkeys(file_ops.read_csv_file(
     #     "porn_blacklist", settings.WORDLIST_PATH))
 
     # check_token_lengths(porn_black_list)
     # ngram_stopword_check("is to hello world boss hi is")
-    # runner(1)
-    # test_linear_scan(1)
-    test_pipeline()
-    # print(file_ops.twokenize.tokenizeRawTweetText("hello world #gtg"))
+    # connection_params = ["twitter", "test_performance_mini"]
+    sample_size = 10**6
+    connection_params = ["twitter", "tweets"]
+    # test_linear_scan(connection_params, sample_size)
+    parallel_test(2, connection_params, sample_size)
+
 if __name__ == "__main__":
     main()
+
+# def test_pipeline():
+#     """ Test pipeline performance
+#     """
+#     client = mongo_base.connect()
+#     connection_params = [client, "twitter_test", "test_performance"]
+#     args2 = [False, "perf_output", False, False]
+#     mongo_search_pipelines.select_hs_candidates(connection_params, args2)
