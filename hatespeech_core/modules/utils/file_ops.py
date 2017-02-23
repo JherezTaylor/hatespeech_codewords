@@ -29,6 +29,10 @@ from joblib import Parallel, delayed
 from . import settings
 from . import twokenize
 
+PUNCTUATION = list(string.punctuation)
+STOP_LIST = dict.fromkeys(stopwords.words(
+    "english") + PUNCTUATION + ["rt", "via", "RT"])
+
 
 def unicode_to_utf(unicode_list):
     """ Converts a list of strings from unicode to utf8
@@ -364,10 +368,6 @@ def preprocess_text(raw_text):
         list: vectorized tweet.
     """
 
-    punctuation = list(string.punctuation)
-    stop_list = dict.fromkeys(stopwords.words(
-        "english") + punctuation + ["rt", "via", "RT"])
-
     # Remove urls
     clean_text = remove_urls(raw_text)
     clean_text = twokenize.tokenizeRawTweetText(clean_text)
@@ -410,7 +410,7 @@ def preprocess_text(raw_text):
         if token.startswith("@"):
             user_mentions_only.append(token)
 
-        if not token.startswith(("#", "@")) and token not in stop_list:
+        if not token.startswith(("#", "@")) and token not in STOP_LIST:
             terms_only.append(token)
 
     sentiment = TextBlob(raw_text).sentiment
@@ -441,10 +441,6 @@ def preprocess_tweet(tweet_obj, hs_keywords, args):
     subj_check = args[0]
     sent_check = args[1]
 
-    punctuation = list(string.punctuation)
-    stop_list = dict.fromkeys(stopwords.words(
-        "english") + punctuation + ["rt", "via", "RT"])
-
     if subj_check and sent_check:
         subj_sent = get_sent_subj(tweet_obj["text"])
         sentiment = subj_sent[0]
@@ -456,7 +452,7 @@ def preprocess_tweet(tweet_obj, hs_keywords, args):
         if sentiment["compound"] < 0 and sentiment["neg"] >= 0.5 and subjectivity >= 0.4:
 
             processed_text = prepare_text(
-                tweet_obj["text"].lower(), [stop_list, hs_keywords])
+                tweet_obj["text"].lower(), [STOP_LIST, hs_keywords])
 
             tweet_obj = prep_tweet_body(
                 tweet_obj, [True, subjectivity, sentiment], processed_text)
@@ -472,7 +468,7 @@ def preprocess_tweet(tweet_obj, hs_keywords, args):
 
     elif not subj_check and not sent_check:
         processed_text = prepare_text(
-            tweet_obj["text"].lower(), [stop_list, hs_keywords])
+            tweet_obj["text"].lower(), [STOP_LIST, hs_keywords])
 
         tweet_obj = prep_tweet_body(
             tweet_obj, [False], processed_text)
@@ -634,10 +630,7 @@ def create_ngrams(text_list, length):
         length      (int):  Length of ngrams to create.
     """
 
-    # tokens = twokenize.tokenizeRawTweetText(text.lower())
-    punctuation = list(string.punctuation)
-    clean_tokens = [token for token in text_list if token not in punctuation]
-
+    clean_tokens = [token for token in text_list if token not in PUNCTUATION]
     return [" ".join(i for i in ngram) for ngram in ngrams(clean_tokens, length)]
 
 
