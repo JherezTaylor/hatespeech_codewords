@@ -642,7 +642,7 @@ def do_create_ngram_collections(text, args):
         args      (list): Can contains the following:
             0: porn_black_list (list): List of porn keywords.
             1: hs_keywords (list) HS corpus.
-            2: black_list (list) Custom words to filter on.
+            2: black_list  (list) Custom words to filter on.
     """
 
     porn_black_list = args[0]

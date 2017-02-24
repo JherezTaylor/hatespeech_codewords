@@ -29,21 +29,13 @@ def select_porn_candidates(connection_params, filter_options):
             1: db_name     (str): Name of database to query.
             2: collection  (str): Name of collection to use.
         filter_options    (list): Contains a list of filter conditions as follows:
-            0: check_garbage (bool): Check for garbage tweet.
-            1: target_collection (str): Name of output collection.
-            2: subj_check (bool): Check text for subjectivity.
-            3: sent_check (bool): Check text for sentiment.
+            0: target_collection (str): Name of output collection.
+            1: subj_check (bool): Check text for subjectivity.
+            2: sent_check (bool): Check text for sentiment.
+            3: porn_black_list (list): List of porn keywords.
+            4: hs_keywords (list) HS corpus.
+            5: black_list (list) Custom words to filter on.
     """
-
-    # Load keywords once and avoid redudant disk reads
-    # Load our blacklist and filter any tweet that has a matching keyword
-
-    porn_black_list = set(file_ops.read_csv_file(
-        "porn_blacklist", settings.WORDLIST_PATH))
-
-    hs_keywords = set(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
-                      file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
-                      file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
 
     client = connection_params[0]
     db_name = connection_params[1]
@@ -53,6 +45,9 @@ def select_porn_candidates(connection_params, filter_options):
     target_collection = filter_options[0]
     subj_check = filter_options[1]
     sent_check = filter_options[2]
+    porn_black_list = filter_options[3]
+    hs_keywords = filter_options[4]
+
     # Store the documents for our bulkwrite
     staging = []
     operations = []
@@ -114,29 +109,13 @@ def select_hs_candidates(connection_params, filter_options):
             1: db_name     (str): Name of database to query.
             2: collection  (str): Name of collection to use.
         filter_options    (list): Contains a list of filter conditions as follows:
-            0: check_garbage (bool): Check for garbage tweet.
-            1: target_collection (str): Name of output collection.
-            2: subj_check (bool): Check text for subjectivity.
-            3: sent_check (bool): Check text for sentiment.
+            0: target_collection (str): Name of output collection.
+            1: subj_check (bool): Check text for subjectivity.
+            2: sent_check (bool): Check text for sentiment.
+            3: porn_black_list (list): List of porn keywords.
+            4: hs_keywords (list) HS corpus.
+            5: black_list (list) Custom words to filter on.
     """
-
-    # Load keywords once and avoid redudant disk reads
-    # Load our blacklist and filter any tweet that has a matching keyword
-
-    porn_black_list = set(file_ops.read_csv_file("porn_bigrams", settings.WORDLIST_PATH) +
-                          file_ops.read_csv_file("porn_trigrams", settings.WORDLIST_PATH) +
-                          file_ops.read_csv_file("porn_quadgrams", settings.WORDLIST_PATH))
-
-    black_list = set(file_ops.read_csv_file(
-        "blacklist", settings.WORDLIST_PATH))
-
-    hs_keywords = set(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
-
-                      file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
-                      file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
-
-    # Keep track of how often we match an ngram in our blacklist
-    porn_black_list_counts = dict.fromkeys(porn_black_list, 0)
 
     client = connection_params[0]
     db_name = connection_params[1]
@@ -146,10 +125,15 @@ def select_hs_candidates(connection_params, filter_options):
     target_collection = filter_options[0]
     subj_check = filter_options[1]
     sent_check = filter_options[2]
+    porn_black_list = filter_options[3]
+    hs_keywords = filter_options[4]
+    black_list = filter_options[5]
 
     # Store the documents for our bulkwrite
     staging = []
     operations = []
+    # Keep track of how often we match an ngram in our blacklist
+    porn_black_list_counts = dict.fromkeys(porn_black_list, 0)
 
     cursor_count = dbo[collection].count()
     progress = 0
@@ -213,23 +197,13 @@ def select_general_candidates(connection_params, filter_options):
             1: db_name     (str): Name of database to query.
             2: collection  (str): Name of collection to use.
         filter_options    (list): Contains a list of filter conditions as follows:
-            0: check_garbage (bool): Check for garbage tweet.
-            1: target_collection (str): Name of output collection.
-            2: subj_check (bool): Check text for subjectivity.
-            3: sent_check (bool): Check text for sentiment.
+            0: target_collection (str): Name of output collection.
+            1: subj_check (bool): Check text for subjectivity.
+            2: sent_check (bool): Check text for sentiment.
+            3: porn_black_list (list): List of porn keywords.
+            4: hs_keywords (list) HS corpus.
+            5: black_list (list) Custom words to filter on.
     """
-    # Load keywords once and avoid redudant disk reads
-    # Load our blacklist and filter any tweet that has a matching keyword
-
-    porn_black_list = dict.fromkeys(file_ops.read_csv_file(
-        "porn_blacklist", settings.WORDLIST_PATH))
-
-    black_list = dict.fromkeys(file_ops.read_csv_file(
-        "blacklist", settings.WORDLIST_PATH))
-
-    hs_keywords = dict.fromkeys(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
-                                file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
-                                file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
 
     client = connection_params[0]
     db_name = connection_params[1]
@@ -239,6 +213,10 @@ def select_general_candidates(connection_params, filter_options):
     target_collection = filter_options[0]
     subj_check = filter_options[1]
     sent_check = filter_options[2]
+    porn_black_list = filter_options[3]
+    hs_keywords = filter_options[4]
+    black_list = filter_options[5]
+
     # Store the documents for our bulkwrite
     staging = []
     operations = []
