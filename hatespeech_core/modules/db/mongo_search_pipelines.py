@@ -50,10 +50,9 @@ def select_porn_candidates(connection_params, filter_options):
     collection = connection_params[2]
     dbo = client[db_name]
 
-    check_garbage = filter_options[0]
-    target_collection = filter_options[1]
-    subj_check = filter_options[2]
-    sent_check = filter_options[3]
+    target_collection = filter_options[0]
+    subj_check = filter_options[1]
+    sent_check = filter_options[2]
     # Store the documents for our bulkwrite
     staging = []
     operations = []
@@ -66,39 +65,17 @@ def select_porn_candidates(connection_params, filter_options):
                                    "in_reply_to_user_id_str": 1}, no_cursor_timeout=True)
     for document in cursor:
         progress = progress + 1
+        set_intersects = file_ops.do_create_ngram_collections(
+            document["text"].lower(), [porn_black_list, hs_keywords, None])
 
-        if check_garbage:
-            # Check if the text consists primarily of links, mentions and tags
-            if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
+        # unigram_intersect = set_intersects[0]
+        ngrams_intersect = set_intersects[1]
 
-                set_intersects = file_ops.do_create_ngram_collections(
-                    document["text"].lower(), [porn_black_list, hs_keywords, None])
-
-                # unigram_intersect = set_intersects[0]
-                ngrams_intersect = set_intersects[1]
-
-                if ngrams_intersect:
-                    staging.append(document)
-                else:
-                    # No intersection, skip entry
-                    pass
-            else:
-                # Tweet is garbage
-                pass
-
-        # Don't check for garbage
+        if ngrams_intersect:
+            staging.append(document)
         else:
-            set_intersects = file_ops.do_create_ngram_collections(
-                document["text"].lower(), [porn_black_list, hs_keywords, None])
-
-            # unigram_intersect = set_intersects[0]
-            ngrams_intersect = set_intersects[1]
-
-            if ngrams_intersect:
-                staging.append(document)
-            else:
-                # No intersection, skip entry
-                pass
+            # No intersection, skip entry
+            pass
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
@@ -166,10 +143,9 @@ def select_hs_candidates(connection_params, filter_options):
     collection = connection_params[2]
     dbo = client[db_name]
 
-    check_garbage = filter_options[0]
-    target_collection = filter_options[1]
-    subj_check = filter_options[2]
-    sent_check = filter_options[3]
+    target_collection = filter_options[0]
+    subj_check = filter_options[1]
+    sent_check = filter_options[2]
 
     # Store the documents for our bulkwrite
     staging = []
@@ -183,47 +159,20 @@ def select_hs_candidates(connection_params, filter_options):
                                    "in_reply_to_user_id_str": 1}, no_cursor_timeout=True)
     for document in cursor:
         progress = progress + 1
+        set_intersects = file_ops.do_create_ngram_collections(
+            document["text"].lower(), [porn_black_list, hs_keywords, black_list])
 
-        if check_garbage:
-            # Check if the text consists primarily of links, mentions and tags
-            if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
+        # unigram_intersect = set_intersects[0]
+        ngrams_intersect = set_intersects[1]
+        hs_keywords_intersect = set_intersects[2]
+        black_list_intersect = set_intersects[3]
 
-                set_intersects = file_ops.do_create_ngram_collections(
-                    document["text"].lower(), [porn_black_list, hs_keywords, black_list])
-
-                # unigram_intersect = set_intersects[0]
-                ngrams_intersect = set_intersects[1]
-                hs_keywords_intersect = set_intersects[2]
-                black_list_intersect = set_intersects[3]
-
-                # The tweet should not contain any blacklisted keywords or porn ngrams
-                # Finally, check if the tweet contains any hs keywords
-                if not ngrams_intersect and not black_list_intersect and hs_keywords_intersect:
-                    staging.append(document)
-                else:
-                    # No intersections, skip entry and update blacklist count
-                    for token in ngrams_intersect:
-                        porn_black_list_counts[token] += 1
-            else:
-                # Tweet is garbage
-                pass
-
-        # Don't check for garbage
+        if not ngrams_intersect and not black_list_intersect and hs_keywords_intersect:
+            staging.append(document)
         else:
-            set_intersects = file_ops.do_create_ngram_collections(
-                document["text"].lower(), [porn_black_list, hs_keywords, black_list])
-
-            # unigram_intersect = set_intersects[0]
-            ngrams_intersect = set_intersects[1]
-            hs_keywords_intersect = set_intersects[2]
-            black_list_intersect = set_intersects[3]
-
-            if not ngrams_intersect and not black_list_intersect and hs_keywords_intersect:
-                staging.append(document)
-            else:
-                # No intersections, skip entry and update blacklist count
-                for token in ngrams_intersect:
-                    porn_black_list_counts[token] += 1
+            # No intersections, skip entry and update blacklist count
+            for token in ngrams_intersect:
+                porn_black_list_counts[token] += 1
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
@@ -249,6 +198,7 @@ def select_hs_candidates(connection_params, filter_options):
     file_ops.write_json_file(
         'porn_ngram_hits', settings.DATA_PATH, porn_black_list_counts)
     # dbo[target_collection].drop()
+
 
 @file_ops.do_cprofile
 def select_general_candidates(connection_params, filter_options):
@@ -286,10 +236,9 @@ def select_general_candidates(connection_params, filter_options):
     collection = connection_params[2]
     dbo = client[db_name]
 
-    check_garbage = filter_options[0]
-    target_collection = filter_options[1]
-    subj_check = filter_options[2]
-    sent_check = filter_options[3]
+    target_collection = filter_options[0]
+    subj_check = filter_options[1]
+    sent_check = filter_options[2]
     # Store the documents for our bulkwrite
     staging = []
     operations = []
@@ -300,44 +249,19 @@ def select_general_candidates(connection_params, filter_options):
                                   {"text": 1, "created_at": 1}, no_cursor_timeout=True)
     for document in cursor:
         progress = progress + 1
+        set_intersects = file_ops.do_create_ngram_collections(
+            document["text"].lower(), [porn_black_list, hs_keywords, black_list])
 
-        if check_garbage:
-            # Check if the text consists primarily of links, mentions and tags
-            if file_ops.is_garbage(document["text"], settings.GARBAGE_TWEET_DIFF) is False:
+        unigram_intersect = set_intersects[0]
+        ngrams_intersect = set_intersects[1]
+        hs_keywords_intersect = set_intersects[2]
+        black_list_intersect = set_intersects[3]
 
-                set_intersects = file_ops.do_create_ngram_collections(
-                    document["text"].lower(), [porn_black_list, hs_keywords, black_list])
-
-                unigram_intersect = set_intersects[0]
-                ngrams_intersect = set_intersects[1]
-                hs_keywords_intersect = set_intersects[2]
-                black_list_intersect = set_intersects[3]
-
-                # No porn or hs intersect
-                if not ngrams_intersect and (len(unigram_intersect) > 1) and not black_list_intersect and not hs_keywords_intersect:
-                    staging.append(document)
-                else:
-                    # No intersection, skip entry
-                    pass
-            else:
-                # Tweet is garbage
-                pass
-
-        # Don't check for garbage
+        if not ngrams_intersect and (len(unigram_intersect) > 1) and not black_list_intersect and not hs_keywords_intersect:
+            staging.append(document)
         else:
-            set_intersects = file_ops.do_create_ngram_collections(
-                document["text"].lower(), [porn_black_list, hs_keywords, black_list])
-
-            unigram_intersect = set_intersects[0]
-            ngrams_intersect = set_intersects[1]
-            hs_keywords_intersect = set_intersects[2]
-            black_list_intersect = set_intersects[3]
-
-            if not ngrams_intersect and (len(unigram_intersect) > 1) and not black_list_intersect and not hs_keywords_intersect:
-                staging.append(document)
-            else:
-                # No intersection, skip entry
-                pass
+            # No intersection, skip entry
+            pass
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
