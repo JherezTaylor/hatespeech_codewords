@@ -10,7 +10,6 @@ import string
 from pprint import pprint
 from itertools import chain
 from modules.utils import file_ops
-from modules.utils import settings
 from modules.db import mongo_base
 from modules.db import mongo_search_pipelines
 from nltk.corpus import words
@@ -92,7 +91,7 @@ def parallel_test(num_cores, connection_params, sample_size):
     partition_size = sample_size // num_cores
     partitions = [i for i in range(0, sample_size, partition_size)]
 
-    results = Parallel(n_jobs=num_cores, backend="threading")(
+    results = Parallel(n_jobs=num_cores)(
         delayed(process_partition)(partition, partition_size, connection_params) for partition in partitions)
     results = list(chain.from_iterable(results))
     print(len(results))
