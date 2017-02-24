@@ -25,9 +25,8 @@ def select_porn_candidates(connection_params, filter_options):
 
     Args:
         connection_params (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
         filter_options    (list): Contains a list of filter conditions as follows:
             0: target_collection (str): Name of output collection.
             1: subj_check (bool): Check text for subjectivity.
@@ -37,9 +36,9 @@ def select_porn_candidates(connection_params, filter_options):
             5: black_list (list) Custom words to filter on.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
     dbo = client[db_name]
 
     target_collection = filter_options[0]
@@ -105,9 +104,8 @@ def select_hs_candidates(connection_params, filter_options):
 
     Args:
         connection_params (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
         filter_options    (list): Contains a list of filter conditions as follows:
             0: target_collection (str): Name of output collection.
             1: subj_check (bool): Check text for subjectivity.
@@ -117,9 +115,9 @@ def select_hs_candidates(connection_params, filter_options):
             5: black_list (list) Custom words to filter on.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
     dbo = client[db_name]
 
     target_collection = filter_options[0]
@@ -193,9 +191,8 @@ def select_general_candidates(connection_params, filter_options):
 
     Args:
         connection_params (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
         filter_options    (list): Contains a list of filter conditions as follows:
             0: target_collection (str): Name of output collection.
             1: subj_check (bool): Check text for subjectivity.
@@ -205,9 +202,9 @@ def select_general_candidates(connection_params, filter_options):
             5: black_list (list) Custom words to filter on.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
     dbo = client[db_name]
 
     target_collection = filter_options[0]

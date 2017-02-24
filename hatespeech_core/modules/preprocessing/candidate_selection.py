@@ -99,8 +99,7 @@ def run_select_general_candidates(connection_params):
 
 def sentiment_pipeline():
     """Handle sentiment analysis tasks"""
-    client = mongo_base.connect()
-    connection_params = [client, "twitter", "tweets"]
+    connection_params = ["twitter", "tweets"]
     run_select_hs_candidates(connection_params)
     # run_select_porn_candidates(connection_params)
     # run_select_general_candidates(connection_params)

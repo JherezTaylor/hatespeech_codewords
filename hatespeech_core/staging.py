@@ -2,9 +2,7 @@
 # License: MIT
 # Python 3.5
 
-"""
-Staging module, just quick functions
-"""
+"""Staging module, just quick functions for checking stuff"""
 
 import string
 from pprint import pprint
@@ -112,11 +110,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# def test_pipeline():
-#     """ Test pipeline performance
-#     """
-#     client = mongo_base.connect()
-#     connection_params = [client, "twitter_test", "test_performance"]
-#     args2 = [False, "perf_output", False, False]
-#     mongo_search_pipelines.select_hs_candidates(connection_params, args2)
