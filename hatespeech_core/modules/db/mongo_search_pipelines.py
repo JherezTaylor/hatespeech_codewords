@@ -16,8 +16,8 @@ from ..utils import file_ops
 from . import mongo_base
 
 
-@file_ops.do_cprofile
-def select_porn_candidates(connection_params, filter_options):
+# @file_ops.do_cprofile
+def select_porn_candidates(connection_params, filter_options, partition):
     """ Iterate the specified collection and store the ObjectId
     of documents that have been tagged as being pornographic in nature.
 
@@ -34,8 +34,7 @@ def select_porn_candidates(connection_params, filter_options):
             3: porn_black_list (list): List of porn keywords.
             4: hs_keywords (list) HS corpus.
             5: black_list (list) Custom words to filter on.
-        partition   (int): Value to start reading the collection from.
-        partition_size (int): Number of documents to process.
+        partition   (tuple): Contains skip and limit values.
     """
 
     client = mongo_base.connect()
@@ -53,12 +52,11 @@ def select_porn_candidates(connection_params, filter_options):
     staging = []
     operations = []
 
-    cursor_count = dbo[collection].count()
     progress = 0
     cursor = dbo[collection].find({"text": {"$ne": None}},
                                   {"text": 1, "created_at": 1, "coordinates": 1,
                                    "place": 1, "user": 1, "source": 1,
-                                   "in_reply_to_user_id_str": 1}, no_cursor_timeout=True)
+                                   "in_reply_to_user_id_str": 1}, no_cursor_timeout=True).skip(partition[0]).limit(partition[1])
     for document in cursor:
         progress = progress + 1
         set_intersects = file_ops.do_create_ngram_collections(
@@ -75,7 +73,7 @@ def select_porn_candidates(connection_params, filter_options):
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
-            print("Progress: ", (progress * 100) / cursor_count, "%")
+            print("Progress: ", (progress * 100) / partition[1], "%")
             for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
@@ -96,9 +94,9 @@ def select_porn_candidates(connection_params, filter_options):
     _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
 
-# @file_ops.do_cprofile
 # @profile
-def select_hs_candidates(connection_params, filter_options, partition, partition_size):
+# @file_ops.do_cprofile
+def select_hs_candidates(connection_params, filter_options, partition):
     """ Iterate the specified collection and store the ObjectId
     of documents that have been tagged as being subjective with a negative sentiment.
 
@@ -115,8 +113,7 @@ def select_hs_candidates(connection_params, filter_options, partition, partition
             3: porn_black_list (list): List of porn keywords.
             4: hs_keywords (list) HS corpus.
             5: black_list (list) Custom words to filter on.
-        partition   (int): Value to start reading the collection from.
-        partition_size (int): Number of documents to process.
+        partition   (tuple): Contains skip and limit values.
     """
 
     client = mongo_base.connect()
@@ -141,7 +138,7 @@ def select_hs_candidates(connection_params, filter_options, partition, partition
     cursor = dbo[collection].find({"text": {"$ne": None}},
                                   {"text": 1, "created_at": 1, "coordinates": 1,
                                    "place": 1, "user": 1, "source": 1,
-                                   "in_reply_to_user_id_str": 1}, no_cursor_timeout=True).skip(partition).limit(partition_size)
+                                   "in_reply_to_user_id_str": 1}, no_cursor_timeout=True).skip(partition[0]).limit(partition[1])
     for document in cursor:
         progress = progress + 1
         set_intersects = file_ops.do_create_ngram_collections(
@@ -161,7 +158,7 @@ def select_hs_candidates(connection_params, filter_options, partition, partition
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
-            print("Progress: ", (progress * 100) / partition_size, "%")
+            print("Progress: ", (progress * 100) / partition[1], "%")
             for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
@@ -182,11 +179,10 @@ def select_hs_candidates(connection_params, filter_options, partition, partition
     _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
     file_ops.write_json_file(
         'porn_ngram_hits', settings.DATA_PATH, porn_black_list_counts)
-    # dbo[target_collection].drop()
 
 
-@file_ops.do_cprofile
-def select_general_candidates(connection_params, filter_options):
+# @file_ops.do_cprofile
+def select_general_candidates(connection_params, filter_options, partition):
     """ Iterate the specified collection and store the ObjectId
     of documents that do not match any hs or pornographic keywords.
 
@@ -203,8 +199,7 @@ def select_general_candidates(connection_params, filter_options):
             3: porn_black_list (list): List of porn keywords.
             4: hs_keywords (list) HS corpus.
             5: black_list (list) Custom words to filter on.
-        partition   (int): Value to start reading the collection from.
-        partition_size (int): Number of documents to process.
+        partition   (tuple): Contains skip and limit values.
     """
 
     client = mongo_base.connect()
@@ -223,10 +218,11 @@ def select_general_candidates(connection_params, filter_options):
     staging = []
     operations = []
 
-    cursor_count = dbo[collection].count()
     progress = 0
     cursor = dbo[collection].find({"text": {"$ne": None}},
-                                  {"text": 1, "created_at": 1}, no_cursor_timeout=True)
+                                  {"text": 1, "created_at": 1, "coordinates": 1,
+                                   "place": 1, "user": 1, "source": 1,
+                                   "in_reply_to_user_id_str": 1}, no_cursor_timeout=True).skip(partition[0]).limit(partition[1])
     for document in cursor:
         progress = progress + 1
         set_intersects = file_ops.do_create_ngram_collections(
@@ -245,7 +241,7 @@ def select_general_candidates(connection_params, filter_options):
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
-            print("Progress: ", (progress * 100) / cursor_count, "%")
+            print("Progress: ", (progress * 100) / partition[1], "%")
             for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
@@ -348,4 +344,3 @@ def linear_test(connection_params, filter_options):
             else:
                 pass
     _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
-    dbo[target_collection].drop()
