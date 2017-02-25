@@ -12,7 +12,7 @@ from modules.db import mongo_base
 from modules.db import mongo_search_pipelines
 from nltk.corpus import words
 from nltk.corpus import stopwords
-from joblib import Parallel, delayed, cpu_count
+from joblib import Parallel, delayed
 
 
 def check_token_lengths(wordlist):
@@ -50,7 +50,6 @@ def ngram_stopword_check(text):
     print(bigrams)
 
 
-# @file_ops.do_cprofile
 # @profile
 def test_linear_scan(connection_params, sample_size):
     """Test linear scan"""
@@ -60,7 +59,7 @@ def test_linear_scan(connection_params, sample_size):
     dbo = client[db_name]
 
     cursor = dbo[collection].find({}, {"id_str": 1}).limit(sample_size)
-    documents = [str(document["_id"]) for document in cursor]
+    documents = {str(document["_id"]) for document in cursor}
     print(len(documents))
 
 
@@ -70,16 +69,18 @@ def process_cursor(cursor):
     return documents
 
 # @profile
-def process_partition(partition, partition_size, connection_params):
-    """Thread safe process"""
+def process_partition(partition, connection_params):
+    """Thread safe process
+    partition stores a tuple with the skip and limit values
+    """
     client = mongo_base.connect()
     db_name = connection_params[0]
     collection = connection_params[1]
     dbo = client[db_name]
 
     cursor = dbo[collection].find({}, {"id_str": 1}).skip(
-        partition).limit(partition_size)
-    documents = [str(document["_id"]) for document in cursor]
+        partition[0]).limit(partition[1])
+    documents = {str(document["_id"]) for document in cursor}
     return documents
 
 
@@ -87,11 +88,16 @@ def parallel_test(num_cores, connection_params, sample_size):
     """Test parallel functionality"""
 
     partition_size = sample_size // num_cores
-    partitions = [i for i in range(0, sample_size, partition_size)]
+    partitions = [(i, partition_size)
+                  for i in range(0, sample_size, partition_size)]
+    # Account for lists that aren't evenly divisible, update the last tuple to
+    # retrieve the remainder of the items
+    partitions[-1] = (partitions[-1][0], (sample_size - partitions[-1][0]))
 
     results = Parallel(n_jobs=num_cores)(
-        delayed(process_partition)(partition, partition_size, connection_params) for partition in partitions)
+        delayed(process_partition)(partition, connection_params) for partition in partitions)
     results = list(chain.from_iterable(results))
+    print(partitions)
     print(len(results))
 
 
