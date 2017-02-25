@@ -18,6 +18,20 @@ def run_select_porn_candidates(connection_params):
     """ Start the Porn indentification pipeline
     """
 
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
+    dbo = client[db_name]
+
+    collection_size = dbo[collection].count()
+    num_cores = cpu_count()
+    partition_size = collection_size // num_cores
+    partitions = [(i, partition_size)
+                  for i in range(0, collection_size, partition_size)]
+    # Account for lists that aren't evenly divisible, update the last tuple to
+    # retrieve the remainder of the items
+    partitions[-1] = (partitions[-1][0], (collection_size - partitions[-1][0]))
+
     # Load keywords once and avoid redundant disk reads
     # Load our blacklist and filter any tweet that has a matching keyword
     porn_black_list = set(file_ops.read_csv_file(
@@ -30,7 +44,8 @@ def run_select_porn_candidates(connection_params):
     args2 = ["candidates_porn_exp4_14_Feb", False,
              False, porn_black_list, hs_keywords]
     time1 = file_ops.time()
-    mongo_search_pipelines.select_porn_candidates(connection_params, args2)
+    Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_porn_candidates)(
+        connection_params, args2, partition) for partition in partitions)
     time2 = file_ops.time()
     send_job_completion(
         [time1, time2], ["select_porn_candidates", "Porn Candidates"])
@@ -69,9 +84,8 @@ def run_select_hs_candidates(connection_params):
     args2 = ["parallel_test", False, False,
              porn_black_list, hs_keywords, black_list]
     time1 = file_ops.time()
-    # mongo_search_pipelines.select_hs_candidates(connection_params, args2)
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_hs_candidates)(
-        connection_params, args2, partition, partition_size) for partition in partitions)
+        connection_params, args2, partition) for partition in partitions)
     time2 = file_ops.time()
     send_job_completion(
         [time1, time2], ["select_hs_candidates", "HS Candidates"])
@@ -80,6 +94,20 @@ def run_select_hs_candidates(connection_params):
 def run_select_general_candidates(connection_params):
     """ Start the General indentification pipeline
     """
+
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
+    dbo = client[db_name]
+
+    collection_size = dbo[collection].count()
+    num_cores = cpu_count()
+    partition_size = collection_size // num_cores
+    partitions = [(i, partition_size)
+                  for i in range(0, collection_size, partition_size)]
+    # Account for lists that aren't evenly divisible, update the last tuple to
+    # retrieve the remainder of the items
+    partitions[-1] = (partitions[-1][0], (collection_size - partitions[-1][0]))
 
     # Load keywords once and avoid redundant disk reads
     # Load our blacklist and filter any tweet that has a matching keyword
@@ -96,7 +124,8 @@ def run_select_general_candidates(connection_params):
     args2 = ["candidates_gen_exp3_15_Jan", False,
              False, porn_black_list, hs_keywords, black_list]
     time1 = file_ops.time()
-    mongo_search_pipelines.select_general_candidates(connection_params, args2)
+    Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_general_candidates)(
+        connection_params, args2, partition) for partition in partitions)
     time2 = file_ops.time()
     send_job_completion(
         [time1, time2], ["select_gen_candidates", "General Candidates"])
@@ -121,7 +150,7 @@ def send_job_completion(run_time, args):
 
 def sentiment_pipeline():
     """Handle sentiment analysis tasks"""
-    connection_params = ["twitter", "test_performance_mini"]
+    connection_params = ["twitter", "tweets"]
     run_select_hs_candidates(connection_params)
     # run_select_porn_candidates(connection_params)
     # run_select_general_candidates(connection_params)

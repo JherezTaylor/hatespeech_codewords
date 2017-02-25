@@ -716,7 +716,7 @@ def parallel_preprocess(tweet_list, hs_keywords, subj_check, sent_check):
     Returns:
         list: List of vectorized tweets.
     """
-    num_cores = cpu_count()
-    results = Parallel(n_jobs=1, backend="threading")(
+    # num_cores = cpu_count()
+    results = Parallel(n_jobs=1)(
         delayed(preprocess_tweet)(tweet, hs_keywords, [subj_check, sent_check]) for tweet in tweet_list)
     return results
