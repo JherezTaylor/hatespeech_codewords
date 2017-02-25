@@ -141,8 +141,8 @@ def send_job_completion(run_time, args):
             1: message_text  (str): Text to be sent in notification.
     """
 
-    time_diff = run_time[1] - run_time[0] * 1000.0
-    print("%s function took %0.3f ms" % (args[0], time_diff))
+    time_diff = round((run_time[1] - run_time[0]), 2)
+    print("%s function took %0.3f seconds" % (args[0], time_diff))
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ": " + args[1] + " took " + str(time_diff) + " ms", "Complete")
     print(send_notification.content)
