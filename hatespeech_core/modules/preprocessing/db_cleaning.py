@@ -15,6 +15,7 @@ from ..db import mongo_base
 from ..db import mongo_data_filters
 from ..db import mongo_complex
 
+
 @file_ops.do_cprofile
 def run_get_language_distribution(connection_params):
     """Test and print results of aggregation
@@ -52,7 +53,7 @@ def run_get_top_k_hashtags(connection_params, lang_list, field_name, k_value):
 
     file_ops.write_json_file("hashtag_distribution",
                              settings.DATA_PATH, list(cursor))
-from ..db import mongo_base
+
 
 def generate_bar_chart(chart_title):
     """Generate a plotly bar_chart
@@ -136,7 +137,8 @@ def run_field_removal(connection_params):
     result = db_response
     print(result.modified_count)
 
-    print("%s function took %0.3f ms" % ("quoted_status_field_removal", time_diff))
+    print("%s function took %0.3f ms" %
+          ("quoted_status_field_removal", time_diff))
     send_notification = file_ops.send_job_notification(
         settings.MONGO_SOURCE + ":Quoted_status Field Removal took " + str(time_diff) + " ms", result)
     print(send_notification.content)
@@ -243,6 +245,7 @@ def run_clean_source_field(connection_params, job_name):
         settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
     print(send_notification.content)
 
+
 def run_update_missing_text():
     """ Start the missing tweet text replacement job
     """
@@ -257,8 +260,8 @@ def run_update_missing_text():
 
     print("%s function took %0.3f ms" % ("update_missing_text", time_diff))
     send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": Replace missing text took " + str(int(time_diff)) + " ms"
-        , "Found: " + str(db_response[0]) + "Not Found: " + str(db_response[1]) + "Total Requests: "
+        settings.MONGO_SOURCE + ": Replace missing text took " + str(int(time_diff)) + " ms", "Found: " + str(
+            db_response[0]) + "Not Found: " + str(db_response[1]) + "Total Requests: "
         + str(db_response[2]) + "Complete")
     print(send_notification.content)
 
@@ -341,4 +344,3 @@ def preprocessing_pipeline():
 
     # Clean source field
     # run_clean_source_field(connection_params, "Clean Source Field")
-    
