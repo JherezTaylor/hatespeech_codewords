@@ -12,7 +12,7 @@ Identify the language of tweets with an und lang.
 """
 
 from bs4 import BeautifulSoup as BSHTML
-from pymongo import UpdateOne, DeleteMany, UpdateMany, ASCENDING, errors
+from pymongo import UpdateOne, DeleteMany, UpdateMany, ASCENDING
 from ..utils import file_ops
 from ..utils import settings
 from . import mongo_base
