@@ -41,7 +41,7 @@ def run_select_porn_candidates(connection_params):
                       file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
                       file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
 
-    args2 = ["candidates_porn_exp4_14_Feb", False,
+    args2 = ["candidates_porn_exp5_26_Feb", False,
              False, porn_black_list, hs_keywords]
     time1 = file_ops.time()
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_porn_candidates)(
@@ -151,6 +151,6 @@ def send_job_completion(run_time, args):
 def sentiment_pipeline():
     """Handle sentiment analysis tasks"""
     connection_params = ["twitter", "tweets"]
-    run_select_hs_candidates(connection_params)
-    # run_select_porn_candidates(connection_params)
+    run_select_porn_candidates(connection_params)
+    # run_select_hs_candidates(connection_params)
     # run_select_general_candidates(connection_params)
