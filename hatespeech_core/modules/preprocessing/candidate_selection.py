@@ -23,7 +23,7 @@ def run_select_porn_candidates(connection_params):
     collection = connection_params[1]
     dbo = client[db_name]
 
-    collection_size = dbo[collection].count()
+    collection_size = dbo[collection].find({"text": {"$ne": None}}).count()
     num_cores = cpu_count()
     partition_size = collection_size // num_cores
     partitions = [(i, partition_size)
@@ -60,7 +60,8 @@ def run_select_hs_candidates(connection_params):
     collection = connection_params[1]
     dbo = client[db_name]
 
-    collection_size = dbo[collection].count()
+    collection_size = dbo[collection].find(
+        {"text": {"$ne": None}, "urls_extracted": {"$exists": False}}).count()
     num_cores = cpu_count()
     partition_size = collection_size // num_cores
     partitions = [(i, partition_size)
@@ -100,7 +101,8 @@ def run_select_general_candidates(connection_params):
     collection = connection_params[1]
     dbo = client[db_name]
 
-    collection_size = dbo[collection].count()
+    collection_size = dbo[collection].find(
+        {"text": {"$ne": None}, "urls_extracted": {"$exists": False}}).count()
     num_cores = cpu_count()
     partition_size = collection_size // num_cores
     partitions = [(i, partition_size)
@@ -144,7 +146,7 @@ def send_job_completion(run_time, args):
     time_diff = round((run_time[1] - run_time[0]), 2)
     print("%s function took %0.3f seconds" % (args[0], time_diff))
     send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": " + args[1] + " took " + str(time_diff) + " ms", "Complete")
+        settings.MONGO_SOURCE + ": " + args[1] + " took " + str(time_diff) + " seconds", "Complete")
     print(send_notification.content)
 
 

@@ -135,7 +135,7 @@ def select_hs_candidates(connection_params, filter_options, partition):
     porn_black_list_counts = dict.fromkeys(porn_black_list, 0)
 
     progress = 0
-    cursor = dbo[collection].find({"text": {"$ne": None}, "urls_extracted": False},
+    cursor = dbo[collection].find({"text": {"$ne": None}, "urls_extracted": {"$exists": False}},
                                   {"text": 1, "created_at": 1, "coordinates": 1,
                                    "place": 1, "user": 1, "source": 1,
                                    "in_reply_to_user_id_str": 1}, no_cursor_timeout=True).skip(partition[0]).limit(partition[1])
@@ -219,7 +219,7 @@ def select_general_candidates(connection_params, filter_options, partition):
     operations = []
 
     progress = 0
-    cursor = dbo[collection].find({"text": {"$ne": None}, "urls_extracted": False},
+    cursor = dbo[collection].find({"text": {"$ne": None}, "urls_extracted": {"$exists": False}},
                                   {"text": 1, "created_at": 1, "coordinates": 1,
                                    "place": 1, "user": 1, "source": 1,
                                    "in_reply_to_user_id_str": 1}, no_cursor_timeout=True).skip(partition[0]).limit(partition[1])
