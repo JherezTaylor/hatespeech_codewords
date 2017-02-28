@@ -90,18 +90,19 @@ def run_select_hs_candidates(connection_params):
 
     # Load keywords once and avoid redundant disk reads
     # Load our blacklist and filter any tweet that has a matching keyword
-    porn_black_list = set(file_ops.read_csv_file("porn_bigrams", settings.WORDLIST_PATH) +
-                          file_ops.read_csv_file("porn_trigrams", settings.WORDLIST_PATH) +
-                          file_ops.read_csv_file("porn_quadgrams", settings.WORDLIST_PATH))
+    porn_black_list = set(file_ops.read_csv_file(
+        "porn_trigrams_top_k_users", settings.WORDLIST_PATH))
 
     hs_keywords = set(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
                       file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
                       file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
     black_list = set(file_ops.read_csv_file(
         "blacklist", settings.WORDLIST_PATH))
+    account_list = set(file_ops.read_csv_file(
+        "porn_account_filter", settings.WORDLIST_PATH))
 
-    args2 = [query, "parallel_test", False, False,
-             porn_black_list, hs_keywords, black_list]
+    args2 = [query, "candidates_hs_exp6_combo_28_Feb", False, False,
+             porn_black_list, hs_keywords, black_list, account_list]
     time1 = file_ops.time()
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_hs_candidates)(
         connection_params, args2, partition) for partition in partitions)
@@ -209,9 +210,8 @@ def get_ngrams(connection_params, ngram_field):
 
 def sentiment_pipeline():
     """Handle sentiment analysis tasks"""
-    # connection_params = ["twitter", "tweets"]
-    connection_params = ["twitter", "test_suite"]
+    connection_params = ["twitter", "tweets"]
     # get_ngrams(connection_params, "trigrams")
     # run_select_porn_candidates(connection_params)
-    # run_select_hs_candidates(connection_params)
+    run_select_hs_candidates(connection_params)
     # run_select_general_candidates(connection_params)
