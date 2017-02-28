@@ -150,7 +150,7 @@ def send_job_completion(run_time, args):
     print(send_notification.content)
 
 
-def get_ngrams(connection_params):
+def get_ngrams(connection_params, ngram_field):
     """Fetch the specified ngrams from the top k users that tweet porn/spam
     """
     client = mongo_base.connect()
@@ -162,12 +162,12 @@ def get_ngrams(connection_params):
     for account in user_accounts:
         query = dict()
         query["filter"] = {"user.screen_name": account}
-        query["projection"] = {"_id": False, "trigrams": True}
+        query["projection"] = {"_id": False, ngram_field: True}
         query["limit"] = 0
         cursor = mongo_base.finder(connection_params, query)
         # Extract the ngrams out of the object and flatten the 2D list
         xgrams = list(file_ops.chain.from_iterable(
-            [doc["trigrams"] for doc in cursor]))
+            [doc[ngram_field] for doc in cursor]))
         ngram_set = ngram_set.union(xgrams)
     file_ops.write_csv_file('porn_trigrams_top_k_users',
                             settings.WORDLIST_PATH, ngram_set)
@@ -177,7 +177,7 @@ def sentiment_pipeline():
     """Handle sentiment analysis tasks"""
     # connection_params = ["twitter", "tweets"]
     connection_params = ["twitter", "candidates_porn_exp5_26_Feb"]
-    get_ngrams(connection_params)
+    get_ngrams(connection_params, "trigrams")
     # run_select_porn_candidates(connection_params)
     # run_select_hs_candidates(connection_params)
     # run_select_general_candidates(connection_params)
