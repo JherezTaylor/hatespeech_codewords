@@ -61,7 +61,7 @@ def fetch_by_object_id(connection_params, object_id):
     return list(cursor)
 
 
-def finder(connection_params, query, k_items):
+def finder(connection_params, query):
     """Fetches k objects from the specified collection.
 
     Args:
@@ -70,18 +70,17 @@ def finder(connection_params, query, k_items):
             1: db_name     (str): Name of database to query.
             2: collection  (str): Name of collection to use.
         query (dict): Query to execute.
-        k_items     (int): Number of items to retrieve.
+    Returns: Pymongo cursor
     """
     client = connection_params[0]
     db_name = connection_params[1]
     collection = connection_params[2]
 
     dbo = client[db_name]
-    if k_items:
-        cursor = dbo[collection].find(query).limit(k_items)
-    else:
-        cursor = dbo[collection].find(query)
+    cursor = dbo[collection].find(filter=query["filter"], projection=query[
+                                  "projection"], limit=query["limit"])
     return cursor
+
 
 def get_language_list(connection_params):
     """Fetches a list of all the languages within the collection.
