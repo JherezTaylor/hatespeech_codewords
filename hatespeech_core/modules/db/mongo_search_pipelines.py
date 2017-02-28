@@ -28,35 +28,42 @@ def select_porn_candidates(connection_params, filter_options, partition):
             0: db_name     (str): Name of database to query.
             1: collection  (str): Name of collection to use.
         filter_options    (list): Contains a list of filter conditions as follows:
-            0: target_collection (str): Name of output collection.
-            1: subj_check (bool): Check text for subjectivity.
-            2: sent_check (bool): Check text for sentiment.
-            3: porn_black_list (list): List of porn keywords.
-            4: hs_keywords (list) HS corpus.
-            5: black_list (list) Custom words to filter on.
+            0: query (dict): Query to execute.
+            1: target_collection (str): Name of output collection.
+            2: subj_check (bool): Check text for subjectivity.
+            3: sent_check (bool): Check text for sentiment.
+            4: porn_black_list (list): List of porn keywords.
+            5: hs_keywords (list) HS corpus.
+            6: black_list (list) Custom words to filter on.
         partition   (tuple): Contains skip and limit values.
     """
 
+    # Setup args for mongo_base.finder() call
     client = mongo_base.connect()
     db_name = connection_params[0]
-    collection = connection_params[1]
-    dbo = client[db_name]
+    connection_params.insert(0, client)
 
-    target_collection = filter_options[0]
-    subj_check = filter_options[1]
-    sent_check = filter_options[2]
-    porn_black_list = filter_options[3]
-    hs_keywords = filter_options[4]
+    query = filter_options[0]
+    target_collection = filter_options[1]
+    subj_check = filter_options[2]
+    sent_check = filter_options[3]
+    porn_black_list = filter_options[4]
+    hs_keywords = filter_options[5]
+
+    # Set skip limit values
+    query["skip"] = partition[0]
+    query["limit"] = partition[1]
+
+    # Setup client object for bulk op
+    bulk_client = mongo_base.connect()
+    dbo = bulk_client[db_name]
 
     # Store the documents for our bulkwrite
     staging = []
     operations = []
 
     progress = 0
-    cursor = dbo[collection].find({"text": {"$ne": None}},
-                                  {"text": 1, "created_at": 1, "coordinates": 1,
-                                   "place": 1, "user": 1, "source": 1,
-                                   "in_reply_to_user_id_str": 1}, no_cursor_timeout=True).skip(partition[0]).limit(partition[1])
+    cursor = mongo_base.finder(connection_params, query, False)
     for document in cursor:
         progress = progress + 1
         set_intersects = file_ops.do_create_ngram_collections(
@@ -107,26 +114,36 @@ def select_hs_candidates(connection_params, filter_options, partition):
             0: db_name     (str): Name of database to query.
             1: collection  (str): Name of collection to use.
         filter_options    (list): Contains a list of filter conditions as follows:
-            0: target_collection (str): Name of output collection.
-            1: subj_check (bool): Check text for subjectivity.
-            2: sent_check (bool): Check text for sentiment.
-            3: porn_black_list (list): List of porn keywords.
-            4: hs_keywords (list) HS corpus.
-            5: black_list (list) Custom words to filter on.
+            0: query (dict): Query to execute.
+            1: target_collection (str): Name of output collection.
+            2: subj_check (bool): Check text for subjectivity.
+            3: sent_check (bool): Check text for sentiment.
+            4: porn_black_list (list): List of porn keywords.
+            5: hs_keywords (list) HS corpus.
+            6: black_list (list) Custom words to filter on.
         partition   (tuple): Contains skip and limit values.
     """
 
+    # Setup args for mongo_base.finder() call
     client = mongo_base.connect()
     db_name = connection_params[0]
-    collection = connection_params[1]
-    dbo = client[db_name]
+    connection_params.insert(0, client)
 
-    target_collection = filter_options[0]
-    subj_check = filter_options[1]
-    sent_check = filter_options[2]
-    porn_black_list = filter_options[3]
-    hs_keywords = filter_options[4]
-    black_list = filter_options[5]
+    query = filter_options[0]
+    target_collection = filter_options[1]
+    subj_check = filter_options[2]
+    sent_check = filter_options[3]
+    porn_black_list = filter_options[4]
+    hs_keywords = filter_options[5]
+    black_list = filter_options[6]
+
+    # Set skip limit values
+    query["skip"] = partition[0]
+    query["limit"] = partition[1]
+
+    # Setup client object for bulk op
+    bulk_client = mongo_base.connect()
+    dbo = bulk_client[db_name]
 
     # Store the documents for our bulkwrite
     staging = []
@@ -135,10 +152,7 @@ def select_hs_candidates(connection_params, filter_options, partition):
     porn_black_list_counts = dict.fromkeys(porn_black_list, 0)
 
     progress = 0
-    cursor = dbo[collection].find({"text": {"$ne": None}, "urls_extracted": {"$exists": False}},
-                                  {"text": 1, "created_at": 1, "coordinates": 1,
-                                   "place": 1, "user": 1, "source": 1,
-                                   "in_reply_to_user_id_str": 1}, no_cursor_timeout=True).skip(partition[0]).limit(partition[1])
+    cursor = mongo_base.finder(connection_params, query, False)
     for document in cursor:
         progress = progress + 1
         set_intersects = file_ops.do_create_ngram_collections(
@@ -193,36 +207,43 @@ def select_general_candidates(connection_params, filter_options, partition):
             0: db_name     (str): Name of database to query.
             1: collection  (str): Name of collection to use.
         filter_options    (list): Contains a list of filter conditions as follows:
-            0: target_collection (str): Name of output collection.
-            1: subj_check (bool): Check text for subjectivity.
-            2: sent_check (bool): Check text for sentiment.
-            3: porn_black_list (list): List of porn keywords.
-            4: hs_keywords (list) HS corpus.
-            5: black_list (list) Custom words to filter on.
+            0: query (dict): Query to execute.
+            1: target_collection (str): Name of output collection.
+            2: subj_check (bool): Check text for subjectivity.
+            3: sent_check (bool): Check text for sentiment.
+            4: porn_black_list (list): List of porn keywords.
+            5: hs_keywords (list) HS corpus.
+            6: black_list (list) Custom words to filter on.
         partition   (tuple): Contains skip and limit values.
     """
 
+    # Setup args for mongo_base.finder() call
     client = mongo_base.connect()
     db_name = connection_params[0]
-    collection = connection_params[1]
-    dbo = client[db_name]
+    connection_params.insert(0, client)
 
-    target_collection = filter_options[0]
-    subj_check = filter_options[1]
-    sent_check = filter_options[2]
-    porn_black_list = filter_options[3]
-    hs_keywords = filter_options[4]
-    black_list = filter_options[5]
+    query = filter_options[0]
+    target_collection = filter_options[1]
+    subj_check = filter_options[2]
+    sent_check = filter_options[3]
+    porn_black_list = filter_options[4]
+    hs_keywords = filter_options[5]
+    black_list = filter_options[6]
+
+    # Set skip limit values
+    query["skip"] = partition[0]
+    query["limit"] = partition[1]
+
+    # Setup client object for bulk op
+    bulk_client = mongo_base.connect()
+    dbo = bulk_client[db_name]
 
     # Store the documents for our bulkwrite
     staging = []
     operations = []
 
     progress = 0
-    cursor = dbo[collection].find({"text": {"$ne": None}, "urls_extracted": {"$exists": False}},
-                                  {"text": 1, "created_at": 1, "coordinates": 1,
-                                   "place": 1, "user": 1, "source": 1,
-                                   "in_reply_to_user_id_str": 1}, no_cursor_timeout=True).skip(partition[0]).limit(partition[1])
+    cursor = mongo_base.finder(connection_params, query, False)
     for document in cursor:
         progress = progress + 1
         set_intersects = file_ops.do_create_ngram_collections(

@@ -20,8 +20,12 @@ class TestMongoMethods(object):
                                   "twitter", "test_suite"]
         self.lang_list_length = 2
         self.lang_list = ["en", "und"]
-        self.query = {"lang": "en"}
-        self.limit = 10
+        self.query = dict()
+        self.query["filter"] = {"lang": "en"}
+        self.query["projection"] = None
+        self.query["limit"] = 10
+        self.query["skip"] = 0
+        self.query["no_cursor_timeout"] = True
 
     def setup(self):
         """This method is run once before _each_ test method is executed"""
@@ -61,6 +65,5 @@ class TestMongoMethods(object):
     def test_finder(self):
         """Test query runner"""
         db_result = hatespeech_core.mongo_base.finder(
-            self.connection_params, self.query, self.limit)
-        result = list(db_result)
-        assert_equals(len(result), 10)
+            self.connection_params, self.query, True)
+        assert_equals(db_result, 941)
