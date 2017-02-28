@@ -93,7 +93,7 @@ class TestFileOps(object):
         # Mentions
         assert_equals(result[3], ["@dev"])
         # HS keyword count
-        assert_equals(result[4], 1)
+        assert_equals(len(result[4]), 1)
         # Ngrams
         assert_equals(sorted(result[5][1]), sorted(["i'm #testing", "#testing is",
                                                     "my code", "code good", "good @dev", "@dev :)", ":) fuck"]))
