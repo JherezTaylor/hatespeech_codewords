@@ -189,14 +189,6 @@ def get_ngrams(connection_params, ngram_field):
     user_accounts = set(file_ops.read_csv_file(
         "porn_account_filter", settings.WORDLIST_PATH))
 
-    query = dict()
-    query["filter"] = {"text": {"$ne": None},
-                       "urls_extracted": {"$exists": False}}
-    query["projection"] = None
-    query["limit"] = 1
-    query["skip"] = 0
-    query["no_cursor_timeout"] = True
-    cursor = mongo_base.finder(connection_params, query, False)
     count = 0
     for account in user_accounts:
         count += 1
