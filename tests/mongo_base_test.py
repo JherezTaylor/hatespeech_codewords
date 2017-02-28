@@ -14,12 +14,14 @@ class TestMongoMethods(object):
 
     def __init__(self):
         self.client = hatespeech_core.mongo_base.connect()
-        self.db_name = "twitter_test"
+        self.db_name = "twitter"
         self.collection = "test_suite"
         self.connection_params = [self.client,
-                                  "twitter_test", "test_suite"]
+                                  "twitter", "test_suite"]
         self.lang_list_length = 2
         self.lang_list = ["en", "und"]
+        self.query = {"lang": "en"}
+        self.limit = 10
 
     def setup(self):
         """This method is run once before _each_ test method is executed"""
@@ -55,3 +57,10 @@ class TestMongoMethods(object):
         # Cleanup
         dbo = self.client[self.db_name]
         dbo[self.collection + "_lang_distribution"].drop()
+
+    def test_finder(self):
+        """Test query runner"""
+        db_result = hatespeech_core.mongo_base.finder(
+            self.connection_params, self.query, self.limit)
+        result = list(db_result)
+        assert_equals(len(result), 10)
