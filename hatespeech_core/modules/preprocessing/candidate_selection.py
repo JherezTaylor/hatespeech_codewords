@@ -214,4 +214,4 @@ def sentiment_pipeline():
     # get_ngrams(connection_params, "trigrams")
     # run_select_porn_candidates(connection_params)
     # run_select_hs_candidates(connection_params)
-    run_select_general_candidates(connection_params)
+    # run_select_general_candidates(connection_params)
