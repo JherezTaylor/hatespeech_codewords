@@ -61,7 +61,7 @@ def fetch_by_object_id(connection_params, object_id):
     return list(cursor)
 
 
-def finder(connection_params, query):
+def finder(connection_params, query, count):
     """Fetches k objects from the specified collection.
 
     Args:
@@ -69,17 +69,24 @@ def finder(connection_params, query):
             0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
             1: db_name     (str): Name of database to query.
             2: collection  (str): Name of collection to use.
-        query (dict): Query to execute.
-    Returns: Pymongo cursor
+        query  (dict): Query to execute.
+        count: (bool): Execute a count query.
+    Returns: Pymongo cursor or count
     """
+
     client = connection_params[0]
     db_name = connection_params[1]
     collection = connection_params[2]
 
     dbo = client[db_name]
-    cursor = dbo[collection].find(filter=query["filter"], projection=query[
-                                  "projection"], limit=query["limit"])
-    return cursor
+    if count:
+        cursor = dbo[collection].find(filter=query["filter"], projection=query[
+            "projection"], skip=query["skip"], limit=query["limit"]).count()
+        return cursor
+    else:
+        cursor = dbo[collection].find(filter=query["filter"], projection=query["projection"], skip=query[
+                                      "skip"], limit=query["limit"], no_cursor_timeout=query["no_cursor_timeout"])
+        return cursor
 
 
 def get_language_list(connection_params):

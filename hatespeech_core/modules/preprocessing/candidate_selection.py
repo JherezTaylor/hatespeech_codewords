@@ -19,11 +19,20 @@ def run_select_porn_candidates(connection_params):
     """
 
     client = mongo_base.connect()
-    db_name = connection_params[0]
-    collection = connection_params[1]
-    dbo = client[db_name]
+    query = dict()
 
-    collection_size = dbo[collection].find({"text": {"$ne": None}}).count()
+    query["filter"] = {"text": {"$ne": None}}
+    query["projection"] = {"text": 1, "created_at": 1, "coordinates": 1,
+                           "place": 1, "user": 1, "source": 1, "in_reply_to_user_id_str": 1}
+    query["limit"] = 0
+    query["skip"] = 0
+    query["no_cursor_timeout"] = True
+
+    connection_params.insert(0, client)
+    collection_size = mongo_base.finder(connection_params, query, True)
+    del connection_params[0]
+    client.close()
+
     num_cores = cpu_count()
     partition_size = collection_size // num_cores
     partitions = [(i, partition_size)
@@ -41,7 +50,7 @@ def run_select_porn_candidates(connection_params):
                       file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
                       file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
 
-    args2 = ["candidates_porn_exp5_26_Feb", False,
+    args2 = [query, "placeholder", False,
              False, porn_black_list, hs_keywords]
     time1 = file_ops.time()
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_porn_candidates)(
@@ -56,12 +65,21 @@ def run_select_hs_candidates(connection_params):
     """
 
     client = mongo_base.connect()
-    db_name = connection_params[0]
-    collection = connection_params[1]
-    dbo = client[db_name]
+    query = dict()
 
-    collection_size = dbo[collection].find(
-        {"text": {"$ne": None}, "urls_extracted": {"$exists": False}}).count()
+    query["filter"] = {"text": {"$ne": None},
+                       "urls_extracted": {"$exists": False}}
+    query["projection"] = {"text": 1, "created_at": 1, "coordinates": 1,
+                           "place": 1, "user": 1, "source": 1, "in_reply_to_user_id_str": 1}
+    query["limit"] = 0
+    query["skip"] = 0
+    query["no_cursor_timeout"] = True
+
+    connection_params.insert(0, client)
+    collection_size = mongo_base.finder(connection_params, query, True)
+    del connection_params[0]
+    client.close()
+
     num_cores = cpu_count()
     partition_size = collection_size // num_cores
     partitions = [(i, partition_size)
@@ -82,7 +100,7 @@ def run_select_hs_candidates(connection_params):
     black_list = set(file_ops.read_csv_file(
         "blacklist", settings.WORDLIST_PATH))
 
-    args2 = ["parallel_test", False, False,
+    args2 = [query, "parallel_test", False, False,
              porn_black_list, hs_keywords, black_list]
     time1 = file_ops.time()
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_hs_candidates)(
@@ -97,12 +115,21 @@ def run_select_general_candidates(connection_params):
     """
 
     client = mongo_base.connect()
-    db_name = connection_params[0]
-    collection = connection_params[1]
-    dbo = client[db_name]
+    query = dict()
 
-    collection_size = dbo[collection].find(
-        {"text": {"$ne": None}, "urls_extracted": {"$exists": False}}).count()
+    query["filter"] = {"text": {"$ne": None},
+                       "urls_extracted": {"$exists": False}}
+    query["projection"] = {"text": 1, "created_at": 1, "coordinates": 1,
+                           "place": 1, "user": 1, "source": 1, "in_reply_to_user_id_str": 1}
+    query["limit"] = 0
+    query["skip"] = 0
+    query["no_cursor_timeout"] = True
+
+    connection_params.insert(0, client)
+    collection_size = mongo_base.finder(connection_params, query, True)
+    del connection_params[0]
+    client.close()
+
     num_cores = cpu_count()
     partition_size = collection_size // num_cores
     partitions = [(i, partition_size)
@@ -123,7 +150,7 @@ def run_select_general_candidates(connection_params):
     black_list = dict.fromkeys(file_ops.read_csv_file(
         "blacklist", settings.WORDLIST_PATH))
 
-    args2 = ["candidates_gen_exp3_15_Jan", False,
+    args2 = [query, "tester", False,
              False, porn_black_list, hs_keywords, black_list]
     time1 = file_ops.time()
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_general_candidates)(
@@ -152,12 +179,24 @@ def send_job_completion(run_time, args):
 
 def get_ngrams(connection_params, ngram_field):
     """Fetch the specified ngrams from the top k users that tweet porn/spam
+    Args:
+        ngram_field (str): Field to query on.
     """
+
     client = mongo_base.connect()
     connection_params.insert(0, client)
     ngram_set = set()
     user_accounts = set(file_ops.read_csv_file(
         "porn_account_filter", settings.WORDLIST_PATH))
+
+    query = dict()
+    query["filter"] = {"text": {"$ne": None},
+                       "urls_extracted": {"$exists": False}}
+    query["projection"] = None
+    query["limit"] = 1
+    query["skip"] = 0
+    query["no_cursor_timeout"] = True
+    cursor = mongo_base.finder(connection_params, query, False)
     count = 0
     for account in user_accounts:
         count += 1
@@ -166,7 +205,8 @@ def get_ngrams(connection_params, ngram_field):
         query["filter"] = {"user.screen_name": account}
         query["projection"] = {"_id": False, ngram_field: True}
         query["limit"] = 0
-        cursor = mongo_base.finder(connection_params, query)
+        cursor = mongo_base.finder(connection_params, query, False)
+
         # Extract the ngrams out of the object and flatten the 2D list
         xgrams = list(file_ops.chain.from_iterable(
             [doc[ngram_field] for doc in cursor]))
@@ -178,8 +218,8 @@ def get_ngrams(connection_params, ngram_field):
 def sentiment_pipeline():
     """Handle sentiment analysis tasks"""
     # connection_params = ["twitter", "tweets"]
-    connection_params = ["twitter", "candidates_porn_exp5_26_Feb"]
-    get_ngrams(connection_params, "trigrams")
+    connection_params = ["twitter", "test_suite"]
+    # get_ngrams(connection_params, "trigrams")
     # run_select_porn_candidates(connection_params)
     # run_select_hs_candidates(connection_params)
-    # run_select_general_candidates(connection_params)
+    run_select_general_candidates(connection_params)
