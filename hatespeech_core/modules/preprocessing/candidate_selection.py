@@ -158,8 +158,10 @@ def get_ngrams(connection_params, ngram_field):
     ngram_set = set()
     user_accounts = set(file_ops.read_csv_file(
         "porn_account_filter", settings.WORDLIST_PATH))
-
+    count = 0
     for account in user_accounts:
+        count += 1
+        print("Count: {0} out of {1}".format(count, len(user_accounts)))
         query = dict()
         query["filter"] = {"user.screen_name": account}
         query["projection"] = {"_id": False, ngram_field: True}
