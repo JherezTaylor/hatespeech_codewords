@@ -653,18 +653,18 @@ def do_create_ngram_collections(text, args):
 
     tokens = twokenize.tokenizeRawTweetText(text)
     unigrams = create_ngrams(tokens, 1)
-    bigrams = create_ngrams(tokens, 2)
+    # bigrams = create_ngrams(tokens, 2)
     trigrams = create_ngrams(tokens, 3)
     quadgrams = create_ngrams(tokens, 4)
 
-    xgrams = bigrams + trigrams + quadgrams
+    xgrams = trigrams + quadgrams
     unigrams = set(unigrams)
     xgrams = set(xgrams)
 
     # Set operations are faster than list iterations.
     # Here we perform a best effort series of filters
     # to ensure we only get tweets we want.
-    unigram_intersect = set(porn_black_list).intersection(unigrams)
+    # unigram_intersect = set(porn_black_list).intersection(unigrams)
     xgrams_intersect = set(porn_black_list).intersection(xgrams)
     hs_keywords_intersect = set(hs_keywords).intersection(unigrams)
 
@@ -673,7 +673,7 @@ def do_create_ngram_collections(text, args):
     else:
         black_list_intersect = None
 
-    return [unigram_intersect, xgrams_intersect, hs_keywords_intersect, black_list_intersect]
+    return [None, xgrams_intersect, hs_keywords_intersect, black_list_intersect]
 
 
 def parallel_preprocess(tweet_list, hs_keywords, subj_check, sent_check):

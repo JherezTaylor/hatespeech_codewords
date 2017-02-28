@@ -136,6 +136,7 @@ def select_hs_candidates(connection_params, filter_options, partition):
     porn_black_list = filter_options[4]
     hs_keywords = filter_options[5]
     black_list = filter_options[6]
+    account_list = filter_options[7]
 
     # Set skip limit values
     query["skip"] = partition[0]
@@ -161,9 +162,9 @@ def select_hs_candidates(connection_params, filter_options, partition):
         # unigram_intersect = set_intersects[0]
         ngrams_intersect = set_intersects[1]
         hs_keywords_intersect = set_intersects[2]
-        black_list_intersect = set_intersects[3]
+        # black_list_intersect = set_intersects[3]
 
-        if not ngrams_intersect and not black_list_intersect and hs_keywords_intersect:
+        if document["user"]["screen_name"] not in account_list and hs_keywords_intersect:
             staging.append(document)
         else:
             # No intersections, skip entry and update blacklist count
