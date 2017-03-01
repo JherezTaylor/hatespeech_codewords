@@ -20,7 +20,7 @@ class TestMongoMethods(object):
                                   "twitter", "test_suite"]
         self.lang_list_length = 2
         self.lang_list = ["en", "und"]
-        self.query = dict()
+        self.query = {}
         self.query["filter"] = {"lang": "en"}
         self.query["projection"] = None
         self.query["limit"] = 10
