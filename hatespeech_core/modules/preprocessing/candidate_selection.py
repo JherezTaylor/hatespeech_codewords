@@ -19,7 +19,7 @@ def run_select_porn_candidates(connection_params):
     """
 
     client = mongo_base.connect()
-    query = dict()
+    query = {}
 
     query["filter"] = {"text": {"$ne": None}}
     query["projection"] = {"text": 1, "created_at": 1, "coordinates": 1,
@@ -65,7 +65,7 @@ def run_select_hs_candidates(connection_params):
     """
 
     client = mongo_base.connect()
-    query = dict()
+    query = {}
 
     query["filter"] = {"text": {"$ne": None},
                        "urls_extracted": {"$exists": False}}
@@ -116,7 +116,7 @@ def run_select_general_candidates(connection_params):
     """
 
     client = mongo_base.connect()
-    query = dict()
+    query = {}
 
     query["filter"] = {"text": {"$ne": None},
                        "urls_extracted": {"$exists": False}}
@@ -194,7 +194,7 @@ def get_ngrams(connection_params, ngram_field):
     for account in user_accounts:
         count += 1
         print("Count: {0} out of {1}".format(count, len(user_accounts)))
-        query = dict()
+        query = {}
         query["filter"] = {"user.screen_name": account}
         query["projection"] = {"_id": False, ngram_field: True}
         query["limit"] = 0
