@@ -35,6 +35,8 @@ def retweet_removal(connection_params):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     pipeline = [
         DeleteMany({"retweeted_status": {"$exists": True}})
@@ -64,6 +66,8 @@ def create_indexes(connection_params):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     dbo[collection].create_index(
         [("entities.user_mentions", ASCENDING)], sparse=True, background=True)
@@ -108,6 +112,8 @@ def field_removal(connection_params):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     pipeline = [
         UpdateMany({},
@@ -155,6 +161,8 @@ def quoted_status_field_removal(connection_params):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     pipeline = [
         UpdateMany({"quoted_status": {"$exists": True}},
@@ -203,6 +211,8 @@ def language_trimming(connection_params, lang_list):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     pipeline = [
         DeleteMany({"lang": {"$nin": lang_list}})
@@ -232,6 +242,8 @@ def field_flattening_base(connection_params, depth, field_name, field_to_set, fi
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     if depth == "top_level":
         field_name_base = field_name
@@ -265,7 +277,7 @@ def field_flattening_base(connection_params, depth, field_name, field_to_set, fi
                           "$unset": {
                               str(field_name_base): ""
                           }
-                      }, upsert=False))
+            }, upsert=False))
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if (len(operations) % settings.BULK_BATCH_SIZE) == 0:
@@ -304,6 +316,8 @@ def field_flattening_complex(connection_params, depth, field_params):
     field_to_extract_2 = field_params[5]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     if depth == "top_level":
         field_name_base = field_name
@@ -326,9 +340,9 @@ def field_flattening_complex(connection_params, depth, field_params):
         {"$group": {"_id": "$_id", field_top_level:
                     {"$addToSet": {field_to_set_1: field_name + field_to_extract_1,
                                    field_to_set_2: field_name + field_to_extract_2}
+                     }
                     }
-                   }
-        },
+         },
         {"$out": "temp_" + field_name_base}
     ]
 
@@ -346,7 +360,7 @@ def field_flattening_complex(connection_params, depth, field_params):
                           "$unset": {
                               str(field_name_base): ""
                           }
-                      }, upsert=False))
+            }, upsert=False))
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if (len(operations) % settings.BULK_BATCH_SIZE) == 0:
@@ -380,6 +394,8 @@ def parse_extended_tweet(connection_params, depth):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     hashtag_field = "hashtags"
     user_mention_field = "user_mentions"
@@ -536,6 +552,8 @@ def final_field_removal(connection_params):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     pipeline = [
         UpdateMany({},
@@ -568,6 +586,9 @@ def clean_source_field(connection_params):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
+
     operations = []
 
     cursor = dbo[collection].find({"source": {"$exists": True}}, {

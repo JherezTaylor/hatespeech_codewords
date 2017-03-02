@@ -57,6 +57,8 @@ def fetch_by_object_id(connection_params, object_id):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
     cursor = dbo[collection].find({"_id": ObjectId(object_id)})
     return list(cursor)
 
@@ -79,6 +81,8 @@ def finder(connection_params, query, count):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
     if count:
         cursor = dbo[collection].find(filter=query["filter"], projection=query[
             "projection"], skip=query["skip"], limit=query["limit"]).count()
@@ -107,6 +111,8 @@ def get_language_list(connection_params):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
     distinct_lang = dbo[collection].distinct("lang")
     return file_ops.unicode_to_utf(distinct_lang)
 
@@ -136,6 +142,8 @@ def get_language_distribution(connection_params, lang_list):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     pipeline = [
         {"$match": {"lang": {"$in": lang_list}}},
@@ -168,6 +176,8 @@ def create_lang_collection(connection_params, lang):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
     pipeline = [
         {"$match": {"lang": lang}},
         {"$out": "collection_" + lang}
@@ -195,6 +205,8 @@ def get_object_ids(connection_params, lang_list, output_name):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
     pipeline = [
         {"$match": {"lang": {"$in": lang_list}}},
         {"$project": {"_id": 1}},
@@ -224,6 +236,8 @@ def update_missing_text(connection_params):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
     cursor = dbo[collection].find(
         {"text": None}, {"id_str": 1}, no_cursor_timeout=True)
 
