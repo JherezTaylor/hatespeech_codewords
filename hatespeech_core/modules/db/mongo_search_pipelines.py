@@ -171,12 +171,12 @@ def select_hs_candidates(connection_params, filter_options, partition):
         hs_keywords_intersect = set_intersects[2]
         # black_list_intersect = set_intersects[3]
 
-        if document["user"]["screen_name"] not in account_list and not ngrams_intersect and hs_keywords_intersect:
+        if hs_keywords_intersect and not ngrams_intersect and document["user"]["screen_name"] not in account_list:
             staging.append(document)
 
         # Here we want to keep track of how many times a user has text that matches
         # one of our porn ngrams. Users below the threshold will be processed.
-        elif document["user"]["screen_name"] not in account_list and ngrams_intersect and hs_keywords_intersect:
+        elif hs_keywords_intersect and ngrams_intersect and document["user"]["screen_name"] not in account_list:
             staging_ngram_freq[document["user"][
                 "screen_name"]].append(document)
             for token in ngrams_intersect:
