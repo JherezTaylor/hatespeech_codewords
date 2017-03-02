@@ -58,6 +58,8 @@ def select_porn_candidates(connection_params, filter_options, partition):
     # Setup client object for bulk op
     bulk_client = mongo_base.connect()
     dbo = bulk_client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     # Store the documents for our bulkwrite
     staging = []
@@ -146,6 +148,8 @@ def select_hs_candidates(connection_params, filter_options, partition):
     # Setup client object for bulk op
     bulk_client = mongo_base.connect()
     dbo = bulk_client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     # Store the documents for our bulkwrite
     staging = []
@@ -271,6 +275,8 @@ def select_general_candidates(connection_params, filter_options, partition):
     # Setup client object for bulk op
     bulk_client = mongo_base.connect()
     dbo = bulk_client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     # Store the documents for our bulkwrite
     staging = []
@@ -341,6 +347,8 @@ def linear_test(connection_params, filter_options):
     db_name = connection_params[0]
     collection = connection_params[1]
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     target_collection = filter_options[0]
     subj_check = filter_options[1]

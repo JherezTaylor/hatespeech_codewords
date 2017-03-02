@@ -57,6 +57,8 @@ def test_linear_scan(connection_params, sample_size):
     db_name = connection_params[0]
     collection = connection_params[1]
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     cursor = dbo[collection].find({}, {"id_str": 1}).limit(sample_size)
     documents = {str(document["_id"]) for document in cursor}
@@ -69,6 +71,8 @@ def process_cursor(cursor):
     return documents
 
 # @profile
+
+
 def process_partition(partition, connection_params):
     """Thread safe process
     partition stores a tuple with the skip and limit values
@@ -77,6 +81,8 @@ def process_partition(partition, connection_params):
     db_name = connection_params[0]
     collection = connection_params[1]
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     cursor = dbo[collection].find({}, {"id_str": 1}).skip(
         partition[0]).limit(partition[1])
@@ -108,11 +114,11 @@ def main():
 
     # check_token_lengths(porn_black_list)
     # ngram_stopword_check("is to hello world boss hi is")
-    # connection_params = ["twitter", "test_performance_mini"]
-    sample_size = 10**6
-    connection_params = ["twitter", "tweets"]
-    # test_linear_scan(connection_params, sample_size)
-    parallel_test(2, connection_params, sample_size)
+    # connection_params = [mongo_base.connect(), "twitter", "test_suite"]
+    # sample_size = 10**6
+    # connection_params = ["twitter", "tweets"]
+    # # test_linear_scan(connection_params, sample_size)
+    # parallel_test(2, connection_params, sample_size)
 
 if __name__ == "__main__":
     main()

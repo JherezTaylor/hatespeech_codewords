@@ -55,6 +55,8 @@ def get_top_k_users(connection_params, lang_list, field_name, k_limit):
     field_name_base = field_name
     field_name = "$" + field_name
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
 
     pipeline = [
         {"$match": {"lang": {"$in": lang_list}}},
@@ -101,6 +103,9 @@ def get_top_k_hashtags(connection_params, lang_list, field_name, k_limit, k_valu
     field_name_base = field_name
     field_name = "$" + field_name
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
+
     pipeline = [
         {"$match": {"lang": {"$in": lang_list}}},
         {"$project": {field_name_base: 1, "_id": 0}},
@@ -149,6 +154,8 @@ def user_mentions_map_reduce(connection_params, output_name):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
     cursor = dbo[collection].map_reduce(
         map_function, reduce_function, output_name, query={"lang": {"$eq": "en"}})
 
@@ -193,12 +200,15 @@ def hashtag_map_reduce(connection_params, output_name):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
+
     cursor = dbo[collection].map_reduce(
         map_function, reduce_function, output_name, query={"lang": {"$eq": "en"}})
 
     frequency = [{"_id": document["_id"], "value": document["value"]}
                  for document in cursor.find()]
-    
+
     frequency = sorted(frequency, key=lambda k: k["value"], reverse=True)
     file_ops.write_json_file("hashtag_distribution_mr",
                              settings.DATA_PATH, frequency)
@@ -220,6 +230,9 @@ def fetch_hashtag_collection(connection_params):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
+
     cursor = dbo[collection].find({"count": {"$gt": 500}}, {
         "hashtag": 1, "count": 1, "_id": 0})
     file_ops.write_json_file(collection, settings.DATA_PATH, list(cursor))
@@ -247,6 +260,9 @@ def parse_undefined_lang(connection_params, lang):
     collection = connection_params[2]
 
     dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
+
     # Normalize the confidence value with the range 0 - 1
     identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
 
