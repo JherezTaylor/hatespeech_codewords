@@ -10,6 +10,7 @@ HS Candidates
 Porn/Spam Candidates
 """
 
+from collections import defaultdict
 from pymongo import InsertOne
 from ..utils import settings
 from ..utils import file_ops
@@ -148,11 +149,11 @@ def select_hs_candidates(connection_params, filter_options, partition):
 
     # Store the documents for our bulkwrite
     staging = []
-    staging_freq = []
+    staging_ngram_freq = defaultdict(list)
     operations = []
     # Keep track of how often we match an ngram in our blacklist
     porn_black_list_counts = dict.fromkeys(porn_black_list, 0)
-    porn_ngram_freq = {}
+    new_blacklist_accounts = []
 
     progress = 0
     cursor = mongo_base.finder(connection_params, query, False)
@@ -172,15 +173,10 @@ def select_hs_candidates(connection_params, filter_options, partition):
         # Here we want to keep track of how many times a user has text that matches
         # one of our porn ngrams. Users below the threshold will be processed.
         elif document["user"]["screen_name"] not in account_list and ngrams_intersect and hs_keywords_intersect:
-            staging_freq.append(document)
+            staging_ngram_freq[document["user"][
+                "screen_name"]].append(document)
             for token in ngrams_intersect:
                 porn_black_list_counts[token] += 1
-
-            if document[document["user"]["id_str"]] in porn_ngram_freq:
-                porn_ngram_freq[document["user"]["id_str"]] += 1
-            else:
-                porn_ngram_freq[document["user"]["id_str"]] = 1
-
         else:
             # No hs intersections, skip entry and update blacklist count
             for token in ngrams_intersect:
@@ -209,13 +205,28 @@ def select_hs_candidates(connection_params, filter_options, partition):
     _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
     # Check for users with porn ngram frequencies below threshold
+    # Note that the cursor has already been exhausted and this now
+    # becomes a local disk operation
+    staging = []
     operations = []
-    for id_str in porn_ngram_freq:
-        if porn_ngram_freq[id_str] >= settings.PNGRAM_THRESHOLD:
-            # TODO Fix up this
-            operations.append(id_str)
+    for screen_name in staging_ngram_freq:
+        # Consider users that don't appear frequently and stage them
+        if len(staging_ngram_freq[screen_name]) < settings.PNGRAM_THRESHOLD:
+            staging = staging + staging_ngram_freq[screen_name]
+        else:
+            new_blacklist_accounts.append(screen_name)
+
+    for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
+        if job:
+            operations.append(InsertOne(job))
+        else:
+            pass
+    # Last OP
+    _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
     file_ops.write_json_file(
         'porn_ngram_hits', settings.DATA_PATH, porn_black_list_counts)
+    file_ops.write_csv_file("new_porn_account_filter",
+                            settings.DATA_PATH, new_blacklist_accounts)
 
 
 # @file_ops.do_cprofile
