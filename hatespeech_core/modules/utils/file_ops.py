@@ -29,7 +29,7 @@ from . import settings
 from . import twokenize
 
 PUNCTUATION = list(string.punctuation)
-STOP_LIST = dict.fromkeys(stopwords.words(
+STOP_LIST = set(stopwords.words(
     "english") + PUNCTUATION + ["rt", "via", "RT"])
 
 
@@ -446,7 +446,7 @@ def preprocess_tweet(tweet_obj, hs_keywords, args):
 
     Args:
         tweet_obj   (dict): Tweet to preprocess.
-        hs_keywords (dict): Keywords to match on.
+        hs_keywords (set): Keywords to match on.
         args        (list): Contains a list of conditions as follows:
             0: subj_check (bool): Check text for subjectivity.
             1: sent_check (bool): Check text for sentiment.
@@ -544,7 +544,7 @@ def prepare_text(raw_text, args):
         if not token in emoji:
             terms_single[token.lower()] = terms_single.pop(token)
 
-    stopwords_only = set(terms_single).intersection(set(stop_list))
+    stopwords_only = set(terms_single).intersection(stop_list)
     terms_only = []
     hashtags = []
     mentions = []
@@ -563,19 +563,19 @@ def prepare_text(raw_text, args):
     # Filter out ngrams that consist wholly of stopwords
     for i in range(0, 5):
         xgrams[i] = [gram for gram in xgrams[i] if not set(
-            twokenize.tokenizeRawTweetText(gram)).issubset(set(stop_list))]
+            twokenize.tokenizeRawTweetText(gram)).issubset(stop_list)]
 
     # Filter out ngrams that don't consist wholly of stopwords
     for i in range(0, 5):
         stopword_ngrams[i] = [gram for gram in stopword_ngrams[i] if set(
-            twokenize.tokenizeRawTweetText(gram)).issubset(set(stop_list))]
+            twokenize.tokenizeRawTweetText(gram)).issubset(stop_list)]
 
     # Flatten list of lists
     stopword_ngrams = list(chain.from_iterable(stopword_ngrams[1:]))
 
     # Check the number of HS keyword instances
     grams = list(chain.from_iterable(xgrams))
-    hs_keywords_intersect = set(hs_keywords).intersection(set(grams))
+    hs_keywords_intersect = hs_keywords.intersection(set(grams))
 
     return [terms_only, list(stopwords_only), hashtags, mentions,
             list(hs_keywords_intersect), xgrams, stopword_ngrams]
@@ -665,11 +665,11 @@ def do_create_ngram_collections(text, args):
     # Here we perform a best effort series of filters
     # to ensure we only get tweets we want.
     # unigram_intersect = set(porn_black_list).intersection(unigrams)
-    xgrams_intersect = set(porn_black_list).intersection(xgrams)
-    hs_keywords_intersect = set(hs_keywords).intersection(unigrams)
+    xgrams_intersect = porn_black_list.intersection(xgrams)
+    hs_keywords_intersect = hs_keywords.intersection(unigrams)
 
     if args[2]:
-        black_list_intersect = set(black_list).intersection(unigrams)
+        black_list_intersect = black_list.intersection(unigrams)
     else:
         black_list_intersect = None
 
@@ -682,7 +682,7 @@ def parallel_preprocess(tweet_list, hs_keywords, subj_check, sent_check):
     Args:
         tweet_list  (list): List of raw tweet texts to preprocess.
         tweet_split (list): List of tokens in the tweet text.
-        hs_keywords (dict): Keywords to match on.
+        hs_keywords (set): Keywords to match on.
         subj_check (bool): Check text for subjectivity.
         sent_check (bool): Check text for sentiment.
 

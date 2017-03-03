@@ -101,7 +101,7 @@ def run_select_hs_candidates(connection_params):
     account_list = set(file_ops.read_csv_file(
         "porn_account_filter", settings.WORDLIST_PATH))
 
-    args2 = [query, "candidates_hs_exp6_combo_28_Feb", False, False,
+    args2 = [query, "candidates_hs_exp6_combo_3_Mar", False, False,
              porn_black_list, hs_keywords, black_list, account_list]
     time1 = file_ops.time()
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_hs_candidates)(

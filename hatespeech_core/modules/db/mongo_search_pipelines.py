@@ -171,12 +171,12 @@ def select_hs_candidates(connection_params, filter_options, partition):
         hs_keywords_intersect = set_intersects[2]
         # black_list_intersect = set_intersects[3]
 
-        if hs_keywords_intersect and not ngrams_intersect and document["user"]["screen_name"] not in account_list:
+        if not ngrams_intersect and document["user"]["screen_name"] not in account_list and hs_keywords_intersect:
             staging.append(document)
 
         # Here we want to keep track of how many times a user has text that matches
         # one of our porn ngrams. Users below the threshold will be processed.
-        elif hs_keywords_intersect and ngrams_intersect and document["user"]["screen_name"] not in account_list:
+        elif ngrams_intersect and document["user"]["screen_name"] not in account_list and hs_keywords_intersect:
             staging_ngram_freq[document["user"][
                 "screen_name"]].append(document)
             for token in ngrams_intersect:
@@ -220,13 +220,15 @@ def select_hs_candidates(connection_params, filter_options, partition):
         else:
             new_blacklist_accounts.append(screen_name)
 
-    for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
-        if job:
-            operations.append(InsertOne(job))
-        else:
-            pass
-    # Last OP
-    _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+    if staging:
+        for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
+            if job:
+                operations.append(InsertOne(job))
+            else:
+                pass
+    if operations:
+        _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+
     file_ops.write_json_file(
         'porn_ngram_hits', settings.DATA_PATH, porn_black_list_counts)
     file_ops.write_csv_file("new_porn_account_filter",
