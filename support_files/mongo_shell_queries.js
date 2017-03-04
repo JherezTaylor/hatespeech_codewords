@@ -200,6 +200,22 @@ db.tweets.aggregate(
    [ { $sample: { size: 500000 } },
    {$out: "sample"}], { "allowDiskUse": true}
 )
+
+// Did this in two stages, bigrams, unigrams, then merge and sample
+db.candidates_hs_exp6_combo_3_Mar_9813004.aggregate([ 
+{ $match: { 'unigrams': {$in: ["nigger", "beaner", "wetback", "africa", "mexico", "cracker", 
+        "negroid", "jihadi", "kike", "isis", "kyke", "snowflake", "uncivilised", "sheepfucker", "fag", "dyke", "faggot", "tranny"]} } } ,{$sample: {size: 1000}}, { $out: "eth_rel_gend"}],  
+{allowDiskUse:true})
+
+db.tweets.aggregate(
+    [ { $match: {'unigrams': {$in: ["nigger", "beaner", "wetback", "africa", "mexico", "cracker", 
+        "negroid", "jihadi", "kike", "isis", "kyke", "snowflake", "uncivilised", "sheepfucker", "fag", "dyke", "faggot", "tranny"]}, 
+        "bigrams": {$in : ["sand nigger", "camel fucker", "camel cowboy", "camel jockey", "carpet pilot", "cave nigger", "cotton picker", "dune nigger", "house nigger",
+        "sub human", "goat fucker"]} } }, 
+    { $sample: { size: 100 } },
+    { $out: "eth_rel_gend" } ],  {allowDiskUse:true}
+    )
+
 db.tweets.deleteMany({"text":null})
 db.tweets.aggregate([ { $match: { 'lang': {$in: ['en','und']} } }, { $out: "dataset" } ],  {allowDiskUse:true})
 db.tweets.aggregate([ { $match: { 'lang': {$in: ['und']} } }, {'$limit' : 500}, { $out: "und_backup" } ])
