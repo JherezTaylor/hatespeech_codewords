@@ -101,7 +101,8 @@ def select_porn_candidates(connection_params, filter_options, partition):
                 operations.append(InsertOne(job))
             else:
                 pass
-    _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+    if operations:
+        _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
 
 # @profile
@@ -206,7 +207,9 @@ def select_hs_candidates(connection_params, filter_options, partition):
                 operations.append(InsertOne(job))
             else:
                 pass
-    _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+
+    if operations:
+        _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
     # Check for users with porn ngram frequencies below threshold
     # Note that the cursor has already been exhausted and this now
@@ -323,7 +326,8 @@ def select_general_candidates(connection_params, filter_options, partition):
             else:
                 pass
 
-    _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+    if operations:
+        _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
 
 def linear_test(connection_params, filter_options):
@@ -408,4 +412,5 @@ def linear_test(connection_params, filter_options):
                 operations.append(InsertOne(job))
             else:
                 pass
-    _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+    if operations:
+        _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
