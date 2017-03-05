@@ -57,7 +57,7 @@ def run_select_porn_candidates(connection_params):
         connection_params, args2, partition) for partition in partitions)
     time2 = file_ops.time()
     send_job_completion(
-        [time1, time2], ["select_porn_candidates", "Porn Candidates"])
+        [time1, time2], ["select_porn_candidates", connection_params[0] + ": Porn Candidates"])
 
 
 def run_select_hs_candidates(connection_params):
@@ -108,7 +108,7 @@ def run_select_hs_candidates(connection_params):
         connection_params, args2, partition) for partition in partitions)
     time2 = file_ops.time()
     send_job_completion(
-        [time1, time2], ["select_hs_candidates", "HS Candidates"])
+        [time1, time2], ["select_hs_candidates", connection_params[0] + ": HS Candidates"])
 
 
 def run_select_general_candidates(connection_params):
@@ -158,7 +158,7 @@ def run_select_general_candidates(connection_params):
         connection_params, args2, partition) for partition in partitions)
     time2 = file_ops.time()
     send_job_completion(
-        [time1, time2], ["select_gen_candidates", "General Candidates"])
+        [time1, time2], ["select_gen_candidates", connection_params[0] + ": General Candidates"])
 
 
 def send_job_completion(run_time, args):
