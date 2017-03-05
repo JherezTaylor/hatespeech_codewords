@@ -546,6 +546,7 @@ def final_field_removal(connection_params):
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
                      source=settings.DB_AUTH_SOURCE)
 
+    dbo[collection].drop_indexes()
     pipeline = [
         UpdateMany({},
                    {
