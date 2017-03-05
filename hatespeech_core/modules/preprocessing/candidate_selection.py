@@ -195,7 +195,7 @@ def sentiment_pipeline():
     """Handle sentiment analysis tasks"""
     connection_params = ["inauguration", "tweets"]
     run_select_hs_candidates(connection_params)
-    connection_params = ["inauguration", "tweets"]
+    connection_params = ["inauguration_no_filter", "tweets"]
     run_select_hs_candidates(connection_params)
     # get_ngrams(connection_params, "trigrams")
     # run_select_porn_candidates(connection_params)
