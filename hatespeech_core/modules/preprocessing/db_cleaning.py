@@ -239,61 +239,61 @@ def preprocessing_pipeline():
     connection_params = ["inauguration", "tweets"]
     # connection_params = ["inauguration_no_filter", "tweets"]
 
-    hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
-    url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
-    user_mentions_args = [field_names[2], fields_to_set[2], fields_to_set[
-        3], fields_to_set[4], field_to_extract[2], field_to_extract[3]]
-    media_args = [field_names[3], fields_to_set[5], fields_to_set[
-        6], fields_to_set[7], field_to_extract[4], field_to_extract[5]]
+    # hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
+    # url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
+    # user_mentions_args = [field_names[2], fields_to_set[2], fields_to_set[
+    #     3], fields_to_set[4], field_to_extract[2], field_to_extract[3]]
+    # media_args = [field_names[3], fields_to_set[5], fields_to_set[
+    #     6], fields_to_set[7], field_to_extract[4], field_to_extract[5]]
 
-    # Remove retweets
-    run_retweet_removal(connection_params)
+    # # Remove retweets
+    # run_retweet_removal(connection_params)
 
-    # Create Indexes
-    run_create_indexes(connection_params)
+    # # Create Indexes
+    # run_create_indexes(connection_params)
 
-    # Remove unwanted and redundant fields
-    run_field_removal(connection_params)
+    # # Remove unwanted and redundant fields
+    # run_field_removal(connection_params)
 
-    run_language_trimming(connection_params, ['en', 'und'])
+    # run_language_trimming(connection_params, ['en', 'und'])
 
-    # Hashtags
-    run_field_flattening(
-        connection_params, "top_level", job_names[0], hashtag_args)
+    # # Hashtags
+    # run_field_flattening(
+    #     connection_params, "top_level", job_names[0], hashtag_args)
 
-    # Urls
-    run_field_flattening(
-        connection_params, "top_level", job_names[1], url_args)
+    # # Urls
+    # run_field_flattening(
+    #     connection_params, "top_level", job_names[1], url_args)
 
-    # User mentions
-    run_field_flattening(
-        connection_params, "top_level", job_names[2], user_mentions_args)
+    # # User mentions
+    # run_field_flattening(
+    #     connection_params, "top_level", job_names[2], user_mentions_args)
 
-    # # Media
-    run_field_flattening(
-        connection_params, "top_level", job_names[3], media_args)
+    # # # Media
+    # run_field_flattening(
+    #     connection_params, "top_level", job_names[3], media_args)
 
-    # Quoted_status Hashtags
-    run_field_flattening(connection_params, "quoted_status",
-                         job_names[0], hashtag_args)
+    # # Quoted_status Hashtags
+    # run_field_flattening(connection_params, "quoted_status",
+    #                      job_names[0], hashtag_args)
 
-    # Quoted_status Urls
-    run_field_flattening(connection_params, "quoted_status",
-                         job_names[1], url_args)
+    # # Quoted_status Urls
+    # run_field_flattening(connection_params, "quoted_status",
+    #                      job_names[1], url_args)
 
-    # Quoted_status User mentions
-    run_field_flattening(connection_params, "quoted_status",
-                         job_names[2], user_mentions_args)
+    # # Quoted_status User mentions
+    # run_field_flattening(connection_params, "quoted_status",
+    #                      job_names[2], user_mentions_args)
 
-    # Quoted_status Media
-    run_field_flattening(connection_params, "quoted_status",
-                         job_names[3], media_args)
+    # # Quoted_status Media
+    # run_field_flattening(connection_params, "quoted_status",
+    #                      job_names[3], media_args)
 
-    # Parse extended tweet
-    run_parse_extended_tweet(
-        connection_params, "top_level", "Top Level Extended Tweet")
-    run_parse_extended_tweet(
-        connection_params, "quoted_status", "Quoted Status Extended Tweet")
+    # # Parse extended tweet
+    # run_parse_extended_tweet(
+    #     connection_params, "top_level", "Top Level Extended Tweet")
+    # run_parse_extended_tweet(
+    #     connection_params, "quoted_status", "Quoted Status Extended Tweet")
 
     # Remove final field set
     run_final_field_removal(connection_params, "Final Field Removal")
