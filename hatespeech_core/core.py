@@ -15,8 +15,8 @@ def main():
     """
     Run operations
     """
-    # db_cleaning.preprocessing_pipeline()
-    candidate_selection.sentiment_pipeline()
+    db_cleaning.preprocessing_pipeline()
+    # candidate_selection.sentiment_pipeline()
     # db_cleaning.run_update_missing_text()
 
 if __name__ == "__main__":

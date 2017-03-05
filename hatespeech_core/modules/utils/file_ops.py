@@ -97,6 +97,21 @@ def send_job_notification(title, body):
     url = "https://api.pushbullet.com/v2/pushes"
     return requests.post(url, headers=headers, data=ujson.dumps(payload))
 
+def send_job_completion(run_time, args):
+    """Format and print the details of a completed job
+
+    Args:
+        run_time (list): Start and end times.
+        args (list): Contains the following:
+            0: function_name (str): Name of the function that was run.
+            1: message_text  (str): Text to be sent in notification.
+    """
+
+    time_diff = round((run_time[1] - run_time[0]), 2)
+    print("%s function took %0.3f seconds" % (args[0], time_diff))
+    send_notification = send_job_notification(
+        settings.MONGO_SOURCE + ": " + args[1] + " took " + str(time_diff) + " seconds", "Complete")
+    print(send_notification.content)
 
 def count_sightings(json_obj):
     """ Returns a count of the number of sightings per word in corpus

@@ -81,15 +81,11 @@ def run_retweet_removal(connection_params):
     time1 = file_ops.time()
     db_response = mongo_data_filters.retweet_removal(connection_params)
     time2 = file_ops.time()
-    time_diff = (time2 - time1) * 1000.0
 
     result = db_response
     print(result.modified_count)
-
-    print("%s function took %0.3f ms" % ("retweet_removal", time_diff))
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": Retweet removal took " + str(time_diff) + " ms", result)
-    print(send_notification.content)
+    file_ops.send_job_completion(
+        [time1, time2], ["run_retweet_removal", connection_params[0] + ": Retweet Removal"])
 
 
 def run_create_indexes(connection_params):
@@ -101,12 +97,9 @@ def run_create_indexes(connection_params):
     time1 = file_ops.time()
     mongo_data_filters.create_indexes(connection_params)
     time2 = file_ops.time()
-    time_diff = (time2 - time1) * 1000.0
 
-    print("%s function took %0.3f ms" % ("create_indexes", time_diff))
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": Index creation took " + str(time_diff) + " ms", "Complete")
-    print(send_notification.content)
+    file_ops.send_job_completion(
+        [time1, time2], ["create_indexes", connection_params[0] + ": Index creation took"])
 
 
 def run_field_removal(connection_params):
@@ -118,30 +111,21 @@ def run_field_removal(connection_params):
     time1 = file_ops.time()
     db_response = mongo_data_filters.field_removal(connection_params)
     time2 = file_ops.time()
-    time_diff = (time2 - time1) * 1000.0
 
     result = db_response
     print(result.modified_count)
-
-    print("%s function took %0.3f ms" % ("field_removal", time_diff))
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": Field Removal took " + str(time_diff) + " ms", result)
-    print(send_notification.content)
+    file_ops.send_job_completion(
+        [time1, time2], ["field_removal", connection_params[0] + ": Field Removal took"])
 
     time1 = file_ops.time()
     db_response = mongo_data_filters.quoted_status_field_removal(
         connection_params)
     time2 = file_ops.time()
-    time_diff = (time2 - time1) * 1000.0
 
     result = db_response
     print(result.modified_count)
-
-    print("%s function took %0.3f ms" %
-          ("quoted_status_field_removal", time_diff))
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ":Quoted_status Field Removal took " + str(time_diff) + " ms", result)
-    print(send_notification.content)
+    file_ops.send_job_completion(
+        [time1, time2], ["quoted_status_field_removal", connection_params[0] + ": Quoted_status Field Removal took"])
 
 
 def run_language_trimming(connection_params, lang_list):
@@ -154,15 +138,11 @@ def run_language_trimming(connection_params, lang_list):
     db_response = mongo_data_filters.language_trimming(
         connection_params, lang_list)
     time2 = file_ops.time()
-    time_diff = (time2 - time1) * 1000.0
 
     result = db_response
     print(result.modified_count)
-
-    print("%s function took %0.3f ms" % ("language_trimming", time_diff))
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": Language trimming took " + str(time_diff) + " ms", result)
-    print(send_notification.content)
+    file_ops.send_job_completion(
+        [time1, time2], ["language_trimming", connection_params[0] + ": Language trimming took"])
 
 
 def run_field_flattening(connection_params, depth, job_name, field_params):
@@ -184,12 +164,8 @@ def run_field_flattening(connection_params, depth, job_name, field_params):
             connection_params, depth, field_params)
 
     time2 = file_ops.time()
-    time_diff = (time2 - time1) * 1000.0
-
-    print("%s function took %0.3f ms" % (job_name, time_diff))
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
-    print(send_notification.content)
+    file_ops.send_job_completion(
+        [time1, time2], [str(job_name) + " ", connection_params[0] + " " + str(job_name)])
 
 
 def run_parse_extended_tweet(connection_params, depth, job_name):
@@ -200,14 +176,9 @@ def run_parse_extended_tweet(connection_params, depth, job_name):
 
     time1 = file_ops.time()
     mongo_data_filters.parse_extended_tweet(connection_params, depth)
-
     time2 = file_ops.time()
-    time_diff = (time2 - time1) * 1000.0
-
-    print("%s function took %0.3f ms" % (job_name, time_diff))
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
-    print(send_notification.content)
+    file_ops.send_job_completion(
+        [time1, time2], [str(job_name) + " ", connection_params[0] + " " + str(job_name)])
 
 
 def run_final_field_removal(connection_params, job_name):
@@ -218,14 +189,9 @@ def run_final_field_removal(connection_params, job_name):
 
     time1 = file_ops.time()
     mongo_data_filters.final_field_removal(connection_params)
-
     time2 = file_ops.time()
-    time_diff = (time2 - time1) * 1000.0
-
-    print("%s function took %0.3f ms" % (job_name, time_diff))
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
-    print(send_notification.content)
+    file_ops.send_job_completion(
+        [time1, time2], [str(job_name) + " ", connection_params[0] + " " + str(job_name)])
 
 
 def run_clean_source_field(connection_params, job_name):
@@ -236,111 +202,101 @@ def run_clean_source_field(connection_params, job_name):
 
     time1 = file_ops.time()
     mongo_data_filters.clean_source_field(connection_params)
-
     time2 = file_ops.time()
-    time_diff = (time2 - time1) * 1000.0
-
-    print("%s function took %0.3f ms" % (job_name, time_diff))
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": " + job_name + str(time_diff) + " ms", "Complete")
-    print(send_notification.content)
+    file_ops.send_job_completion(
+        [time1, time2], [str(job_name) + " ", connection_params[0] + " " + str(job_name)])
 
 
 def run_update_missing_text():
     """ Start the missing tweet text replacement job
     """
 
-    client = mongo_base.connect()
-    connection_params = [client, "twitter_test", "tweets"]
+    connection_params = ["twitter_test", "tweets"]
     time1 = file_ops.time()
     db_response = mongo_base.update_missing_text(connection_params)
-
     time2 = file_ops.time()
-    time_diff = (time2 - time1) * 1000.0
 
-    print("%s function took %0.3f ms" % ("update_missing_text", time_diff))
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": Replace missing text took " + str(int(time_diff)) + " ms", "Found: " + str(
+    file_ops.send_job_completion(
+        [time1, time2], ["update_missing_text", connection_params[0] + ": Replace missing text took " + str(
             db_response[0]) + "Not Found: " + str(db_response[1]) + "Total Requests: "
-        + str(db_response[2]) + "Complete")
-    print(send_notification.content)
+            + str(db_response[2])])
 
 
 def preprocessing_pipeline():
     """ Handle DB operations"""
 
-    # job_names = ["hashtags", "entities.urls", "user_mentions", "media"]
-    # field_names = ["entities.hashtags", "entities.urls",
-    #                "entities.user_mentions", "entities.media"]
-    # fields_to_set = ["hashtags", "urls",
-    #                  "user_mentions", "screen_name", "id_str", "media", "url", "type"]
-    # field_to_extract = [".text", ".expanded_url",
-    #                     ".screen_name", ".id_str", ".media_url", ".type"]
+    job_names = ["hashtags", "entities.urls", "user_mentions", "media"]
+    field_names = ["entities.hashtags", "entities.urls",
+                   "entities.user_mentions", "entities.media"]
+    fields_to_set = ["hashtags", "urls",
+                     "user_mentions", "screen_name", "id_str", "media", "url", "type"]
+    field_to_extract = [".text", ".expanded_url",
+                        ".screen_name", ".id_str", ".media_url", ".type"]
 
     # lang_list = ['en', 'und', 'es', 'ru', 'pt',
     #              'it', 'ja', 'fr', 'de', 'ar', 'zh']
 
-    client = mongo_base.connect()
-    connection_params = [client, "twitter", "tweets"]
-    # connection_params = [client, "uselections", "tweets"]
-    # connection_params = [client, "test_database", "random_sample"]
+    connection_params = ["inauguration", "tweets"]
+    # connection_params = ["inauguration_no_filter", "tweets"]
 
-    # hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
-    # url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
-    # user_mentions_args = [field_names[2], fields_to_set[2], fields_to_set[
-    #     3], fields_to_set[4], field_to_extract[2], field_to_extract[3]]
-    # media_args = [field_names[3], fields_to_set[5], fields_to_set[
-    #     6], fields_to_set[7], field_to_extract[4], field_to_extract[5]]
+    hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
+    url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
+    user_mentions_args = [field_names[2], fields_to_set[2], fields_to_set[
+        3], fields_to_set[4], field_to_extract[2], field_to_extract[3]]
+    media_args = [field_names[3], fields_to_set[5], fields_to_set[
+        6], fields_to_set[7], field_to_extract[4], field_to_extract[5]]
 
-    # # Remove retweets
-    # run_retweet_removal(connection_params)
+    # Remove retweets
+    run_retweet_removal(connection_params)
 
-    # # Create Indexes
-    # run_create_indexes(connection_params)
+    # Create Indexes
+    run_create_indexes(connection_params)
 
-    # # Remove unwanted and redundant fields
-    # run_field_removal(connection_params)
+    # Remove unwanted and redundant fields
+    run_field_removal(connection_params)
 
-    # run_language_trimming(connection_params, ['en', 'und'])
+    run_language_trimming(connection_params, ['en', 'und'])
 
-    # # # Hashtags
-    # run_field_flattening(
-    #     connection_params, "top_level", job_names[0], hashtag_args)
+    # Hashtags
+    run_field_flattening(
+        connection_params, "top_level", job_names[0], hashtag_args)
 
-    # # # Urls
-    # run_field_flattening(
-    #     connection_params, "top_level", job_names[1], url_args)
+    # Urls
+    run_field_flattening(
+        connection_params, "top_level", job_names[1], url_args)
 
-    # # User mentions
-    # run_field_flattening(
-    #     connection_params, "top_level", job_names[2], user_mentions_args)
+    # User mentions
+    run_field_flattening(
+        connection_params, "top_level", job_names[2], user_mentions_args)
 
-    # # # Media
-    # run_field_flattening(
-    #     connection_params, "top_level", job_names[3], media_args)
+    # # Media
+    run_field_flattening(
+        connection_params, "top_level", job_names[3], media_args)
 
     # Quoted_status Hashtags
-    # run_field_flattening(connection_params, "quoted_status",
-    #                      job_names[0], hashtag_args)
+    run_field_flattening(connection_params, "quoted_status",
+                         job_names[0], hashtag_args)
 
     # Quoted_status Urls
-    # run_field_flattening(connection_params, "quoted_status",
-    #                      job_names[1], url_args)
+    run_field_flattening(connection_params, "quoted_status",
+                         job_names[1], url_args)
 
-    # # Quoted_status User mentions
-    # run_field_flattening(connection_params, "quoted_status",
-    #                      job_names[2], user_mentions_args)
+    # Quoted_status User mentions
+    run_field_flattening(connection_params, "quoted_status",
+                         job_names[2], user_mentions_args)
 
-    # # Quoted_status Media
-    # run_field_flattening(connection_params, "quoted_status",
-    #                      job_names[3], media_args)
+    # Quoted_status Media
+    run_field_flattening(connection_params, "quoted_status",
+                         job_names[3], media_args)
 
     # Parse extended tweet
-    # run_parse_extended_tweet(connection_params, "top_level", "Top Level Extended Tweet")
-    # run_parse_extended_tweet(connection_params, "quoted_status", "Quoted Status Extended Tweet")
+    run_parse_extended_tweet(
+        connection_params, "top_level", "Top Level Extended Tweet")
+    run_parse_extended_tweet(
+        connection_params, "quoted_status", "Quoted Status Extended Tweet")
 
     # Remove final field set
-    # run_final_field_removal(connection_params, "Final Field Removal")
+    run_final_field_removal(connection_params, "Final Field Removal")
 
     # Clean source field
-    # run_clean_source_field(connection_params, "Clean Source Field")
+    run_clean_source_field(connection_params, "Clean Source Field")

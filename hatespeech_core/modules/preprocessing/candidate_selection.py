@@ -56,7 +56,7 @@ def run_select_porn_candidates(connection_params):
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_porn_candidates)(
         connection_params, args2, partition) for partition in partitions)
     time2 = file_ops.time()
-    send_job_completion(
+    file_ops.send_job_completion(
         [time1, time2], ["select_porn_candidates", connection_params[0] + ": Porn Candidates"])
 
 
@@ -107,7 +107,7 @@ def run_select_hs_candidates(connection_params):
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_hs_candidates)(
         connection_params, args2, partition) for partition in partitions)
     time2 = file_ops.time()
-    send_job_completion(
+    file_ops.send_job_completion(
         [time1, time2], ["select_hs_candidates", connection_params[0] + ": HS Candidates"])
 
 
@@ -157,25 +157,8 @@ def run_select_general_candidates(connection_params):
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_general_candidates)(
         connection_params, args2, partition) for partition in partitions)
     time2 = file_ops.time()
-    send_job_completion(
+    file_ops.send_job_completion(
         [time1, time2], ["select_gen_candidates", connection_params[0] + ": General Candidates"])
-
-
-def send_job_completion(run_time, args):
-    """Format and print the details of a completed job
-
-    Args:
-        run_time (list): Start and end times.
-        args (list): Contains the following:
-            0: function_name (str): Name of the function that was run.
-            1: message_text  (str): Text to be sent in notification.
-    """
-
-    time_diff = round((run_time[1] - run_time[0]), 2)
-    print("%s function took %0.3f seconds" % (args[0], time_diff))
-    send_notification = file_ops.send_job_notification(
-        settings.MONGO_SOURCE + ": " + args[1] + " took " + str(time_diff) + " seconds", "Complete")
-    print(send_notification.content)
 
 
 def get_ngrams(connection_params, ngram_field):
