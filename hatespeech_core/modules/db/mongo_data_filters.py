@@ -24,15 +24,14 @@ def retweet_removal(connection_params):
     Preprocessing Pipeline Stage 1.
 
     Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+        connection_params  (list): Contains connection params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
 
     dbo = client[db_name]
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
@@ -55,42 +54,41 @@ def create_indexes(connection_params):
     run directly through mongo shellfor large collections.
 
     Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+        connection_params  (list): Contains connection params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
 
     dbo = client[db_name]
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
                      source=settings.DB_AUTH_SOURCE)
 
     dbo[collection].create_index(
-        [("entities.user_mentions", ASCENDING)], sparse=True, background=True)
+        [("entities.user_mentions", ASCENDING)], background=True)
     print("User mentions Index built")
 
     dbo[collection].create_index(
-        [("entities.hashtags", ASCENDING)], sparse=True, background=True)
+        [("entities.hashtags", ASCENDING)], background=True)
     print("Hashtag Index built")
 
     dbo[collection].create_index(
-        [("quoted_status_id", ASCENDING)], sparse=True, background=True)
+        [("quoted_status_id", ASCENDING)], background=True)
     print("Quoted status Index built")
 
     dbo[collection].create_index(
-        [("extended_tweet.id_str", ASCENDING)], sparse=True, background=True)
+        [("extended_tweet.id_str", ASCENDING)], background=True)
     print("Extended tweet Index built")
 
     dbo[collection].create_index(
-        [("quoted_status.entities.hashtags", ASCENDING)], sparse=True, background=True)
+        [("quoted_status.entities.hashtags", ASCENDING)], background=True)
     print("Quoted status hashtag Index built")
 
     dbo[collection].create_index(
-        [("quoted_status.entities.user_mentions", ASCENDING)], sparse=True, background=True)
+        [("quoted_status.entities.user_mentions", ASCENDING)], background=True)
     print("Quoted status user_mention Index built")
 
 
@@ -101,15 +99,14 @@ def field_removal(connection_params):
     Preprocessing Pipeline Stage 3.
 
     Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+        connection_params  (list): Contains connection params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
 
     dbo = client[db_name]
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
@@ -150,15 +147,14 @@ def quoted_status_field_removal(connection_params):
     Preprocessing Pipeline Stage 3.
 
     Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+        connection_params  (list): Contains connection params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
 
     dbo = client[db_name]
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
@@ -199,16 +195,15 @@ def language_trimming(connection_params, lang_list):
     Preprocessing Pipeline Stage 4.
 
     Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+        connection_params  (list): Contains connection params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
         lang_list (list): List of languages to match on.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
 
     dbo = client[db_name]
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
@@ -230,16 +225,15 @@ def field_flattening_base(connection_params, depth, field_name, field_to_set, fi
     Entities include hashtags, user_mentions, urls and media.
 
     Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+        connection_params  (list): Contains connection params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
         depth (str): Extract from top level of tweet or from nested quote tweet.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
 
     dbo = client[db_name]
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
@@ -298,16 +292,15 @@ def field_flattening_complex(connection_params, depth, field_params):
     Entities include hashtags, user_mentions, urls and media.
 
     Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+        connection_params  (list): Contains connection params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
         depth (str): Extract from top level of tweet or from nested quote tweet.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
 
     field_name = field_params[0]
     field_to_set_1 = field_params[2]
@@ -382,16 +375,15 @@ def parse_extended_tweet(connection_params, depth):
     http://stackoverflow.com/questions/28827516/using-unwind-twice-with-group-and-sum-mongodb
 
     Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+        connection_params  (list): Contains connection params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
         depth (str): Extract from top level of tweet or from nested quote tweet.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
 
     dbo = client[db_name]
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
@@ -541,15 +533,14 @@ def final_field_removal(connection_params):
     Preprocessing Pipeline Stage 7.
 
     Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+        connection_params  (list): Contains connection params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
 
     dbo = client[db_name]
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
@@ -575,15 +566,14 @@ def clean_source_field(connection_params):
     Preprocessing Pipeline Stage 8.
 
     Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: client      (pymongo.MongoClient): Connection object for Mongo DB_URL.
-            1: db_name     (str): Name of database to query.
-            2: collection  (str): Name of collection to use.
+        connection_params  (list): Contains connection params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
     """
 
-    client = connection_params[0]
-    db_name = connection_params[1]
-    collection = connection_params[2]
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
 
     dbo = client[db_name]
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
