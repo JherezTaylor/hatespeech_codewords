@@ -97,3 +97,9 @@ class TestFileOps(object):
         # Ngrams
         assert_equals(sorted(result[5][1]), sorted(["i'm #testing", "#testing is",
                                                     "my code", "code good", "good @dev", "@dev :)", ":) fuck"]))
+
+    def test_emotion_coverage(self):
+        """Test emotion API call"""
+        result = hatespeech_core.file_ops.get_emotion_coverage(
+            self.sub_sent_string)
+        assert_not_equal(result, None)
