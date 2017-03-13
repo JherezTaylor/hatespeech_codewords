@@ -82,7 +82,7 @@ class TestFileOps(object):
             "english") + punctuation + ["rt", "via", "RT"])
 
         result = hatespeech_core.file_ops.prepare_text(
-            self.tweet_text.lower(), [stop_list, ["fuck", "shit"]])
+            self.tweet_text.lower(), [stop_list, set(["fuck", "shit"])])
         # Terms only
         assert_equals(sorted(result[0]), sorted(
             ["good", "code", "i'm", ":)", "fuck"]))
