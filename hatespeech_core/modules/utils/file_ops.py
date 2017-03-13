@@ -17,6 +17,7 @@ import glob
 import cProfile
 import pstats
 from itertools import chain
+from pymongo import UpdateOne
 import requests
 import ujson
 from nltk.util import ngrams
@@ -726,9 +727,43 @@ def remove_urls(raw_text):
         r"(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?", "", raw_text)
 
 
-def get_emotion_coverage(raw_text):
+def get_emotion_coverage(tweet_obj, projection):
     """Send the text through an emotion API and return the results"""
+
     emotion_detector = EmotionDetection.EmotionDetection()
-    result = emotion_detector.get_emotion_json(raw_text)
+    result = emotion_detector.get_emotion_json(tweet_obj[projection])
+
     if result["ambiguous"] == "no":
-        return result["groups"]
+
+        if len(result["groups"]) == 2:
+            return UpdateOne({"_id": tweet_obj["_id"]}, {
+                "$set": {"primary_emo_group": result["groups"][0]["name"],
+                         "primary_emos": result["groups"][0]["emotions"],
+                         "secondary_emo_group": result["groups"][1]["name"],
+                         "secondary_emos":  result["groups"][1]["emotions"]
+                         }}, upsert=False)
+
+        elif len(result["groups"]) == 1:
+            return UpdateOne({"_id": tweet_obj["_id"]}, {
+                "$set": {"primary_emo_group": result["groups"][0]["name"],
+                         "primary_emos": result["groups"][0]["emotions"]
+                         }}, upsert=False)
+    else:
+        return UpdateOne({"_id": tweet_obj["_id"]}, {
+            "$set": {"emotion_ambiguous": True}}, upsert=False)
+
+
+def parallel_emotion_coverage(tweet_list, projection):
+    """Passes the incoming raw tweets to our preprocessing function.
+
+    Args:
+        tweet_list  (list): List of raw tweet texts to preprocess.
+        projection (string): Tweet object property to access.
+
+    Returns:
+        list: List of emotion tagged tweets.
+    """
+    num_cores = cpu_count()
+    results = Parallel(n_jobs=num_cores, backend="threading")(
+        delayed(get_emotion_coverage)(tweet, projection) for tweet in tweet_list)
+    return results

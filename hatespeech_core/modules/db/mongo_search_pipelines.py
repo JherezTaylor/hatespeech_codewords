@@ -368,25 +368,21 @@ def get_emotion_coverage(connection_params, filter_options, partition):
                      source=settings.DB_AUTH_SOURCE)
 
     operations = []
+    staging = []
     progress = 0
     cursor = mongo_base.finder(connection_params, query, False)
     for document in cursor:
         progress = progress + 1
-        emotion_result = file_ops.get_emotion_coverage(document[projection])
+        staging.append(document)
 
-        if emotion_result:
-            operations.append(UpdateOne({"_id": document["_id"]}, {
-                "$set": {"primary_emo_group": emotion_result[0]["name"],
-                         "primary_emos": emotion_result[0]["emotions"]}}, upsert=False))
-
-        elif emotion_result is None:
-            operations.append(UpdateOne({"_id": document["_id"]}, {
-                "$set": {"emotion_ambiguous": True}}, upsert=False))
-
-        elif len(emotion_result) == 2:
-            operations.append(UpdateOne({"_id": document["_id"]}, {
-                "$set": {"secondary_emo_group": emotion_result[1]["name"],
-                         "secondary_emos":  emotion_result[1]["emotions"]}}, upsert=False))
+        if len(staging) == 3000:
+            print("Progress: ", (progress * 100) / partition[1], "%")
+            for job in file_ops.parallel_emotion_coverage(staging, projection):
+                if job:
+                    operations.append(job)
+                else:
+                    pass
+            staging = []
 
         if create_ngrams:
             cleaned_result = file_ops.clean_tweet_text(document[projection])
@@ -399,6 +395,13 @@ def get_emotion_coverage(connection_params, filter_options, partition):
         if len(operations) == settings.BULK_BATCH_SIZE:
             _ = mongo_base.do_bulk_op(dbo, collection, operations)
             operations = []
+
+    if (len(staging) % 3000) != 0:
+        for job in file_ops.parallel_emotion_coverage(staging, projection):
+            if job:
+                operations.append(job)
+            else:
+                pass
     if operations:
         _ = mongo_base.do_bulk_op(dbo, collection, operations)
 
