@@ -217,7 +217,7 @@ def get_object_ids(connection_params, lang_list, output_name):
     cursor = dbo[output_name].find({})
 
     result = [str(document["_id"]) for document in cursor]
-    file_ops.write_json_file(output_name, settings.DATA_PATH, result)
+    file_ops.write_json_file(output_name, settings.OUTPUT_PATH, result)
 
 
 def update_missing_text(connection_params):

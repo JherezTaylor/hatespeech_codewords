@@ -233,9 +233,9 @@ def select_hs_candidates(connection_params, filter_options, partition):
         _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
     file_ops.write_json_file(
-        'porn_ngram_hits', settings.DATA_PATH, porn_black_list_counts)
+        'porn_ngram_hits', settings.OUTPUT_PATH, porn_black_list_counts)
     file_ops.write_csv_file("new_porn_account_filter",
-                            settings.DATA_PATH, new_blacklist_accounts)
+                            settings.OUTPUT_PATH, new_blacklist_accounts)
 
 
 # @file_ops.do_cprofile

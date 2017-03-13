@@ -29,7 +29,7 @@ def run_get_language_distribution(connection_params):
         connection_params, lang_list)
 
     file_ops.write_json_file("language_distribution",
-                             settings.DATA_PATH, list(cursor))
+                             settings.OUTPUT_PATH, list(cursor))
 
 
 @file_ops.do_cprofile
@@ -40,7 +40,7 @@ def run_get_top_k_users(connection_params, lang_list, field_name):
     cursor = mongo_complex.get_top_k_users(connection_params, lang_list,
                                            field_name, settings.USER_MENTIONS_LIMIT)
     file_ops.write_json_file("user_distribution",
-                             settings.DATA_PATH, list(cursor))
+                             settings.OUTPUT_PATH, list(cursor))
 
 
 @file_ops.do_cprofile
@@ -52,14 +52,14 @@ def run_get_top_k_hashtags(connection_params, lang_list, field_name, k_value):
         connection_params, lang_list, field_name, settings.HASHTAG_LIMIT, k_value)
 
     file_ops.write_json_file("hashtag_distribution",
-                             settings.DATA_PATH, list(cursor))
+                             settings.OUTPUT_PATH, list(cursor))
 
 
 def generate_bar_chart(chart_title):
     """Generate a plotly bar_chart
     """
 
-    json_obj = file_ops.read_json_file("hashtag_dist_en", settings.DATA_PATH)
+    json_obj = file_ops.read_json_file("hashtag_dist_en", settings.OUTPUT_PATH)
     data_x = []
     data_y = []
     for document in json_obj:

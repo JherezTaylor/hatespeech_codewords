@@ -11,3 +11,5 @@ bs4
 twython
 pylint
 line_profiler
+jupyter
+pandas

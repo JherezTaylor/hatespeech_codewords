@@ -12,8 +12,9 @@ PATH = os.path.join(DIR(DIR(DIR(__file__))), os.path.join("data"))
 
 JSON_PATH = PATH + "/hatebase_data/json/"
 CSV_PATH = PATH + "/hatebase_data/csv/"
-DATA_PATH = PATH + "/output/"
-TWITTER_SEARCH_PATH = PATH + "/hatebase_data/search_streaming/"
+OUTPUT_PATH = PATH + "/output/"
+TWITTER_SEARCH_PATH = PATH + "/search_streaming/"
+DATASET_PATH = PATH + "/datasets/"
 WORDLIST_PATH = PATH + "/wordlists/"
 DB_URL = os.environ["MONGODB_URL"]
 MONGO_USER = os.environ["MONGO_USER"]
