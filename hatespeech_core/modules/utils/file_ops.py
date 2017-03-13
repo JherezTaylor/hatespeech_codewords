@@ -344,11 +344,11 @@ def filter_hatebase_categories():
                     filter3_subset.append(prep_json_entry(entry))
 
     write_json_file(
-        "filter1_subset", settings.DATA_PATH, filter1_subset)
+        "filter1_subset", settings.OUTPUT_PATH, filter1_subset)
     write_json_file(
-        "filter2_subset", settings.DATA_PATH, filter2_subset)
+        "filter2_subset", settings.OUTPUT_PATH, filter2_subset)
     write_json_file(
-        "filter3_subset", settings.DATA_PATH, filter3_subset)
+        "filter3_subset", settings.OUTPUT_PATH, filter3_subset)
 
 
 def parse_category_files():
@@ -359,11 +359,11 @@ def parse_category_files():
     """
     result = []
     filter1 = json_field_filter(read_json_file(
-        "filter1_subset", settings.DATA_PATH), "vocabulary")
+        "filter1_subset", settings.OUTPUT_PATH), "vocabulary")
     filter2 = json_field_filter(read_json_file(
-        "filter2_subset", settings.DATA_PATH), "vocabulary")
+        "filter2_subset", settings.OUTPUT_PATH), "vocabulary")
     filter3 = json_field_filter(read_json_file(
-        "filter3_subset", settings.DATA_PATH), "vocabulary")
+        "filter3_subset", settings.OUTPUT_PATH), "vocabulary")
 
     result = filter1 + filter2 + filter3
     return result

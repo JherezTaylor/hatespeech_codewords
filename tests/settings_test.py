@@ -11,7 +11,7 @@ def test_settings():
     """Test that settings are loaded"""
     assert isinstance(hatespeech_core.settings.JSON_PATH, str)
     assert isinstance(hatespeech_core.settings.CSV_PATH, str)
-    assert isinstance(hatespeech_core.settings.DATA_PATH, str)
+    assert isinstance(hatespeech_core.settings.OUTPUT_PATH, str)
     assert isinstance(hatespeech_core.settings.DB_URL, str)
     assert isinstance(hatespeech_core.settings.PUSHBULLET_API_KEY, str)
     assert isinstance(hatespeech_core.settings.HASHTAGS, str)

@@ -164,7 +164,7 @@ def user_mentions_map_reduce(connection_params, output_name):
 
     frequency = sorted(frequency, key=lambda k: k["value"], reverse=True)
     file_ops.write_json_file("user_distribution_mr",
-                             settings.DATA_PATH, frequency)
+                             settings.OUTPUT_PATH, frequency)
     pprint(frequency)
 
 
@@ -211,7 +211,7 @@ def hashtag_map_reduce(connection_params, output_name):
 
     frequency = sorted(frequency, key=lambda k: k["value"], reverse=True)
     file_ops.write_json_file("hashtag_distribution_mr",
-                             settings.DATA_PATH, frequency)
+                             settings.OUTPUT_PATH, frequency)
     pprint(frequency)
 
 
@@ -235,7 +235,7 @@ def fetch_hashtag_collection(connection_params):
 
     cursor = dbo[collection].find({"count": {"$gt": 500}}, {
         "hashtag": 1, "count": 1, "_id": 0})
-    file_ops.write_json_file(collection, settings.DATA_PATH, list(cursor))
+    file_ops.write_json_file(collection, settings.OUTPUT_PATH, list(cursor))
 
 
 @file_ops.do_cprofile
