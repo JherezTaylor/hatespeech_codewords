@@ -11,7 +11,7 @@ Porn/Spam Candidates
 """
 
 from collections import defaultdict
-from pymongo import InsertOne
+from pymongo import InsertOne, UpdateOne
 from ..utils import settings
 from ..utils import file_ops
 from . import mongo_base
@@ -108,8 +108,8 @@ def select_porn_candidates(connection_params, filter_options, partition):
 # @profile
 # @file_ops.do_cprofile
 def select_hs_candidates(connection_params, filter_options, partition):
-    """ Iterate the specified collection and store the ObjectId
-    of documents that have been tagged as being subjective with a negative sentiment.
+    """ Iterate the specified collection and check for tweets that contain
+    hatespeech keywords.
 
     Outputs value to new collection.
 
@@ -328,6 +328,79 @@ def select_general_candidates(connection_params, filter_options, partition):
 
     if operations:
         _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+
+
+def get_emotion_coverage(connection_params, filter_options, partition):
+    """ Iterate the specified collection get the emtotion coverage for each
+    tweet. As a secondary function, create ngrams for the CrowdFlower dataset
+    if the argument is passed.
+
+    Outputs value to new collection.
+
+    Args:
+        connection_params (list): Contains connection objects and params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
+        filter_options    (list): Contains a list of filter conditions as follows:
+            0: query (dict): Query to execute.
+            1: create_ngrams (bool): Create ngrams or not.
+            2: projection (str): Document field name.
+        partition   (tuple): Contains skip and limit values.
+    """
+
+    # Setup args for mongo_base.finder() call
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
+    connection_params.insert(0, client)
+    query = filter_options[0]
+    create_ngrams = filter_options[1]
+    projection = filter_options[2]
+
+    # Set skip limit values
+    query["skip"] = partition[0]
+    query["limit"] = partition[1]
+
+    # Setup client object for bulk op
+    bulk_client = mongo_base.connect()
+    dbo = bulk_client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
+
+    operations = []
+    progress = 0
+    cursor = mongo_base.finder(connection_params, query, False)
+    for document in cursor:
+        progress = progress + 1
+        emotion_result = file_ops.get_emotion_coverage(document[projection])
+
+        if emotion_result:
+            operations.append(UpdateOne({"_id": document["_id"]}, {
+                "$set": {"primary_emo_group": emotion_result[0]["name"],
+                         "primary_emos": emotion_result[0]["emotions"]}}, upsert=False))
+
+        elif emotion_result is None:
+            operations.append(UpdateOne({"_id": document["_id"]}, {
+                "$set": {"emotion_ambiguous": True}}, upsert=False))
+
+        elif len(emotion_result) == 2:
+            operations.append(UpdateOne({"_id": document["_id"]}, {
+                "$set": {"secondary_emo_group": emotion_result[1]["name"],
+                         "secondary_emos":  emotion_result[1]["emotions"]}}, upsert=False))
+
+        if create_ngrams:
+            cleaned_result = file_ops.clean_tweet_text(document[projection])
+            xgrams = ([(file_ops.create_ngrams(cleaned_result[0], i))
+                       for i in range(1, 6)])
+            operations.append(UpdateOne({"_id": document["_id"]}, {
+                "$set": {"unigrams": xgrams[0], "bigrams": xgrams[1], "trigrams": xgrams[2],
+                         "quadgrams": xgrams[3], "pentagrams": xgrams[4]}}, upsert=False))
+
+        if len(operations) == settings.BULK_BATCH_SIZE:
+            _ = mongo_base.do_bulk_op(dbo, collection, operations)
+            operations = []
+    if operations:
+        _ = mongo_base.do_bulk_op(dbo, collection, operations)
 
 
 def linear_test(connection_params, filter_options):

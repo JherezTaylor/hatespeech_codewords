@@ -13,3 +13,4 @@ pylint
 line_profiler
 jupyter
 pandas
+cufflinks
