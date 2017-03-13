@@ -50,11 +50,11 @@ def run_select_porn_candidates(connection_params):
                       file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
                       file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
 
-    args2 = [query, "placeholder", False,
-             False, porn_black_list, hs_keywords]
+    args = [query, "placeholder", False,
+            False, porn_black_list, hs_keywords]
     time1 = file_ops.time()
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_porn_candidates)(
-        connection_params, args2, partition) for partition in partitions)
+        connection_params, args, partition) for partition in partitions)
     time2 = file_ops.time()
     file_ops.send_job_completion(
         [time1, time2], ["select_porn_candidates", connection_params[0] + ": Porn Candidates"])
@@ -101,11 +101,11 @@ def run_select_hs_candidates(connection_params):
     account_list = set(file_ops.read_csv_file(
         "porn_account_filter", settings.WORDLIST_PATH))
 
-    args2 = [query, "candidates_hs_exp6_combo_6_Mar", False, False,
-             porn_black_list, hs_keywords, black_list, account_list]
+    args = [query, "candidates_hs_exp6_combo_6_Mar", False, False,
+            porn_black_list, hs_keywords, black_list, account_list]
     time1 = file_ops.time()
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_hs_candidates)(
-        connection_params, args2, partition) for partition in partitions)
+        connection_params, args, partition) for partition in partitions)
     time2 = file_ops.time()
     file_ops.send_job_completion(
         [time1, time2], ["select_hs_candidates", connection_params[0] + ": HS Candidates"])
@@ -151,11 +151,11 @@ def run_select_general_candidates(connection_params):
     black_list = dict.fromkeys(file_ops.read_csv_file(
         "blacklist", settings.WORDLIST_PATH))
 
-    args2 = [query, "tester", False,
-             False, porn_black_list, hs_keywords, black_list]
+    args = [query, "tester", False,
+            False, porn_black_list, hs_keywords, black_list]
     time1 = file_ops.time()
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_general_candidates)(
-        connection_params, args2, partition) for partition in partitions)
+        connection_params, args, partition) for partition in partitions)
     time2 = file_ops.time()
     file_ops.send_job_completion(
         [time1, time2], ["select_gen_candidates", connection_params[0] + ": General Candidates"])
@@ -191,12 +191,53 @@ def get_ngrams(connection_params, ngram_field):
                             settings.WORDLIST_PATH, ngram_set)
 
 
+def run_emotion_coverage(connection_params, projection, create_ngrams):
+    """Obtain the emotion coverage of the tweets in a given collection.
+    Also creates ngrams as a secondary function for the CrowdFlower dataset
+    Args:
+        projection (str): Field to return.
+        create_ngrams (bool): Create ngrams or not.
+    """
+
+    client = mongo_base.connect()
+    query = {}
+
+    query["filter"] = {}
+    query["projection"] = {projection: 1}
+    query["limit"] = 0
+    query["skip"] = 0
+    query["no_cursor_timeout"] = True
+
+    connection_params.insert(0, client)
+    collection_size = mongo_base.finder(connection_params, query, True)
+    del connection_params[0]
+    client.close()
+
+    num_cores = cpu_count()
+    partition_size = collection_size // num_cores
+    partitions = [(i, partition_size)
+                  for i in range(0, collection_size, partition_size)]
+    # Account for lists that aren't evenly divisible, update the last tuple to
+    # retrieve the remainder of the items
+    partitions[-1] = (partitions[-1][0], (collection_size - partitions[-1][0]))
+
+    args = [query, create_ngrams, projection]
+    time1 = file_ops.time()
+    Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.get_emotion_coverage)(
+        connection_params, args, partition) for partition in partitions)
+    time2 = file_ops.time()
+    file_ops.send_job_completion(
+        [time1, time2], ["run_emotion_coverage", connection_params[0] + ": Emotion Coverage"])
+
+
 def sentiment_pipeline():
     """Handle sentiment analysis tasks"""
-    connection_params = ["inauguration", "tweets"]
-    run_select_hs_candidates(connection_params)
-    connection_params = ["inauguration_no_filter", "tweets"]
-    run_select_hs_candidates(connection_params)
+    # connection_params = ["inauguration", "tweets"]
+    # run_select_hs_candidates(connection_params)
+    # connection_params = ["inauguration_no_filter", "tweets"]
+    # run_select_hs_candidates(connection_params)
     # get_ngrams(connection_params, "trigrams")
     # run_select_porn_candidates(connection_params)
     # run_select_general_candidates(connection_params)
+    connection_params = ["twitter", "CrowdFlower"]
+    run_emotion_coverage(connection_params, "tweet_text", True)

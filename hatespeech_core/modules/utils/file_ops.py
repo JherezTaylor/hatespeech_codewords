@@ -27,6 +27,7 @@ from textblob import TextBlob
 from joblib import Parallel, delayed, cpu_count
 from . import settings
 from . import twokenize
+from . import EmotionDetection
 
 PUNCTUATION = list(string.punctuation)
 STOP_LIST = set(stopwords.words(
@@ -97,6 +98,7 @@ def send_job_notification(title, body):
     url = "https://api.pushbullet.com/v2/pushes"
     return requests.post(url, headers=headers, data=ujson.dumps(payload))
 
+
 def send_job_completion(run_time, args):
     """Format and print the details of a completed job
 
@@ -112,6 +114,7 @@ def send_job_completion(run_time, args):
     send_notification = send_job_notification(
         settings.MONGO_SOURCE + ": " + args[1] + " took " + str(time_diff) + " seconds", "Complete")
     print(send_notification.content)
+
 
 def count_sightings(json_obj):
     """ Returns a count of the number of sightings per word in corpus
@@ -382,33 +385,8 @@ def preprocess_text(raw_text):
         list: vectorized tweet.
     """
 
-    # Remove urls
-    clean_text = remove_urls(raw_text)
-    clean_text = twokenize.tokenizeRawTweetText(clean_text)
-
-    # Remove numbers
-    clean_text = [token for token in clean_text if len(
-        token.strip(string.digits)) == len(token)]
-
-    # Record single instances of a term only
-    terms_single = set(clean_text)
-    terms_single = dict.fromkeys(terms_single)
-
-    # Store any emoji in the text and prevent it from being lowercased then
-    # append items marked as Protected by the twokenize library.
-    # This protected object covers tokens that shouldn't be split or lowercased so
-    # we take advantage of it and use it as quick and dirty way to
-    # identify emoji rather than calling a separate regex function.
-    emoji = []
-    for token in terms_single:
-        for _match in twokenize.Protected.finditer(token):
-            emoji.append(token)
-
-    # If the token is not in the emoji dict, lowercase it
-    emoji = dict.fromkeys(emoji)
-    for token in terms_single.copy():
-        if not token in emoji:
-            terms_single[token.lower()] = terms_single.pop(token)
+    cleaned_result = clean_tweet_text(raw_text)
+    terms_single = cleaned_result[1]
 
     # unigrams = [ w for doc in documents for w in doc if len(w)==1]
     # bigrams  = [ w for doc in documents for w in doc if len(w)==2]
@@ -530,34 +508,9 @@ def prepare_text(raw_text, args):
     stop_list = args[0]
     hs_keywords = args[1]
 
-    # Remove urls
-    clean_text = remove_urls(raw_text)
-    clean_text = twokenize.tokenizeRawTweetText(clean_text)
-
-    # Remove numbers
-    clean_text = [token for token in clean_text if len(
-        token.strip(string.digits)) == len(token)]
-
-    # Record single instances of a term only
-    terms_single = set(clean_text)
-    terms_single = dict.fromkeys(terms_single)
-
-    # Store any emoji in the text and prevent it from being lowercased then
-    # append items marked as Protected by the twokenize library.
-    # This protected object covers tokens that shouldn't be split or lowercased so
-    # we take advantage of it and use it as quick and dirty way to
-    # identify emoji rather than calling a separate regex function.
-    emoji = []
-    for token in clean_text:
-        for _match in twokenize.Protected.finditer(token):
-            emoji.append(token)
-
-    # If the token is not in the emoji dict, lowercase it
-    # TODO preserve tokens with all uppercase chars as a measure of intensity
-    emoji = dict.fromkeys(emoji)
-    for token in terms_single.copy():
-        if not token in emoji:
-            terms_single[token.lower()] = terms_single.pop(token)
+    cleaned_result = clean_tweet_text(raw_text)
+    clean_text = cleaned_result[0]
+    terms_single = cleaned_result[1]
 
     stopwords_only = set(terms_single).intersection(stop_list)
     terms_only = []
@@ -728,6 +681,41 @@ def is_garbage(raw_text, precision):
         return False
 
 
+def clean_tweet_text(raw_text):
+    """Clean up tweet text and preserve emojis"""
+
+    # Remove urls
+    clean_text = remove_urls(raw_text)
+    clean_text = twokenize.tokenizeRawTweetText(clean_text)
+
+    # Remove numbers
+    clean_text = [token for token in clean_text if len(
+        token.strip(string.digits)) == len(token)]
+
+    # Record single instances of a term only
+    terms_single = set(clean_text)
+    terms_single = dict.fromkeys(terms_single)
+
+    # Store any emoji in the text and prevent it from being lowercased then
+    # append items marked as Protected by the twokenize library.
+    # This protected object covers tokens that shouldn't be split or lowercased so
+    # we take advantage of it and use it as quick and dirty way to
+    # identify emoji rather than calling a separate regex function.
+    emoji = []
+    for token in clean_text:
+        for _match in twokenize.Protected.finditer(token):
+            emoji.append(token)
+
+    # If the token is not in the emoji dict, lowercase it
+    # TODO preserve tokens with all uppercase chars as a measure of intensity
+    emoji = dict.fromkeys(emoji)
+    for token in terms_single.copy():
+        if not token in emoji:
+            terms_single[token.lower()] = terms_single.pop(token)
+
+    return [clean_text, terms_single, emoji]
+
+
 def remove_urls(raw_text):
     """ Removes urls from text
 
@@ -736,3 +724,11 @@ def remove_urls(raw_text):
     """
     return re.sub(
         r"(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?", "", raw_text)
+
+
+def get_emotion_coverage(raw_text):
+    """Send the text through an emotion API and return the results"""
+    emotion_detector = EmotionDetection.EmotionDetection()
+    result = emotion_detector.get_emotion_json(raw_text)
+    if result["ambiguous"] == "no":
+        return result["groups"]
