@@ -8,8 +8,8 @@ class EmotionDetection(object):
     def __init__(self):
         super(EmotionDetection, self).__init__()
 
-    __url = 'http://140.114.77.14:8080/webresources/jammin/emotion'
-    #__url = 'http://192.168.2.30:8080/webresources/jammin/emotion'
+    #__url = 'http://140.114.77.14:8080/webresources/jammin/emotion'
+    __url = 'http://192.168.2.30:8080/webresources/jammin/emotion'
     __emo = None
 
     def get_obj(self, text, lang='en'):
