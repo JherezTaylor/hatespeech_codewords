@@ -12,5 +12,8 @@ twython
 pylint
 line_profiler
 jupyter
-pandas
+scipy
 cufflinks
+spacy
+sklearn
+regex
