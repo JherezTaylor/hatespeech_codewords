@@ -13,6 +13,7 @@ Identify the language of tweets with an und lang.
 
 from collections import Counter
 from pprint import pprint
+from functools import reduce
 from bson.code import Code
 from bson.son import SON
 from bson.objectid import ObjectId
@@ -20,8 +21,8 @@ from langid.langid import LanguageIdentifier, model
 from pymongo import UpdateOne, InsertOne
 from ..utils import settings
 from ..utils import file_ops
+from ..utils import notifiers
 from . import mongo_base
-from functools import reduce
 
 
 def get_top_k_users(connection_params, lang_list, field_name, k_limit):
@@ -238,7 +239,7 @@ def fetch_hashtag_collection(connection_params):
     file_ops.write_json_file(collection, settings.OUTPUT_PATH, list(cursor))
 
 
-@file_ops.do_cprofile
+@notifiers.do_cprofile
 def parse_undefined_lang(connection_params, lang):
     """Parse the text of each tweet and identify and update its language.
 

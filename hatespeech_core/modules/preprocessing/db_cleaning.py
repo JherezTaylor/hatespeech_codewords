@@ -11,12 +11,13 @@ import plotly
 from plotly.graph_objs import Scatter, Layout
 from ..utils import settings
 from ..utils import file_ops
+from ..utils import notifiers
 from ..db import mongo_base
 from ..db import mongo_data_filters
 from ..db import mongo_complex
 
 
-@file_ops.do_cprofile
+@notifiers.do_cprofile
 def run_get_language_distribution(connection_params):
     """Test and print results of aggregation
 
@@ -32,7 +33,7 @@ def run_get_language_distribution(connection_params):
                              settings.OUTPUT_PATH, list(cursor))
 
 
-@file_ops.do_cprofile
+@notifiers.do_cprofile
 def run_get_top_k_users(connection_params, lang_list, field_name):
     """Test and print results of top k aggregation
     """
@@ -43,7 +44,7 @@ def run_get_top_k_users(connection_params, lang_list, field_name):
                              settings.OUTPUT_PATH, list(cursor))
 
 
-@file_ops.do_cprofile
+@notifiers.do_cprofile
 def run_get_top_k_hashtags(connection_params, lang_list, field_name, k_value):
     """Test and print results of top k aggregation
     """
@@ -78,13 +79,13 @@ def run_retweet_removal(connection_params):
     Stage 1 in preprocessing pipeline.
     """
 
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     db_response = mongo_data_filters.retweet_removal(connection_params)
-    time2 = file_ops.time()
+    time2 = notifiers.time()
 
     result = db_response
     print(result.modified_count)
-    file_ops.send_job_completion(
+    notifiers.send_job_completion(
         [time1, time2], ["run_retweet_removal", connection_params[0] + ": Retweet Removal"])
 
 
@@ -94,11 +95,11 @@ def run_create_indexes(connection_params):
     Stage 2 in preprocessing pipeline.
     """
 
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     mongo_data_filters.create_indexes(connection_params)
-    time2 = file_ops.time()
+    time2 = notifiers.time()
 
-    file_ops.send_job_completion(
+    notifiers.send_job_completion(
         [time1, time2], ["create_indexes", connection_params[0] + ": Index creation took"])
 
 
@@ -108,23 +109,23 @@ def run_field_removal(connection_params):
     Stage 3 in preprocessing pipeline.
     """
 
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     db_response = mongo_data_filters.field_removal(connection_params)
-    time2 = file_ops.time()
+    time2 = notifiers.time()
 
     result = db_response
     print(result.modified_count)
-    file_ops.send_job_completion(
+    notifiers.send_job_completion(
         [time1, time2], ["field_removal", connection_params[0] + ": Field Removal took"])
 
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     db_response = mongo_data_filters.quoted_status_field_removal(
         connection_params)
-    time2 = file_ops.time()
+    time2 = notifiers.time()
 
     result = db_response
     print(result.modified_count)
-    file_ops.send_job_completion(
+    notifiers.send_job_completion(
         [time1, time2], ["quoted_status_field_removal", connection_params[0] + ": Quoted_status Field Removal took"])
 
 
@@ -134,14 +135,14 @@ def run_language_trimming(connection_params, lang_list):
     Stage 4 in preprocessing pipeline.
     """
 
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     db_response = mongo_data_filters.language_trimming(
         connection_params, lang_list)
-    time2 = file_ops.time()
+    time2 = notifiers.time()
 
     result = db_response
     print(result.modified_count)
-    file_ops.send_job_completion(
+    notifiers.send_job_completion(
         [time1, time2], ["language_trimming", connection_params[0] + ": Language trimming took"])
 
 
@@ -155,7 +156,7 @@ def run_field_flattening(connection_params, depth, job_name, field_params):
     field_to_set = field_params[1]
     field_to_extract = field_params[2]
 
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     if len(field_params) == 3:
         mongo_data_filters.field_flattening_base(
             connection_params, depth, field_name, field_to_set, field_to_extract)
@@ -163,8 +164,8 @@ def run_field_flattening(connection_params, depth, job_name, field_params):
         mongo_data_filters.field_flattening_complex(
             connection_params, depth, field_params)
 
-    time2 = file_ops.time()
-    file_ops.send_job_completion(
+    time2 = notifiers.time()
+    notifiers.send_job_completion(
         [time1, time2], [str(job_name) + " ", connection_params[0] + " " + str(job_name)])
 
 
@@ -174,10 +175,10 @@ def run_parse_extended_tweet(connection_params, depth, job_name):
     Stage 6 in preprocessing pipeline.
     """
 
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     mongo_data_filters.parse_extended_tweet(connection_params, depth)
-    time2 = file_ops.time()
-    file_ops.send_job_completion(
+    time2 = notifiers.time()
+    notifiers.send_job_completion(
         [time1, time2], [str(job_name) + " ", connection_params[0] + " " + str(job_name)])
 
 
@@ -187,10 +188,10 @@ def run_final_field_removal(connection_params, job_name):
     Stage 7 in preprocessing pipeline.
     """
 
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     mongo_data_filters.final_field_removal(connection_params)
-    time2 = file_ops.time()
-    file_ops.send_job_completion(
+    time2 = notifiers.time()
+    notifiers.send_job_completion(
         [time1, time2], [str(job_name) + " ", connection_params[0] + " " + str(job_name)])
 
 
@@ -200,10 +201,10 @@ def run_clean_source_field(connection_params, job_name):
     Stage 8 in preprocessing pipeline.
     """
 
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     mongo_data_filters.clean_source_field(connection_params)
-    time2 = file_ops.time()
-    file_ops.send_job_completion(
+    time2 = notifiers.time()
+    notifiers.send_job_completion(
         [time1, time2], [str(job_name) + " ", connection_params[0] + " " + str(job_name)])
 
 
@@ -212,11 +213,11 @@ def run_update_missing_text():
     """
 
     connection_params = ["twitter_test", "tweets"]
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     db_response = mongo_base.update_missing_text(connection_params)
-    time2 = file_ops.time()
+    time2 = notifiers.time()
 
-    file_ops.send_job_completion(
+    notifiers.send_job_completion(
         [time1, time2], ["update_missing_text", connection_params[0] + ": Replace missing text took " + str(
             db_response[0]) + "Not Found: " + str(db_response[1]) + "Total Requests: "
             + str(db_response[2])])
