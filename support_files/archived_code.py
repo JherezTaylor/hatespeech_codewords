@@ -46,17 +46,17 @@ def keyword_search(connection_params, keyword_list, lang_list):
             # Create a new field and add the preprocessed text to it
             operations.append(document)
 
-            # document["vector"] = file_ops.preprocess_text(document["text"])
+            # document["vector"] = text_preprocessing.preprocess_text(document["text"])
             # operations.append(InsertOne(document))
 
             # Send once every 1000 in batch
             if (len(operations) % 1000) == 0:
-                operations = file_ops.parallel_preprocess(operations)
+                operations = text_preprocessing.parallel_preprocess(operations)
                 dbo["keyword_collection"].bulk_write(operations, ordered=False)
                 operations = []
 
     if (len(operations) % 1000) != 0:
-        operations = file_ops.parallel_preprocess(operations)
+        operations = text_preprocessing.parallel_preprocess(operations)
         dbo["keywords_collection"].bulk_write(operations, ordered=False)
 
     # Clean Up

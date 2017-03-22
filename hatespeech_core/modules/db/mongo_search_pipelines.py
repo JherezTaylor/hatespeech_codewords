@@ -14,10 +14,11 @@ from collections import defaultdict
 from pymongo import InsertOne, UpdateOne
 from ..utils import settings
 from ..utils import file_ops
+from ..utils import text_preprocessing
 from . import mongo_base
 
 
-# @file_ops.do_cprofile
+# @notifiers.do_cprofile
 def select_porn_candidates(connection_params, filter_options, partition):
     """ Iterate the specified collection and store the ObjectId
     of documents that have been tagged as being pornographic in nature.
@@ -69,7 +70,7 @@ def select_porn_candidates(connection_params, filter_options, partition):
     cursor = mongo_base.finder(connection_params, query, False)
     for document in cursor:
         progress = progress + 1
-        set_intersects = file_ops.do_create_ngram_collections(
+        set_intersects = text_preprocessing.do_create_ngram_collections(
             document["text"].lower(), [porn_black_list, hs_keywords, None])
 
         # unigram_intersect = set_intersects[0]
@@ -84,7 +85,7 @@ def select_porn_candidates(connection_params, filter_options, partition):
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
             print("Progress: ", (progress * 100) / partition[1], "%")
-            for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
+            for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
                 else:
@@ -96,7 +97,7 @@ def select_porn_candidates(connection_params, filter_options, partition):
             operations = []
 
     if (len(staging) % settings.BULK_BATCH_SIZE) != 0:
-        for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
+        for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
             if job:
                 operations.append(InsertOne(job))
             else:
@@ -106,7 +107,7 @@ def select_porn_candidates(connection_params, filter_options, partition):
 
 
 # @profile
-# @file_ops.do_cprofile
+# @notifiers.do_cprofile
 def select_hs_candidates(connection_params, filter_options, partition):
     """ Iterate the specified collection and check for tweets that contain
     hatespeech keywords.
@@ -164,7 +165,7 @@ def select_hs_candidates(connection_params, filter_options, partition):
     cursor = mongo_base.finder(connection_params, query, False)
     for document in cursor:
         progress = progress + 1
-        set_intersects = file_ops.do_create_ngram_collections(
+        set_intersects = text_preprocessing.do_create_ngram_collections(
             document["text"].lower(), [porn_black_list, hs_keywords, black_list])
 
         # unigram_intersect = set_intersects[0]
@@ -190,7 +191,7 @@ def select_hs_candidates(connection_params, filter_options, partition):
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
             print("Progress: ", (progress * 100) / partition[1], "%")
-            for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
+            for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
                 else:
@@ -202,7 +203,7 @@ def select_hs_candidates(connection_params, filter_options, partition):
             operations = []
 
     if (len(staging) % settings.BULK_BATCH_SIZE) != 0:
-        for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
+        for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
             if job:
                 operations.append(InsertOne(job))
             else:
@@ -224,7 +225,7 @@ def select_hs_candidates(connection_params, filter_options, partition):
             new_blacklist_accounts.append(screen_name)
 
     if staging:
-        for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
+        for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
             if job:
                 operations.append(InsertOne(job))
             else:
@@ -238,7 +239,7 @@ def select_hs_candidates(connection_params, filter_options, partition):
                             settings.OUTPUT_PATH, new_blacklist_accounts)
 
 
-# @file_ops.do_cprofile
+# @notifiers.do_cprofile
 def select_general_candidates(connection_params, filter_options, partition):
     """ Iterate the specified collection and store the ObjectId
     of documents that do not match any hs or pornographic keywords.
@@ -291,7 +292,7 @@ def select_general_candidates(connection_params, filter_options, partition):
     cursor = mongo_base.finder(connection_params, query, False)
     for document in cursor:
         progress = progress + 1
-        set_intersects = file_ops.do_create_ngram_collections(
+        set_intersects = text_preprocessing.do_create_ngram_collections(
             document["text"].lower(), [porn_black_list, hs_keywords, black_list])
 
         unigram_intersect = set_intersects[0]
@@ -308,7 +309,7 @@ def select_general_candidates(connection_params, filter_options, partition):
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
             print("Progress: ", (progress * 100) / partition[1], "%")
-            for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
+            for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
                 else:
@@ -320,7 +321,7 @@ def select_general_candidates(connection_params, filter_options, partition):
             operations = []
 
     if (len(staging) % settings.BULK_BATCH_SIZE) != 0:
-        for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
+        for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
             if job:
                 operations.append(InsertOne(job))
             else:
@@ -330,7 +331,7 @@ def select_general_candidates(connection_params, filter_options, partition):
         _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
 
-def get_emotion_coverage(connection_params, filter_options, partition):
+def emotion_coverage_pipeline(connection_params, filter_options, partition):
     """ Iterate the specified collection get the emtotion coverage for each
     tweet. As a secondary function, create ngrams for the CrowdFlower dataset
     if the argument is passed.
@@ -377,7 +378,7 @@ def get_emotion_coverage(connection_params, filter_options, partition):
 
         if len(staging) == 3000:
             print("Progress: ", (progress * 100) / partition[1], "%")
-            for job in file_ops.parallel_emotion_coverage(staging, projection):
+            for job in text_preprocessing.parallel_emotion_coverage(staging, projection):
                 if job:
                     operations.append(job)
                 else:
@@ -385,8 +386,9 @@ def get_emotion_coverage(connection_params, filter_options, partition):
             staging = []
 
         if create_ngrams:
-            cleaned_result = file_ops.clean_tweet_text(document[projection])
-            xgrams = ([(file_ops.create_ngrams(cleaned_result[0], i))
+            cleaned_result = text_preprocessing.clean_tweet_text(document[
+                                                                 projection])
+            xgrams = ([(text_preprocessing.create_ngrams(cleaned_result[0], i))
                        for i in range(1, 6)])
             operations.append(UpdateOne({"_id": document["_id"]}, {
                 "$set": {"unigrams": xgrams[0], "bigrams": xgrams[1], "trigrams": xgrams[2],
@@ -397,7 +399,7 @@ def get_emotion_coverage(connection_params, filter_options, partition):
             operations = []
 
     if (len(staging) % 3000) != 0:
-        for job in file_ops.parallel_emotion_coverage(staging, projection):
+        for job in text_preprocessing.parallel_emotion_coverage(staging, projection):
             if job:
                 operations.append(job)
             else:
@@ -453,7 +455,7 @@ def linear_test(connection_params, filter_options):
                                    "in_reply_to_user_id_str": 1}, no_cursor_timeout=True)
     for document in cursor:
         progress = progress + 1
-        set_intersects = file_ops.do_create_ngram_collections(
+        set_intersects = text_preprocessing.do_create_ngram_collections(
             document["text"].lower(), [porn_black_list, hs_keywords, black_list])
 
         # unigram_intersect = set_intersects[0]
@@ -471,7 +473,7 @@ def linear_test(connection_params, filter_options):
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
             print("Progress: ", (progress * 100) / cursor_count, "%")
-            for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
+            for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
                 else:
@@ -483,7 +485,7 @@ def linear_test(connection_params, filter_options):
             operations = []
 
     if (len(staging) % settings.BULK_BATCH_SIZE) != 0:
-        for job in file_ops.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
+        for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
             if job:
                 operations.append(InsertOne(job))
             else:
