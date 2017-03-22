@@ -8,4 +8,5 @@ from .modules.utils import file_ops
 from .modules.utils import text_preprocessing
 from .modules.utils import notifiers
 from .modules.preprocessing import candidate_selection
+from .modules.preprocessing import classifier_concept
 from .modules.preprocessing import db_cleaning

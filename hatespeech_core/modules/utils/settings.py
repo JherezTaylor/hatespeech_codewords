@@ -16,6 +16,7 @@ OUTPUT_PATH = PATH + "/output/"
 TWITTER_SEARCH_PATH = PATH + "/search_streaming/"
 DATASET_PATH = PATH + "/datasets/"
 WORDLIST_PATH = PATH + "/wordlists/"
+MODEL_PATH = PATH + "/persistence/"
 DB_URL = os.environ["MONGODB_URL"]
 MONGO_USER = os.environ["MONGO_USER"]
 MONGO_PW = os.environ["MONGO_PW"]
