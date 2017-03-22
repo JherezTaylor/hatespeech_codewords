@@ -10,6 +10,8 @@ hatespeech
 from joblib import Parallel, delayed, cpu_count
 from ..utils import settings
 from ..utils import file_ops
+from ..utils import text_preprocessing
+from ..utils import notifiers
 from ..db import mongo_base
 from ..db import mongo_search_pipelines
 
@@ -52,11 +54,11 @@ def run_select_porn_candidates(connection_params):
 
     args = [query, "placeholder", False,
             False, porn_black_list, hs_keywords]
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_porn_candidates)(
         connection_params, args, partition) for partition in partitions)
-    time2 = file_ops.time()
-    file_ops.send_job_completion(
+    time2 = notifiers.time()
+    notifiers.send_job_completion(
         [time1, time2], ["select_porn_candidates", connection_params[0] + ": Porn Candidates"])
 
 
@@ -103,11 +105,11 @@ def run_select_hs_candidates(connection_params):
 
     args = [query, "candidates_hs_exp6_combo_6_Mar", False, False,
             porn_black_list, hs_keywords, black_list, account_list]
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_hs_candidates)(
         connection_params, args, partition) for partition in partitions)
-    time2 = file_ops.time()
-    file_ops.send_job_completion(
+    time2 = notifiers.time()
+    notifiers.send_job_completion(
         [time1, time2], ["select_hs_candidates", connection_params[0] + ": HS Candidates"])
 
 
@@ -153,11 +155,11 @@ def run_select_general_candidates(connection_params):
 
     args = [query, "tester", False,
             False, porn_black_list, hs_keywords, black_list]
-    time1 = file_ops.time()
+    time1 = notifiers.time()
     Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.select_general_candidates)(
         connection_params, args, partition) for partition in partitions)
-    time2 = file_ops.time()
-    file_ops.send_job_completion(
+    time2 = notifiers.time()
+    notifiers.send_job_completion(
         [time1, time2], ["select_gen_candidates", connection_params[0] + ": General Candidates"])
 
 
@@ -184,7 +186,7 @@ def get_ngrams(connection_params, ngram_field):
         cursor = mongo_base.finder(connection_params, query, False)
 
         # Extract the ngrams out of the object and flatten the 2D list
-        xgrams = list(file_ops.chain.from_iterable(
+        xgrams = list(text_preprocessing.chain.from_iterable(
             [doc[ngram_field] for doc in cursor]))
         ngram_set = ngram_set.union(xgrams)
     file_ops.write_csv_file('porn_trigrams_top_k_users',
@@ -222,11 +224,11 @@ def run_emotion_coverage(connection_params, projection, create_ngrams):
     partitions[-1] = (partitions[-1][0], (collection_size - partitions[-1][0]))
 
     args = [query, create_ngrams, projection]
-    time1 = file_ops.time()
-    Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.get_emotion_coverage)(
+    time1 = notifiers.time()
+    Parallel(n_jobs=num_cores)(delayed(mongo_search_pipelines.emotion_coverage_pipeline)(
         connection_params, args, partition) for partition in partitions)
-    time2 = file_ops.time()
-    file_ops.send_job_completion(
+    time2 = notifiers.time()
+    notifiers.send_job_completion(
         [time1, time2], ["run_emotion_coverage", connection_params[0] + ": Emotion Coverage"])
 
 

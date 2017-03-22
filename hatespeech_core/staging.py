@@ -8,6 +8,8 @@ import string
 from pprint import pprint
 from itertools import chain
 from modules.utils import file_ops
+from modules.utils import settings
+from modules.utils import text_preprocessing
 from modules.db import mongo_base
 from modules.db import mongo_search_pipelines
 from nltk.corpus import words
@@ -43,7 +45,7 @@ def ngram_stopword_check(text):
     punctuation = list(string.punctuation)
     stop_list = dict.fromkeys(stopwords.words(
         "english") + punctuation + ["rt", "via", "RT"])
-    bigrams = file_ops.create_ngrams(
+    bigrams = text_preprocessing.create_ngrams(
         file_ops.twokenize.tokenizeRawTweetText(text.lower()), 2)
     bigrams = [ngram for ngram in bigrams if not set(
         file_ops.twokenize.tokenizeRawTweetText(ngram)).issubset(set(stop_list))]

@@ -13,8 +13,8 @@ Identify the language of tweets with an und lang.
 
 from bs4 import BeautifulSoup as BSHTML
 from pymongo import UpdateOne, DeleteMany, UpdateMany, ASCENDING
-from ..utils import file_ops
 from ..utils import settings
+from ..utils import notifiers
 from . import mongo_base
 
 
@@ -92,7 +92,7 @@ def create_indexes(connection_params):
     print("Quoted status user_mention Index built")
 
 
-@file_ops.timing
+@notifiers.timing
 def field_removal(connection_params):
     """Bulk operation to remove unwanted fields from the tweet object
 
@@ -140,7 +140,7 @@ def field_removal(connection_params):
     return result
 
 
-@file_ops.timing
+@notifiers.timing
 def quoted_status_field_removal(connection_params):
     """Bulk operation to remove unwanted fields from the quoted_status tweet object
 
@@ -188,7 +188,7 @@ def quoted_status_field_removal(connection_params):
     return result
 
 
-@file_ops.timing
+@notifiers.timing
 def language_trimming(connection_params, lang_list):
     """Bulk operation to trim the list of languages present.
 
@@ -217,7 +217,7 @@ def language_trimming(connection_params, lang_list):
     return result
 
 
-@file_ops.do_cprofile
+@notifiers.do_cprofile
 def field_flattening_base(connection_params, depth, field_name, field_to_set, field_to_extract):
     """Aggregate operation to unwind entries in the various entities object.
 
@@ -526,7 +526,7 @@ def iterate_cursor(dbo, source_collection, target_collection, field_to_set, dept
     dbo[source_collection].drop()
 
 
-@file_ops.timing
+@notifiers.timing
 def final_field_removal(connection_params):
     """Bulk operation to remove unwanted fields from the tweet object
 
