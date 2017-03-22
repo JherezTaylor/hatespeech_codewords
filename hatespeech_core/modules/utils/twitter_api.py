@@ -13,8 +13,9 @@ from . import settings
 def run_status_lookup(id_list):
     """Make a call to statuses/lookup
      Args:
-       id_list   (list): Contains the tweet ids to  lookup
+       id_list (list): Contains the tweet ids to lookup
     """
+
     twitter = Twython(settings.TWITTER_APP_KEY, settings.TWITTER_APP_SECRET,
                       settings.TWITTER_OAUTH, settings.TWITTER_OAUTH_SECRET)
 
