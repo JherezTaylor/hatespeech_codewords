@@ -298,25 +298,6 @@ def do_create_ngram_collections(text, args):
     return [None, xgrams_intersect, hs_keywords_intersect, black_list_intersect]
 
 
-def parallel_preprocess(tweet_list, hs_keywords, subj_check, sent_check):
-    """Passes the incoming raw tweets to our preprocessing function.
-
-    Args:
-        tweet_list  (list): List of raw tweet texts to preprocess.
-        tweet_split (list): List of tokens in the tweet text.
-        hs_keywords (set): Keywords to match on.
-        subj_check (bool): Check text for subjectivity.
-        sent_check (bool): Check text for sentiment.
-
-    Returns:
-        list: List of vectorized tweets.
-    """
-    # num_cores = cpu_count()
-    results = Parallel(n_jobs=1)(
-        delayed(preprocess_tweet)(tweet, hs_keywords, [subj_check, sent_check]) for tweet in tweet_list)
-    return results
-
-
 def is_garbage(raw_text, precision):
     """ Check if a tweet consists primarly of hashtags, mentions or urls
 
@@ -406,6 +387,25 @@ def get_emotion_coverage(tweet_obj, projection):
             "$set": {"emotion_ambiguous": True}}, upsert=False)
 
 
+def parallel_preprocess(tweet_list, hs_keywords, subj_check, sent_check):
+    """Passes the incoming raw tweets to our preprocessing function.
+
+    Args:
+        tweet_list  (list): List of raw tweet texts to preprocess.
+        tweet_split (list): List of tokens in the tweet text.
+        hs_keywords (set): Keywords to match on.
+        subj_check (bool): Check text for subjectivity.
+        sent_check (bool): Check text for sentiment.
+
+    Returns:
+        list: List of vectorized tweets.
+    """
+    # num_cores = cpu_count()
+    results = Parallel(n_jobs=1)(
+        delayed(preprocess_tweet)(tweet, hs_keywords, [subj_check, sent_check]) for tweet in tweet_list)
+    return results
+
+
 def parallel_emotion_coverage(tweet_list, projection):
     """Passes the incoming raw tweets to our preprocessing function.
 
@@ -420,3 +420,4 @@ def parallel_emotion_coverage(tweet_list, projection):
     results = Parallel(n_jobs=num_cores, backend="threading")(
         delayed(get_emotion_coverage)(tweet, projection) for tweet in tweet_list)
     return results
+    
