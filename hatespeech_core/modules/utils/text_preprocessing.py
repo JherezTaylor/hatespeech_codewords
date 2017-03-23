@@ -420,4 +420,6 @@ def parallel_emotion_coverage(tweet_list, projection):
     results = Parallel(n_jobs=num_cores, backend="threading")(
         delayed(get_emotion_coverage)(tweet, projection) for tweet in tweet_list)
     return results
-    
+
+def process_nlp_docs():
+    pass
