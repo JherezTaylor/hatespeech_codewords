@@ -45,12 +45,32 @@ def extract_lexical_features_test(nlp, tweet_list):
     result = []
     texts = (tweet for tweet in tweet_list)
     for doc in nlp.pipe(texts, batch_size=10000, n_threads=3):
+        print(doc)
         for parsed_doc in doc:
             result.append((parsed_doc.orth_, parsed_doc.tag_))
-    print(result)
+    # print(result)
+
+
+def feature_extraction_pipeline(connection_params, nlp, tweet_generator_obj):
+    """Handles the extraction of features needed for the model.
+    Inserts parsed documents to database.
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
+        nlp  (spaCy model): Language processing pipeline
+        tweet_generator_obj: (generator): MongoDB cursor or file loaded documents.
+    """
+
+    db_name = connection_params[0]
+    collection = connection_params[1]
+
+    for doc in nlp.pipe(tweet_generator_obj, batch_size=10000, n_threads=3):
+        pass
 
 
 def start_job():
     nlp = init_nlp_pipeline()
-    tweet_list = ["I'm here", "get rekt", "lol hi", "just a prank bro", "#squadgoals okay"]
+    tweet_list = ["I'm here :) :D 99", "get rekt",
+                  "lol hi", "just a prank bro", "#squadgoals okay"]
     extract_lexical_features_test(nlp, tweet_list)
