@@ -8,6 +8,7 @@ Custom tokenizer class
 
 from spacy.tokens import Doc
 from . import twokenize
+from . import text_preprocessing
 
 
 class CustomTwokenizer(object):
@@ -19,6 +20,7 @@ class CustomTwokenizer(object):
         self.vocab = nlp.vocab
 
     def __call__(self, text):
-        words = twokenize.tokenizeRawTweetText(text)
+        clean_text = text_preprocessing.remove_urls(text)
+        words = twokenize.tokenizeRawTweetText(clean_text)
         return Doc(self.vocab, words=words)
         
