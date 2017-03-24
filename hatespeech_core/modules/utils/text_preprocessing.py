@@ -472,3 +472,18 @@ def count_uppercase_tokens(doc):
         if token.text.isupper() and len(token) != 1:
             count += 1
     return count
+
+
+def create_character_ngrams(text_list, length):
+    """ Create character ngrams of the specified length from a string of text
+    Args:
+        text_list   (list): Pre-tokenized text token to process.
+        length      (int):  Length of ngrams to create.
+    http://stackoverflow.com/questions/18658106/quick-implementation-of-character-n-grams-using-python
+    """
+    result = set()
+    for token in text_list:
+        if token.lower() != "user_mention":
+            result = result.union(set(
+                [token.lower()[i:i + length] for i in range(len(token.lower()) - length + 1)]))
+    return result
