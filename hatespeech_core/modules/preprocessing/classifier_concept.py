@@ -98,22 +98,29 @@ def feature_extraction_pipeline(connection_params, nlp):
         # Construct a new tweet object to be appended
         parsed_tweet = {}
         parsed_tweet["_id"] = object_id
+        parsed_tweet["text"] = doc.text
         parsed_tweet["emotion"] = _cls.get_top_classes(
             _emotion_vec, ascending=True, n=2)
         parsed_tweet["min_emotion"] = _cls.get_max_score_class(_emotion_vec)
-        parsed_tweet["dependencies"] = [[{"text": token.lower_, "lemma": token.lemma_, "pos": token.tag_, "dependency": token.dep_, "root": token.head.lower_}] for token in doc if not(token.is_punct)]
-        parsed_tweet["noun_chunks"] = [[{"text": np.lower_,"root": np.root.head.lower_}] for np in doc.noun_chunks]
+        parsed_tweet["dependencies"] = [{"text": token.lower_, "lemma": token.lemma_, "pos": token.tag_, "dependency": token.dep_, "root": token.head.lower_} for token in doc if not(token.is_punct)]
+        parsed_tweet["noun_chunks"] = [{"text": np.lower_,"root": np.root.head.lower_} for np in doc.noun_chunks]
         parsed_tweet["brown_cluster_ids"] = [token.cluster for token in doc if token.cluster != 0]
-        parsed_tweet["tokens"] = [token for token in doc if not(token.is_stop or token.is_punct or token.lower_ == "rt" or token.prefix_ == "@" or token.is_digit)]
+        parsed_tweet["tokens"] = [token for token in doc if not(token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")]
         parsed_tweet["hs_keyword_matches"] = set(parsed_tweet["tokens"]).intersection(HS_KEYWORDS)
         parsed_tweet["hs_keyword_count"] = len(parsed_tweet["hs_keyword_matches"])
         parsed_tweet["hs_keywords"] = True if parsed_tweet["hs_keyword_count"] > 0 else False
         parsed_tweet["related_keywords"] = [[w.lower_ for w in text_preprocessing.get_similar_words(nlp.vocab[token], settings.NUM_SYNONYMS)] for token in text_preprocessing.get_keywords(doc)]
-        parsed_tweet["unknown_words"] = [token.lower_ for token in doc if token.is_oov and token.prefix_ != ("@" or "#")]
+        parsed_tweet["unknown_words"] = [token.lower_ for token in doc if token.is_oov and token.prefix_ != "#"]
         parsed_tweet["unknown_words_count"] = len(parsed_tweet["unknown_words"])
         parsed_tweet["comment_length"] = len(doc)
         parsed_tweet["avg_token_length"] = round(sum(len(token) for token in doc) / len(doc), 0)
         parsed_tweet["uppercase_token_count"] = text_preprocessing.count_uppercase_tokens(doc)
+        parsed_tweet["bigrams"] = text_preprocessing.create_ngrams(doc.text.split(), 2)
+        parsed_tweet["trigrams"] = text_preprocessing.create_ngrams(doc.text.split(), 3)
+        parsed_tweet["char_trigrams"] = text_preprocessing.create_character_ngrams(doc.text.split(), 3)
+        parsed_tweet["char_quadgrams"] = text_preprocessing.create_character_ngrams(doc.text.split(), 4)
+        parsed_tweet["char_pentagrams"] = text_preprocessing.create_character_ngrams(doc.text.split(), 5)
+        parsed_tweet["hashtags"] = [token for token in doc if token.prefix_ == "#"]
         print(object_id, doc.text)
 
 

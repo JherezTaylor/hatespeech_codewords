@@ -21,6 +21,6 @@ class CustomTwokenizer(object):
 
     def __call__(self, text):
         clean_text = text_preprocessing.remove_urls(text)
-        words = twokenize.tokenizeRawTweetText(clean_text)
+        words = twokenize.customTokenizeRawTweetText(clean_text)
         return Doc(self.vocab, words=words)
         

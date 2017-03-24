@@ -337,3 +337,11 @@ def normalizeTextForTagger(text):
 def tokenizeRawTweetText(text):
     tokens = tokenize(normalizeTextForTagger(text))
     return tokens
+
+def customTokenizeRawTweetText(text):
+    tokens = tokenize(normalizeTextForTagger(text))
+    for idx, token in enumerate(tokens):
+        if token.startswith("@"):
+            tokens[idx] = "USER_MENTION"
+    return tokens
+    
