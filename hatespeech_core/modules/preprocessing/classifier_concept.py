@@ -9,6 +9,7 @@ This module serves as a proof of concept for the classifier model
 import itertools
 import spacy
 import joblib
+import pandas as pd
 from pymongo import InsertOne
 from ..utils import settings
 from ..utils import file_ops
@@ -55,7 +56,8 @@ def extract_lexical_features_test(nlp, tweet_list):
         for parsed_doc in doc:
             result.append((parsed_doc.orth_, parsed_doc.tag_))
 
-@notifiers.do_cprofile
+
+@profile
 def feature_extraction_pipeline(connection_params, nlp):
     """Handles the extraction of features needed for the model.
     Inserts parsed documents to database.
@@ -99,29 +101,30 @@ def feature_extraction_pipeline(connection_params, nlp):
     tweet_texts = (tweet_text["text"] for tweet_text in cursor_2)
 
     operations = []
+    staging = []
+    emotion_vector = []
     count = 0
-    # Carry out the same stage/bulk operation
+
     # https://github.com/explosion/spaCy/issues/172
     docs = nlp.pipe(tweet_texts, batch_size=10000, n_threads=3)
     for object_id, doc in zip(object_ids, docs):
-        _emotion_vec = _pv.transform([doc.text])
+        emotion_vector.append(doc.text)
+        # _emotion_vec = _pv.transform([doc.text])
         count += 1
         print("count ", count)
+        # TODO 117 seconds
         # Construct a new tweet object to be appended
         parsed_tweet = {}
         parsed_tweet["_id"] = object_id
         parsed_tweet["text"] = doc.text
-        parsed_tweet["emotion"] = _cls.get_top_classes(
-            _emotion_vec, ascending=True, n=2)
-        parsed_tweet["min_emotion"] = _cls.get_max_score_class(_emotion_vec)
         parsed_tweet["dependencies"] = [{"text": token.lower_, "lemma": token.lemma_, "pos": token.tag_,
-                                         "dependency": token.dep_, "root": token.head.lower_} for token in doc if not(token.is_punct)]
+                                         "dependency": token.dep_, "root": token.head.lower_} for token in doc if not token.is_punct]
         parsed_tweet["noun_chunks"] = [
             {"text": np.text.lower(), "root": np.root.head.text.lower()} for np in doc.noun_chunks]
         parsed_tweet["brown_cluster_ids"] = [
             token.cluster for token in doc if token.cluster != 0]
-        parsed_tweet["tokens"] = [token for token in doc if not(
-            token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")]
+        parsed_tweet["tokens"] = list(set([token.lower_ for token in doc if not(
+            token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")]))
         parsed_tweet["hs_keyword_matches"] = list(set(
             parsed_tweet["tokens"]).intersection(hs_keywords))
         parsed_tweet["hs_keyword_count"] = len(
@@ -129,7 +132,8 @@ def feature_extraction_pipeline(connection_params, nlp):
         parsed_tweet["hs_keywords"] = True if parsed_tweet[
             "hs_keyword_count"] > 0 else False
         # parsed_tweet["related_keywords"] = [[w.lower_ for w in text_preprocessing.get_similar_words(
-        #     nlp.vocab[token], settings.NUM_SYNONYMS)] for token in text_preprocessing.get_keywords(doc)]
+        # nlp.vocab[token], settings.NUM_SYNONYMS)] for token in
+        # text_preprocessing.get_keywords(doc)]
         parsed_tweet["unknown_words"] = [
             token.lower_ for token in doc if token.is_oov and token.prefix_ != "#"]
         parsed_tweet["unknown_words_count"] = len(
@@ -150,15 +154,48 @@ def feature_extraction_pipeline(connection_params, nlp):
         parsed_tweet["char_pentagrams"] = text_preprocessing.create_character_ngrams(
             doc.text.split(), 5)
         parsed_tweet["hashtags"] = [
-            token for token in doc if token.prefix_ == "#"]
-        operations.append(InsertOne(parsed_tweet))
+            token.text for token in doc if token.prefix_ == "#"]
+        staging.append(parsed_tweet)
 
-        if len(operations) == settings.BULK_BATCH_SIZE:
+        if len(staging) == settings.BULK_BATCH_SIZE:
+            operations = unpack_emotions(staging, emotion_vector, _pv, _cls)
             _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
             operations = []
-        # print(object_id, doc.text)
-    if operations:
+            staging = []
+            emotion_vector = []
+    if staging:
+        operations = unpack_emotions(staging, emotion_vector, _pv, _cls)
         _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+
+
+def unpack_emotions(staging, emotion_vector, _pv, _cls):
+    """Vectorize a list of tweets and return the emotion emotion_coverage
+    for each entry.
+
+    Args:
+        staging (list): List of tweet objects.
+        emotion_vector (list): List of tweet text.
+        _pv (PatternVectorizer)
+        _cls (SimpleClassifier)
+    Returns:
+        list of MongoDB InsertOne operations.
+    """
+
+    emotion_vector = pd.Series(
+        emotion_vector, index=range(0, len(emotion_vector)))
+    emotion_vector = _pv.transform(emotion_vector)
+    emotion_coverage = _cls.get_top_classes(
+        emotion_vector, ascending=True, n=2)
+    emotion_min_score = _cls.get_max_score_class(emotion_vector)
+
+    operations = []
+    for idx, parsed_tweet in enumerate(staging):
+        parsed_tweet["emotions"] = {}
+        parsed_tweet["emotions"]["first"] = emotion_coverage[idx][0]
+        parsed_tweet["emotions"]["second"] = emotion_coverage[idx][1]
+        parsed_tweet["emotions"]["min"] = emotion_min_score[idx]
+        operations.append(InsertOne(parsed_tweet))
+    return operations
 
 
 def start_job():
