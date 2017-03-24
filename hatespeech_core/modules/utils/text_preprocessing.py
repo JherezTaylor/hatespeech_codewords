@@ -414,12 +414,61 @@ def parallel_emotion_coverage(tweet_list, projection):
         projection (string): Tweet object property to access.
 
     Returns:
-        list: List of emotion tagged tweets.
+        results: List of emotion tagged tweets.
     """
     num_cores = cpu_count()
     results = Parallel(n_jobs=num_cores, backend="threading")(
         delayed(get_emotion_coverage)(tweet, projection) for tweet in tweet_list)
     return results
 
-def process_nlp_docs():
-    pass
+
+def get_similar_words(word, k_words):
+    """Return the top k similar words as stored in the spaCy gloVe vectors
+    Args:
+        doc (spaCy Doc): A container for accessing linguistic annotations.
+        k_words (int): Number of words to return.
+    https://github.com/explosion/spaCy/issues/276
+    """
+    queries = [w for w in word.vocab if w.has_vector and w.lower_ !=
+               word.lower_ and w.is_lower == word.is_lower and w.prob >= -15]
+    by_similarity = sorted(
+        queries, key=lambda w: word.similarity(w), reverse=True)
+    return by_similarity[:k_words]
+
+
+def get_keywords(doc):
+    """ Returns the keywords in a document by exploiting doc.noun_chunks
+    Args:
+        doc (spaCy Doc): A container for accessing linguistic annotations.
+
+    Returns:
+        result: set of stopword filtered keywords.
+    """
+    result = set()
+    # Here we check for tokens that are spans, ie. more than one word
+    # separated by " "
+    for span in doc.noun_chunks:
+        if " " in span.text:
+            split = span.text.split(" ")
+            for token in split:
+                result.add(token)
+        else:
+            # This returns the token at the specified indexed
+            get_doc_token = doc[token.start]
+            if not (get_doc_token.is_oov or get_doc_token.like_num or get_doc_token.lower not in STOP_LIST):
+                result.add(get_doc_token.lower_)
+    return result
+
+
+def count_uppercase_tokens(doc):
+    """Count the number of tokens with all uppercase
+     Args:
+        doc (spaCy Doc): A container for accessing linguistic annotations.
+    Returns:
+        sum: count of uppercase tokens
+    """
+    count = 0
+    for token in doc:
+        if token.text.isupper() and len(token) != 1:
+            count += 1
+    return count
