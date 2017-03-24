@@ -454,7 +454,7 @@ def get_keywords(doc):
                 result.add(token)
         else:
             # This returns the token at the specified indexed
-            get_doc_token = doc[token.start]
+            get_doc_token = doc[span.start]
             if not (get_doc_token.is_oov or get_doc_token.like_num or get_doc_token.lower not in STOP_LIST):
                 result.add(get_doc_token.lower_)
     return result
@@ -486,4 +486,4 @@ def create_character_ngrams(text_list, length):
         if token.lower() != "user_mention":
             result = result.union(set(
                 [token.lower()[i:i + length] for i in range(len(token.lower()) - length + 1)]))
-    return result
+    return list(result)
