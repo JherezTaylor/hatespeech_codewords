@@ -57,7 +57,7 @@ def extract_lexical_features_test(nlp, tweet_list):
             result.append((parsed_doc.orth_, parsed_doc.tag_))
 
 
-@profile
+@notifiers.do_cprofile
 def feature_extraction_pipeline(connection_params, nlp):
     """Handles the extraction of features needed for the model.
     Inserts parsed documents to database.
@@ -83,8 +83,9 @@ def feature_extraction_pipeline(connection_params, nlp):
                      source=settings.DB_AUTH_SOURCE)
 
     query = {}
-    query["filter"] = {"text": {"$ne": None}}
-    query["projection"] = {"text": 1}
+    query["filter"] = {"tweet_text": {"$ne": None}}
+    query["projection"] = {"tweet_text": 1,
+                           "does_this_tweet_contain_hate_speech": 1}
     query["limit"] = 0
     query["skip"] = 0
     query["no_cursor_timeout"] = True
@@ -96,9 +97,11 @@ def feature_extraction_pipeline(connection_params, nlp):
 
     # Makes a copy of the MongoDB cursor, to the best of my
     # knowledge this does not attempt to exhaust the cursor
-    cursor_1, cursor_2 = itertools.tee(cursor)
+    cursor_1, cursor_2, cursor_3 = itertools.tee(cursor, 3)
     object_ids = (object_id["_id"] for object_id in cursor_1)
-    tweet_texts = (tweet_text["text"] for tweet_text in cursor_2)
+    tweet_texts = (tweet_text["tweet_text"] for tweet_text in cursor_2)
+    contains_hs = (label["does_this_tweet_contain_hate_speech"]
+                   for label in cursor_3)
 
     operations = []
     staging = []
@@ -106,17 +109,16 @@ def feature_extraction_pipeline(connection_params, nlp):
     count = 0
 
     # https://github.com/explosion/spaCy/issues/172
-    docs = nlp.pipe(tweet_texts, batch_size=10000, n_threads=3)
-    for object_id, doc in zip(object_ids, docs):
+    docs = nlp.pipe(tweet_texts, batch_size=15000, n_threads=3)
+    for object_id, doc, label in zip(object_ids, docs, contains_hs):
         emotion_vector.append(doc.text)
-        # _emotion_vec = _pv.transform([doc.text])
         count += 1
         print("count ", count)
-        # TODO 117 seconds
         # Construct a new tweet object to be appended
         parsed_tweet = {}
         parsed_tweet["_id"] = object_id
         parsed_tweet["text"] = doc.text
+        parsed_tweet["does_this_tweet_contain_hate_speech"] = label
         parsed_tweet["dependencies"] = [{"text": token.lower_, "lemma": token.lemma_, "pos": token.tag_,
                                          "dependency": token.dep_, "root": token.head.lower_} for token in doc if not token.is_punct]
         parsed_tweet["noun_chunks"] = [
@@ -157,7 +159,7 @@ def feature_extraction_pipeline(connection_params, nlp):
             token.text for token in doc if token.prefix_ == "#"]
         staging.append(parsed_tweet)
 
-        if len(staging) == settings.BULK_BATCH_SIZE:
+        if len(staging) == 500:
             operations = unpack_emotions(staging, emotion_vector, _pv, _cls)
             _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
             operations = []
@@ -198,13 +200,10 @@ def unpack_emotions(staging, emotion_vector, _pv, _cls):
     return operations
 
 
-def start_job():
+def start_feature_extraction():
     """Run operations"""
-    connection_params = ["twitter", "test_suite", "feature_test"]
+    connection_params = ["twitter", "CrowdFlower", "crowdflower_features"]
     nlp = init_nlp_pipeline()
-    tweet = {}
-    tweet["text"] = "I'm here :) :D 99"
-    tweet["id"] = 7849
     # tweet_list = ["I'm here :) :D 99", "get rekt",
     #               "lol hi", "just a prank bro", "#squadgoals okay"]
     # extract_lexical_features_test(nlp, tweet_list)
