@@ -257,6 +257,40 @@ def create_ngrams(text_list, length):
     return [" ".join(i for i in ngram) for ngram in ngrams(clean_tokens, length)]
 
 
+def create_character_ngrams(text_list, length):
+    """ Create character ngrams of the specified length from a string of text
+    Args:
+        text_list   (list): Pre-tokenized text token to process.
+        length      (int):  Length of ngrams to create.
+    http://stackoverflow.com/questions/18658106/quick-implementation-of-character-n-grams-using-python
+    """
+
+    result = set()
+    for token in text_list:
+        if token.lower() != "user_mention":
+            result = result.union(set(
+                [token.lower()[i:i + length] for i in range(len(token.lower()) - length + 1)]))
+    return list(result)
+
+
+def create_dep_ngrams(dependency_list, length):
+    """ Create dependency ngrams of the specified length.
+    Args:
+        dependency_list (list): List of dependency dicts.
+        length      (int):  Length of ngrams to create.
+    """
+    dependencies = [[dependency["root"], dependency["dependency"], dependency[
+        "pos"], dependency["text"]] for dependency in dependency_list]
+    for idx, dep in enumerate(dependencies):
+        dependencies[idx] = " ".join(_ele for _ele in dep)
+
+    dependencies = list(
+        map(list, zip(*[dependencies[i:] for i in range(length)])))
+    for idx, dep in enumerate(dependencies):
+        dependencies[idx] = " | ".join(_ele for _ele in dep)
+    return dependencies
+
+
 def do_create_ngram_collections(text, args):
     """ Create and return ngram collections and set intersections.
     Text must be lowercased if required.
@@ -472,18 +506,3 @@ def count_uppercase_tokens(doc):
         if token.text.isupper() and len(token) != 1:
             count += 1
     return count
-
-
-def create_character_ngrams(text_list, length):
-    """ Create character ngrams of the specified length from a string of text
-    Args:
-        text_list   (list): Pre-tokenized text token to process.
-        length      (int):  Length of ngrams to create.
-    http://stackoverflow.com/questions/18658106/quick-implementation-of-character-n-grams-using-python
-    """
-    result = set()
-    for token in text_list:
-        if token.lower() != "user_mention":
-            result = result.union(set(
-                [token.lower()[i:i + length] for i in range(len(token.lower()) - length + 1)]))
-    return list(result)

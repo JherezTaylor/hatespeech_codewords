@@ -57,7 +57,7 @@ def extract_lexical_features_test(nlp, tweet_list):
             result.append((parsed_doc.orth_, parsed_doc.tag_))
 
 
-@notifiers.do_cprofile
+# @notifiers.do_cprofile
 def feature_extraction_pipeline(connection_params, nlp):
     """Handles the extraction of features needed for the model.
     Inserts parsed documents to database.
@@ -114,13 +114,28 @@ def feature_extraction_pipeline(connection_params, nlp):
         emotion_vector.append(doc.text)
         count += 1
         print("count ", count)
+
+        if str(label) == "The tweet is not offensive":
+            label = "not_offensive"
+        elif str(label) == "The tweet uses offensive language but not hate speech":
+            label = "not_offensive"
+        else:
+            label = "hatespeech"
+
         # Construct a new tweet object to be appended
         parsed_tweet = {}
         parsed_tweet["_id"] = object_id
         parsed_tweet["text"] = doc.text
-        parsed_tweet["does_this_tweet_contain_hate_speech"] = label
+        parsed_tweet["annotation_label"] = label
         parsed_tweet["dependencies"] = [{"text": token.lower_, "lemma": token.lemma_, "pos": token.tag_,
                                          "dependency": token.dep_, "root": token.head.lower_} for token in doc if not token.is_punct]
+        parsed_tweet["dep_unigrams"] = text_preprocessing.create_dep_ngrams(
+            parsed_tweet["dependencies"], 1)
+        parsed_tweet["dep_bigrams"] = text_preprocessing.create_dep_ngrams(parsed_tweet[
+                                                                           "dependencies"], 2)
+        parsed_tweet["dep_trigrams"] = text_preprocessing.create_dep_ngrams(
+            parsed_tweet["dependencies"], 3)
+
         parsed_tweet["noun_chunks"] = [
             {"text": np.text.lower(), "root": np.root.head.text.lower()} for np in doc.noun_chunks]
         parsed_tweet["brown_cluster_ids"] = [
@@ -131,8 +146,9 @@ def feature_extraction_pipeline(connection_params, nlp):
             parsed_tweet["tokens"]).intersection(hs_keywords))
         parsed_tweet["hs_keyword_count"] = len(
             parsed_tweet["hs_keyword_matches"])
-        parsed_tweet["hs_keywords"] = True if parsed_tweet[
+        parsed_tweet["has_hs_keywords"] = True if parsed_tweet[
             "hs_keyword_count"] > 0 else False
+
         # parsed_tweet["related_keywords"] = [[w.lower_ for w in text_preprocessing.get_similar_words(
         # nlp.vocab[token], settings.NUM_SYNONYMS)] for token in
         # text_preprocessing.get_keywords(doc)]
@@ -145,10 +161,12 @@ def feature_extraction_pipeline(connection_params, nlp):
             sum(len(token) for token in doc) / len(doc), 0) if len(doc) > 0 else 0
         parsed_tweet[
             "uppercase_token_count"] = text_preprocessing.count_uppercase_tokens(doc)
+
         parsed_tweet["bigrams"] = text_preprocessing.create_ngrams(
             doc.text.split(), 2)
         parsed_tweet["trigrams"] = text_preprocessing.create_ngrams(
             doc.text.split(), 3)
+
         parsed_tweet["char_trigrams"] = text_preprocessing.create_character_ngrams(
             doc.text.split(), 3)
         parsed_tweet["char_quadgrams"] = text_preprocessing.create_character_ngrams(
@@ -157,8 +175,8 @@ def feature_extraction_pipeline(connection_params, nlp):
             doc.text.split(), 5)
         parsed_tweet["hashtags"] = [
             token.text for token in doc if token.prefix_ == "#"]
-        staging.append(parsed_tweet)
 
+        staging.append(parsed_tweet)
         if len(staging) == 500:
             operations = unpack_emotions(staging, emotion_vector, _pv, _cls)
             _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
