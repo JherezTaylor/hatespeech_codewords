@@ -15,5 +15,6 @@ jupyter
 scipy
 cufflinks
 spacy
-sklearn
+scikit-learn
 regex
+tqdm
