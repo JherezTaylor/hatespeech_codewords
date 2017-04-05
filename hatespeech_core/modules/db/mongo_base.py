@@ -83,6 +83,9 @@ def finder(connection_params, query, count):
     dbo = client[db_name]
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
                      source=settings.DB_AUTH_SOURCE)
+    if not any(query["projection"]):
+        query["projection"] = None
+
     if count:
         cursor = dbo[collection].find(filter=query["filter"], projection=query[
             "projection"], skip=query["skip"], limit=query["limit"]).count()
