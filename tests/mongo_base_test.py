@@ -22,7 +22,7 @@ class TestMongoMethods(object):
         self.lang_list = ["en", "und"]
         self.query = {}
         self.query["filter"] = {"lang": "en"}
-        self.query["projection"] = None
+        self.query["projection"] = {}
         self.query["limit"] = 10
         self.query["skip"] = 0
         self.query["no_cursor_timeout"] = True
