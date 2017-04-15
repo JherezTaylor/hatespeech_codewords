@@ -19,12 +19,18 @@ class TestFileOps(object):
         self.sub_sent_string = "Today only kinda sux! But I'll get by, lol"
         self.ngram_string = "the cat is mad, I'm glad"
         self.tweet_text = " I'm #testing is my code good @dev :) fuck"
+        self.url_load = "RT @Alt_Right_: #AltNews Feminist Sluts Pissed They’re Getting Judo-Memed with Grab A... https://t.co/QDCToMErC6 #AltRight #MAGA https://t…"
 
     def setup(self):
         """This method is run once before _each_ test method is executed"""
 
     def teardown(self):
         """This method is run once after _each_ test method is executed"""
+
+    # def test_remove_urls(self):
+    #     """Test the remove url function"""
+    #     result = hatespeech_core.text_preprocessing.remove_urls(self.url_load)
+    #     print(result)
 
     def test_get_subj_sent(self):
         """Test the subj_sent function.
@@ -58,6 +64,7 @@ class TestFileOps(object):
         # Terms only
         assert_equals(sorted(result[0]), sorted(
             ["good", "code", "i'm", ":)", "fuck"]))
+        print(result[0])
         # Stopwords
         assert_equals(sorted(result[1]), sorted(["is", "my"]))
         # Hashtags
