@@ -517,7 +517,7 @@ def count_uppercase_tokens(doc):
 
 def extract_conll_format(doc):
     """Return the document in CoNLL format
-     Args:
+    Args:
         doc (spaCy Doc): A container for accessing linguistic annotations.
     Returns:
         result: List of lines storing the CoNLL format for each word in a sentence.
@@ -537,3 +537,34 @@ def extract_conll_format(doc):
             result.append(" ".join(str(x) for x in conll))
             conll = []
     return result
+
+
+def extract_dep_contexts(doc):
+    """Extract dependency contexts as key:val pairs
+    Given a word in a sentence, return it's modifiers:dependency and
+    it's head:dependency with this relation being labeled as INV.
+
+    Example:
+    {'austrailian': 'scientists amod-INV'}
+    {'scientists': 'austrailian amod'}
+
+    scientists acts as the root for austrailian and scientists modifies austrailian
+
+    Args:
+        doc (spaCy Doc): A container for accessing linguistic annotations.
+    Returns:
+        result: List of word:dependency pairs.
+    """
+    dependency_contexts = []
+    for word in doc:
+        if (str(word.head.prefix_).isdigit() or not str(word.head.prefix_).isalpha() or str(word.prefix_).isdigit() or not str(word.prefix_).isalpha() or "." in word.text or "." in str(word.head)):
+            pass
+        elif word.head is word and word.dep_ == "ROOT" and not (word.is_punct or word.is_digit or word.like_num):
+            dependency_contexts.append(
+                {word.lower_: str(word.head) + " " + str(word.dep_)})
+        elif not (word.is_punct or word.is_digit or word.like_num):
+            dependency_contexts.append(
+                {word.lower_: str(word.head) + " " + str(word.dep_) + "-INV"})
+            dependency_contexts.append(
+                {word.head.lower_: str(word.lower_) + " " + str(word.dep_)})
+    return dependency_contexts

@@ -183,7 +183,8 @@ def feature_extraction_pipeline(connection_params, nlp):
         #     token.text for token in doc if token.prefix_ == "#"]
         parsed_tweet[
             "conllFormat"] = text_preprocessing.extract_conll_format(doc)
-
+        parsed_tweet[
+            "dependency_contexts"] = text_preprocessing.extract_dep_contexts(doc)
         staging.append(parsed_tweet)
         if len(staging) == 500:
             # operations = unpack_emotions(staging, emotion_vector, _pv, _cls)
@@ -233,7 +234,8 @@ def update_schema(staging):
     operations = []
     for idx, parsed_tweet in enumerate(staging):
         operations.append(UpdateOne({"_id": parsed_tweet["_id"]}, {
-            "$set": {"word_dep_root": parsed_tweet["word_dep_root"], "pos_dep_rootPos": parsed_tweet["pos_dep_rootPos"], "word_root_preRoot": parsed_tweet["word_root_preRoot"], "tokens": parsed_tweet["tokens"], "conllFormat": parsed_tweet["conllFormat"]}}, upsert=False))
+            "$set": {"word_dep_root": parsed_tweet["word_dep_root"], "pos_dep_rootPos": parsed_tweet["pos_dep_rootPos"], "word_root_preRoot": parsed_tweet["word_root_preRoot"], "tokens": parsed_tweet["tokens"], "conllFormat": parsed_tweet["conllFormat"], "dependency_contexts": parsed_tweet[
+                "dependency_contexts"]}}, upsert=False))
     return operations
 
 
