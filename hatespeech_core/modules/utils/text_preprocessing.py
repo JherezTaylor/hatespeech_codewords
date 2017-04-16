@@ -513,3 +513,27 @@ def count_uppercase_tokens(doc):
         if token.text.isupper() and len(token) != 1:
             count += 1
     return count
+
+
+def extract_conll_format(doc):
+    """Return the document in CoNLL format
+     Args:
+        doc (spaCy Doc): A container for accessing linguistic annotations.
+    Returns:
+        result: List of lines storing the CoNLL format for each word in a sentence.
+    """
+    # https://github.com/explosion/spaCy/issues/533#issuecomment-254774296
+    # http://universaldependencies.org/docs/format.html
+    result = []
+    conll = []
+    for sent in doc.sents:
+        for i, word in enumerate(sent):
+            if word.head is word:
+                head_idx = 0
+            else:
+                head_idx = word.head.i + 1
+            conll.extend((i + 1, word.lower_, word.lemma_, word.pos_, word.tag_,
+                          "_", head_idx, word.dep_, str(head_idx) + ":" + word.dep_, "_"))
+            result.append(" ".join(str(x) for x in conll))
+            conll = []
+    return result
