@@ -199,8 +199,14 @@ def prepare_text(raw_text, args):
     grams = list(chain.from_iterable(xgrams))
     hs_keywords_intersect = hs_keywords.intersection(set(grams))
 
+    # Create a list without stopwords and the orignal token order
+    ordered_tokens = []
+    for token in clean_text:
+        if token not in stop_list:
+            ordered_tokens.append(token)
+
     return [terms_only, list(stopwords_only), hashtags, mentions,
-            list(hs_keywords_intersect), xgrams, stopword_ngrams]
+            list(hs_keywords_intersect), xgrams, stopword_ngrams, ordered_tokens]
 
 
 def prep_tweet_body(tweet_obj, args, processed_text):
@@ -242,6 +248,7 @@ def prep_tweet_body(tweet_obj, args, processed_text):
     result["quadgrams"] = processed_text[5][3]
     result["pentagrams"] = processed_text[5][4]
     result["stopword_ngrams"] = processed_text[6]
+    result["ordered_tokens"] = processed_text[7]
 
     return result
 
