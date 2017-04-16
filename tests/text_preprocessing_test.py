@@ -64,7 +64,6 @@ class TestFileOps(object):
         # Terms only
         assert_equals(sorted(result[0]), sorted(
             ["good", "code", "i'm", ":)", "fuck"]))
-        print(result[0])
         # Stopwords
         assert_equals(sorted(result[1]), sorted(["is", "my"]))
         # Hashtags
@@ -76,6 +75,9 @@ class TestFileOps(object):
         # Ngrams
         assert_equals(sorted(result[5][1]), sorted(["i'm #testing", "#testing is",
                                                     "my code", "code good", "good @dev", "@dev :)", ":) fuck"]))
+        # Clean text
+        assert_equals(result[7], ["i'm", '#testing',
+                                  'code', 'good', '@dev', ':)', 'fuck'])
 
     @nottest
     def test_emotion_coverage(self):
