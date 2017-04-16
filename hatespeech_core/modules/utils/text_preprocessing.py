@@ -534,7 +534,7 @@ def extract_conll_format(doc):
                 head_idx = word.head.i + 1
             conll.extend((i + 1, word.lower_, word.lemma_, word.pos_, word.tag_,
                           "_", head_idx, word.dep_, str(head_idx) + ":" + word.dep_, "_"))
-            result.append(" ".join(str(x) for x in conll))
+            result.append("\t".join(str(x) for x in conll))
             conll = []
     return result
 
