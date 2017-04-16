@@ -146,8 +146,8 @@ def feature_extraction_pipeline(connection_params, nlp):
         #     {"text": np.text.lower(), "root": np.root.head.text.lower()} for np in doc.noun_chunks]
         # parsed_tweet["brown_cluster_ids"] = [
         #     token.cluster for token in doc if token.cluster != 0]
-        # parsed_tweet["tokens"] = list(set([token.lower_ for token in doc if not(
-        #     token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")]))
+        parsed_tweet["tokens"] = list([token.lower_ for token in doc if not(
+            token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")])
         # parsed_tweet["hs_keyword_matches"] = list(set(
         #     parsed_tweet["tokens"]).intersection(hs_keywords))
         # parsed_tweet["hs_keyword_count"] = len(
@@ -181,6 +181,8 @@ def feature_extraction_pipeline(connection_params, nlp):
         #     doc.text.split(), 5)
         # parsed_tweet["hashtags"] = [
         #     token.text for token in doc if token.prefix_ == "#"]
+        parsed_tweet[
+            "conllFormat"] = text_preprocessing.extract_conll_format(doc)
 
         staging.append(parsed_tweet)
         if len(staging) == 500:
@@ -231,7 +233,7 @@ def update_schema(staging):
     operations = []
     for idx, parsed_tweet in enumerate(staging):
         operations.append(UpdateOne({"_id": parsed_tweet["_id"]}, {
-            "$set": {"word_dep_root": parsed_tweet["word_dep_root"], "pos_dep_rootPos": parsed_tweet["pos_dep_rootPos"], "word_root_preRoot": parsed_tweet["word_root_preRoot"]}}, upsert=False))
+            "$set": {"word_dep_root": parsed_tweet["word_dep_root"], "pos_dep_rootPos": parsed_tweet["pos_dep_rootPos"], "word_root_preRoot": parsed_tweet["word_root_preRoot"], "tokens": parsed_tweet["tokens"], "conllFormat": parsed_tweet["conllFormat"]}}, upsert=False))
     return operations
 
 
