@@ -296,3 +296,8 @@ db.random_sample.aggregate([
     }},
     {"$out": "temp_" + "extended_tweet"}
 ])
+
+db.crowdflower_features.aggregate([
+    {$project: {"emotions": 1, "_id":1}},
+    {"$out": "crowdflower_features_new"}
+],{ "allowDiskUse": true})

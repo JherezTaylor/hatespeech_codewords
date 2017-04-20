@@ -18,3 +18,4 @@ spacy
 scikit-learn
 regex
 tqdm
+gensim
