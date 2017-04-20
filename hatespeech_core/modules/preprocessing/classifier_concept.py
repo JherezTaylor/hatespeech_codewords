@@ -124,78 +124,30 @@ def feature_extraction_pipeline(connection_params, nlp):
 
         # Construct a new tweet object to be appended
         parsed_tweet = {}
-        parsed_tweet["_id"] = object_id
+        # parsed_tweet["_id"] = object_id
         parsed_tweet["text"] = doc.text
-        parsed_tweet["word_dep_root"] = [{"word": token.lower_, "dep": token.dep_,
-                                          "root": token.head.lower_} for token in doc if not token.is_punct]
-        parsed_tweet["pos_dep_rootPos"] = [
-            {"pos": token.tag_, "dep": token.dep_, "rootPos": token.head.tag_} for token in doc if not token.is_punct]
-        parsed_tweet["word_root_preRoot"] = [{"word": token.lower_, "root": token.head.lower_,
-                                              "preRoot": token.head.head.lower_} for token in doc if not token.is_punct]
-        # parsed_tweet["annotation_label"] = label
-        # parsed_tweet["dependencies"] = [{"text": token.lower_, "lemma": token.lemma_, "pos": token.tag_,
-        #                                  "dependency": token.dep_, "root": token.head.lower_} for token in doc if not token.is_punct]
-        # parsed_tweet["dep_unigrams"] = text_preprocessing.create_dep_ngrams(
-        #     parsed_tweet["dependencies"], 1)
-        # parsed_tweet["dep_bigrams"] = text_preprocessing.create_dep_ngrams(parsed_tweet[
-        #                                                                    "dependencies"], 2)
-        # parsed_tweet["dep_trigrams"] = text_preprocessing.create_dep_ngrams(
-        #     parsed_tweet["dependencies"], 3)
-
-        # parsed_tweet["noun_chunks"] = [
-        #     {"text": np.text.lower(), "root": np.root.head.text.lower()} for np in doc.noun_chunks]
-        # parsed_tweet["brown_cluster_ids"] = [
-        #     token.cluster for token in doc if token.cluster != 0]
+        parsed_tweet["annotation_label"] = label
         parsed_tweet["tokens"] = list([token.lower_ for token in doc if not(
             token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")])
-        # parsed_tweet["hs_keyword_matches"] = list(set(
-        #     parsed_tweet["tokens"]).intersection(hs_keywords))
-        # parsed_tweet["hs_keyword_count"] = len(
-        #     parsed_tweet["hs_keyword_matches"])
-        # parsed_tweet["has_hs_keywords"] = True if parsed_tweet[
-        #     "hs_keyword_count"] > 0 else False
-
+        parsed_tweet = text_preprocessing.prep_linguistic_features(
+            parsed_tweet, hs_keywords, doc)
+        parsed_tweet = text_preprocessing.prep_dependency_features(
+            parsed_tweet, doc)
         # parsed_tweet["related_keywords"] = [[w.lower_ for w in text_preprocessing.get_similar_words(
         # nlp.vocab[token], settings.NUM_SYNONYMS)] for token in
         # text_preprocessing.get_keywords(doc)]
-        # parsed_tweet["unknown_words"] = [
-        #     token.lower_ for token in doc if token.is_oov and token.prefix_ != "#"]
-        # parsed_tweet["unknown_words_count"] = len(
-        #     parsed_tweet["unknown_words"])
-        # parsed_tweet["comment_length"] = len(doc)
-        # parsed_tweet["avg_token_length"] = round(
-        #     sum(len(token) for token in doc) / len(doc), 0) if len(doc) > 0 else 0
-        # parsed_tweet[
-        #     "uppercase_token_count"] = text_preprocessing.count_uppercase_tokens(doc)
 
-        # parsed_tweet["bigrams"] = text_preprocessing.create_ngrams(
-        #     doc.text.split(), 2)
-        # parsed_tweet["trigrams"] = text_preprocessing.create_ngrams(
-        #     doc.text.split(), 3)
-
-        # parsed_tweet["char_trigrams"] = text_preprocessing.create_character_ngrams(
-        #     doc.text.split(), 3)
-        # parsed_tweet["char_quadgrams"] = text_preprocessing.create_character_ngrams(
-        #     doc.text.split(), 4)
-        # parsed_tweet["char_pentagrams"] = text_preprocessing.create_character_ngrams(
-        #     doc.text.split(), 5)
-        # parsed_tweet["hashtags"] = [
-        #     token.text for token in doc if token.prefix_ == "#"]
-        parsed_tweet[
-            "conllFormat"] = text_preprocessing.extract_conll_format(doc)
-        parsed_tweet[
-            "dependency_contexts"] = text_preprocessing.extract_dep_contexts(doc)
         staging.append(parsed_tweet)
         if len(staging) == 500:
-            # operations = unpack_emotions(staging, emotion_vector, _pv, _cls)
-            operations = update_schema(staging)
+            operations = unpack_emotions(staging, emotion_vector, None, None)
+            # operations = update_schema(staging)
             _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
             operations = []
             staging = []
             emotion_vector = []
     if staging:
-        # operations = unpack_emotions(staging, emotion_vector, _pv, _cls)
-        operations = update_schema(staging)
+        operations = unpack_emotions(staging, emotion_vector, None, None)
+        # operations = update_schema(staging)
         _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
 
@@ -212,19 +164,19 @@ def unpack_emotions(staging, emotion_vector, _pv, _cls):
         list of MongoDB InsertOne operations.
     """
 
-    emotion_vector = pd.Series(
-        emotion_vector, index=range(0, len(emotion_vector)))
-    emotion_vector = _pv.transform(emotion_vector)
-    emotion_coverage = _cls.get_top_classes(
-        emotion_vector, ascending=True, n=2)
-    emotion_min_score = _cls.get_max_score_class(emotion_vector)
+    # emotion_vector = pd.Series(
+    #     emotion_vector, index=range(0, len(emotion_vector)))
+    # emotion_vector = _pv.transform(emotion_vector)
+    # emotion_coverage = _cls.get_top_classes(
+    #     emotion_vector, ascending=True, n=2)
+    # emotion_min_score = _cls.get_max_score_class(emotion_vector)
 
     operations = []
     for idx, parsed_tweet in enumerate(staging):
-        parsed_tweet["emotions"] = {}
-        parsed_tweet["emotions"]["first"] = emotion_coverage[idx][0]
-        parsed_tweet["emotions"]["second"] = emotion_coverage[idx][1]
-        parsed_tweet["emotions"]["min"] = emotion_min_score[idx]
+        # parsed_tweet["emotions"] = {}
+        # parsed_tweet["emotions"]["first"] = emotion_coverage[idx][0]
+        # parsed_tweet["emotions"]["second"] = emotion_coverage[idx][1]
+        # parsed_tweet["emotions"]["min"] = emotion_min_score[idx]
         operations.append(InsertOne(parsed_tweet))
     return operations
 
