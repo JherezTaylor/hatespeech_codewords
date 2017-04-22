@@ -596,7 +596,7 @@ def prep_linguistic_features(parsed_tweet, hs_keywords, doc):
     parsed_tweet["has_hs_keywords"] = True if parsed_tweet[
         "hs_keyword_count"] > 0 else False
     parsed_tweet["unknown_words"] = [
-        token.lower_ for token in doc if token.is_oov and token.prefix_ != "#"]
+        token.lower_ for token in doc if not (str(token.lower_) == "user_mention" or not token.is_oov or str(token.lower_) in hs_keywords or (len(token.lower_) >= 3 and "'" in str(token.lower_)) or token.prefix_ == "#")]
     parsed_tweet["unknown_words_count"] = len(
         parsed_tweet["unknown_words"])
     parsed_tweet["comment_length"] = len(doc)

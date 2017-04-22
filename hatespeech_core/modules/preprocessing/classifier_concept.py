@@ -124,7 +124,7 @@ def feature_extraction_pipeline(connection_params, nlp):
 
         # Construct a new tweet object to be appended
         parsed_tweet = {}
-        # parsed_tweet["_id"] = object_id
+        parsed_tweet["_id"] = object_id
         parsed_tweet["text"] = doc.text
         parsed_tweet["annotation_label"] = label
         parsed_tweet["tokens"] = list([token.lower_ for token in doc if not(
@@ -138,7 +138,7 @@ def feature_extraction_pipeline(connection_params, nlp):
         # text_preprocessing.get_keywords(doc)]
 
         staging.append(parsed_tweet)
-        if len(staging) == 500:
+        if len(staging) == 5000:
             operations = unpack_emotions(staging, emotion_vector, None, None)
             # operations = update_schema(staging)
             _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
