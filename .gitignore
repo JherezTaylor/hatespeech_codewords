@@ -90,4 +90,4 @@ ENV/
 .ropeproject
 
 # Pickled objects
-crowdflower_features.pkl.compressed
+hatespeech_core/data/persistence/df/

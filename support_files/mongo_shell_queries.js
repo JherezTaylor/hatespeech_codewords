@@ -298,6 +298,7 @@ db.random_sample.aggregate([
 ])
 
 db.crowdflower_features.aggregate([
-    {$project: {"emotions": 1, "_id":1}},
+    {$match: {}},
+    {$project: {"emotions": 1, "_id":1, "text":1, "annotation_label": 1}},
     {"$out": "crowdflower_features_new"}
 ],{ "allowDiskUse": true})
