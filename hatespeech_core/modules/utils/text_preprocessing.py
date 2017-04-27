@@ -294,7 +294,7 @@ def create_dep_ngrams(dependency_list, length):
     dependencies = list(
         map(list, zip(*[dependencies[i:] for i in range(length)])))
     for idx, dep in enumerate(dependencies):
-        dependencies[idx] = " | ".join(_ele for _ele in dep)
+        dependencies[idx] = "|".join(_ele for _ele in dep)
     return dependencies
 
 
@@ -580,11 +580,12 @@ def extract_dep_contexts(doc):
     return dependency_contexts, dependency_contexts_concat
 
 
-def prep_linguistic_features(parsed_tweet, hs_keywords, doc):
+def prep_linguistic_features(parsed_tweet, hs_keywords, doc, usage=None):
     """Append the linguistic features to the tweet body
     Args:
         parsed_tweet (dict): Feature dictionary.
         doc (spaCy Doc): A container for accessing linguistic annotations.
+        usage (string): Set the format for the data: analysis or features.
     Returns:
         parsed_tweet
     """
@@ -604,28 +605,32 @@ def prep_linguistic_features(parsed_tweet, hs_keywords, doc):
         sum(len(token) for token in doc) / len(doc), 0) if len(doc) > 0 else 0
     parsed_tweet[
         "uppercase_token_count"] = count_uppercase_tokens(doc)
-    parsed_tweet["bigrams"] = create_ngrams(
-        doc.text.split(), 2)
-    parsed_tweet["trigrams"] = create_ngrams(
-        doc.text.split(), 3)
 
-    parsed_tweet["char_trigrams"] = create_character_ngrams(
-        doc.text.split(), 3)
-    parsed_tweet["char_quadgrams"] = create_character_ngrams(
-        doc.text.split(), 4)
-    parsed_tweet["char_pentagrams"] = create_character_ngrams(
-        doc.text.split(), 5)
-    parsed_tweet["hashtags"] = [
-        token.text for token in doc if token.prefix_ == "#"]
+    if usage == "analysis":
+        parsed_tweet["bigrams"] = create_ngrams(
+            doc.text.split(), 2)
+        parsed_tweet["trigrams"] = create_ngrams(
+            doc.text.split(), 3)
 
+        parsed_tweet["char_trigrams"] = create_character_ngrams(
+            doc.text.split(), 3)
+        parsed_tweet["char_quadgrams"] = create_character_ngrams(
+            doc.text.split(), 4)
+        parsed_tweet["char_pentagrams"] = create_character_ngrams(
+            doc.text.split(), 5)
+        parsed_tweet["hashtags"] = [
+            token.text for token in doc if token.prefix_ == "#"]
+    if usage == "features":
+        parsed_tweet.pop("tokens", None)
     return parsed_tweet
 
 
-def prep_dependency_features(parsed_tweet, doc):
+def prep_dependency_features(parsed_tweet, doc, usage=None):
     """Append the dependency features to the tweet body
     Args:
         parsed_tweet (dict): Feature dictionary.
         doc (spaCy Doc): A container for accessing linguistic annotations.
+        usage (string): Set the format for the data: analysis, features or conll.
     Returns:
         parsed_tweet
     """
@@ -639,41 +644,58 @@ def prep_dependency_features(parsed_tweet, doc):
     feat_dep_unigrams = []
     dependencies = []
 
-    for token in doc:
-        if not token.is_punct:
-            word_dep_root.append({"word": token.lower_, "dep": token.dep_,
-                                  "root": token.head.lower_})
-            feat_word_dep_root.append(
-                str(token.lower_) + "_" + str(token.dep_) + "_" + str(token.head.lower_))
-            pos_dep_rootpos.append(
-                {"pos": token.tag_, "dep": token.dep_, "rootPos": token.head.tag_})
-            feat_pos_dep_rootpos.append(
-                str(token.tag_) + "_" + str(token.dep_) + "_" + str(token.head.tag_))
-            word_root_rootparent.append(
-                {"word": token.lower_, "root": token.head.lower_, "preRoot": token.head.head.lower_})
-            feat_word_root_rootparent.append(str(
-                token.lower_) + "_" + str(token.head.lower_) + "_" + str(token.head.head.lower_))
-            dependencies.append({"text": token.lower_, "root": token.head.lower_,
-                                 "dependency": token.dep_, "pos": token.tag_})
-            feat_dep_unigrams.append(str(token.lower_) + "_" + str(
-                token.head.lower_) + "_" + str(token.dep_) + "_" + str(token.tag_))
+    if usage == "analysis":
+        # Collapse phrases
+        for _np in list(doc.noun_chunks):
+            _np.merge(_np.root.tag_, _np.root.lemma_, _np.root.ent_type_)
+        for token in doc:
+            if not token.is_punct:
+                word_dep_root.append({"word": token.lower_, "dep": token.dep_,
+                                      "root": token.head.lower_})
+                pos_dep_rootpos.append(
+                    {"pos": token.tag_, "dep": token.dep_, "rootPos": token.head.tag_})
+                word_root_rootparent.append(
+                    {"word": token.lower_, "root": token.head.lower_, "preRoot": token.head.head.lower_})
+                dependencies.append({"text": token.lower_, "root": token.head.lower_,
+                                     "dependency": token.dep_, "pos": token.tag_})
+        parsed_tweet["word_dep_root"] = word_dep_root
+        parsed_tweet["pos_dep_rootPos"] = pos_dep_rootpos
+        parsed_tweet["word_root_rootparent"] = word_root_rootparent
+        parsed_tweet["dependencies"] = dependencies
+        dependency_contexts = extract_dep_contexts(doc)
+        parsed_tweet["dependency_contexts"] = dependency_contexts[0]
+        parsed_tweet["feat_dep_bigrams"] = create_dep_ngrams(
+            parsed_tweet["dependencies"], 2)
+        parsed_tweet["feat_dep_trigrams"] = create_dep_ngrams(
+            parsed_tweet["dependencies"], 3)
 
-    parsed_tweet["word_dep_root"] = word_dep_root
-    parsed_tweet["feat_word_dep_root"] = feat_word_dep_root
-    parsed_tweet["pos_dep_rootPos"] = pos_dep_rootpos
-    parsed_tweet["feat_pos_dep_rootPos"] = feat_pos_dep_rootpos
-    parsed_tweet["word_root_rootparent"] = word_root_rootparent
-    parsed_tweet["feat_word_root_rootparent"] = feat_word_root_rootparent
-    parsed_tweet["dependencies"] = dependencies
-    parsed_tweet["feat_dep_unigrams"] = feat_dep_unigrams
-    parsed_tweet["feat_dep_bigrams"] = create_dep_ngrams(
-        parsed_tweet["dependencies"], 2)
-    parsed_tweet["feat_dep_trigrams"] = create_dep_ngrams(
-        parsed_tweet["dependencies"], 3)
-    parsed_tweet["brown_cluster_ids"] = [
-        token.cluster for token in doc if token.cluster != 0]
-    dependency_contexts = extract_dep_contexts(doc)
-    parsed_tweet["dependency_contexts"] = dependency_contexts[0]
-    parsed_tweet["feat_dependency_contexts"] = dependency_contexts[1]
-    parsed_tweet["conllFormat"] = extract_conll_format(doc)
+    elif usage == "features":
+        # Collapse phrases
+        for _np in list(doc.noun_chunks):
+            _np.merge(_np.root.tag_, _np.root.lemma_, _np.root.ent_type_)
+        for token in doc:
+            if not token.is_punct:
+                feat_word_dep_root.append(
+                    str(token.lower_) + "_" + str(token.dep_) + "_" + str(token.head.lower_))
+                feat_pos_dep_rootpos.append(
+                    str(token.tag_) + "_" + str(token.dep_) + "_" + str(token.head.tag_))
+                feat_word_root_rootparent.append(str(
+                    token.lower_) + "_" + str(token.head.lower_) + "_" + str(token.head.head.lower_))
+                dependencies.append({"text": token.lower_, "root": token.head.lower_,
+                                     "dependency": token.dep_, "pos": token.tag_})
+                feat_dep_unigrams.append(str(token.lower_) + "_" + str(
+                    token.head.lower_) + "_" + str(token.dep_) + "_" + str(token.tag_))
+        parsed_tweet["feat_word_dep_root"] = feat_word_dep_root
+        parsed_tweet["feat_pos_dep_rootPos"] = feat_pos_dep_rootpos
+        parsed_tweet["feat_word_root_rootparent"] = feat_word_root_rootparent
+        parsed_tweet["feat_dep_unigrams"] = feat_dep_unigrams
+        parsed_tweet["feat_dep_bigrams"] = create_dep_ngrams(dependencies, 2)
+        parsed_tweet["feat_dep_trigrams"] = create_dep_ngrams(dependencies, 3)
+        parsed_tweet["brown_cluster_ids"] = [
+            token.cluster for token in doc if token.cluster != 0]
+        dependency_contexts = extract_dep_contexts(doc)
+        parsed_tweet["feat_dependency_contexts"] = dependency_contexts[1]
+
+    elif usage == "conll":
+        parsed_tweet["conllFormat"] = extract_conll_format(doc)
     return parsed_tweet
