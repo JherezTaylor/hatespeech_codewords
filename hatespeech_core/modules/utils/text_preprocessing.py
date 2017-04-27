@@ -614,10 +614,10 @@ def prep_linguistic_features(parsed_tweet, hs_keywords, doc, usage=None):
 
         parsed_tweet["char_trigrams"] = create_character_ngrams(
             doc.text.split(), 3)
-        parsed_tweet["char_quadgrams"] = create_character_ngrams(
-            doc.text.split(), 4)
-        parsed_tweet["char_pentagrams"] = create_character_ngrams(
-            doc.text.split(), 5)
+        # parsed_tweet["char_quadgrams"] = create_character_ngrams(
+        #     doc.text.split(), 4)
+        # parsed_tweet["char_pentagrams"] = create_character_ngrams(
+        #     doc.text.split(), 5)
         parsed_tweet["hashtags"] = [
             token.text for token in doc if token.prefix_ == "#"]
     if usage == "features":
@@ -658,12 +658,12 @@ def prep_dependency_features(parsed_tweet, doc, usage=None):
                     {"word": token.lower_, "root": token.head.lower_, "preRoot": token.head.head.lower_})
                 dependencies.append({"text": token.lower_, "root": token.head.lower_,
                                      "dependency": token.dep_, "pos": token.tag_})
-        parsed_tweet["word_dep_root"] = word_dep_root
-        parsed_tweet["pos_dep_rootPos"] = pos_dep_rootpos
-        parsed_tweet["word_root_rootparent"] = word_root_rootparent
+        # parsed_tweet["word_dep_root"] = word_dep_root
+        # parsed_tweet["pos_dep_rootPos"] = pos_dep_rootpos
+        # parsed_tweet["word_root_rootparent"] = word_root_rootparent
         parsed_tweet["dependencies"] = dependencies
-        dependency_contexts = extract_dep_contexts(doc)
-        parsed_tweet["dependency_contexts"] = dependency_contexts[0]
+        # dependency_contexts = extract_dep_contexts(doc)
+        # parsed_tweet["dependency_contexts"] = dependency_contexts[0]
         parsed_tweet["feat_dep_bigrams"] = create_dep_ngrams(
             parsed_tweet["dependencies"], 2)
         parsed_tweet["feat_dep_trigrams"] = create_dep_ngrams(
