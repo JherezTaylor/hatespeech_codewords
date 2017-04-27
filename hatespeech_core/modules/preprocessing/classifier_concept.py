@@ -207,12 +207,12 @@ def update_schema(staging):
 
 def start_feature_extraction():
     """Run operations"""
-    connection_params_1 = ["twitter", "CrowdFlower", "crowdflower_conll"]
-    connection_params_2 = ["twitter", "CrowdFlower", "crowdflower_analysis"]
-    connection_params_3 = ["twitter", "CrowdFlower", "crowdflower_features"]
+    connection_params_0 = ["twitter", "CrowdFlower", "crowdflower_conll"]
+    connection_params_1 = ["twitter", "CrowdFlower", "crowdflower_analysis"]
+    connection_params_2 = ["twitter", "CrowdFlower", "crowdflower_features"]
     usage = ["conll", "analysis", "features"]
     nlp = init_nlp_pipeline()
     # tweet_list = ["I'm here :) :D 99", "get rekt",
     #               "lol hi", "just a prank bro", "#squadgoals okay"]
     # extract_lexical_features_test(nlp, tweet_list)
-    feature_extraction_pipeline(connection_params_3, nlp, usage[2])
+    feature_extraction_pipeline(connection_params_1, nlp, usage[1])
