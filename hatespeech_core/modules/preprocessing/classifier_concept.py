@@ -113,7 +113,6 @@ def feature_extraction_pipeline(connection_params, nlp, usage=None):
     for object_id, doc, label in zip(object_ids, docs, contains_hs):
         # emotion_vector.append(doc.text)
         count += 1
-        print("count ", count)
 
         if str(label) == "The tweet is not offensive":
             label = "not_offensive"
@@ -153,6 +152,7 @@ def feature_extraction_pipeline(connection_params, nlp, usage=None):
 
         staging.append(parsed_tweet)
         if len(staging) == 5000:
+            print("count ", count)
             operations = unpack_emotions(staging, emotion_vector, None, None)
             # operations = update_schema(staging)
             _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
@@ -205,14 +205,40 @@ def update_schema(staging):
     return operations
 
 
+def write_conll_file(connection_params):
+    """ Read and write the data from a conll collection"""
+    client = mongo_base.connect()
+    connection_params.insert(0, client)
+
+    query = {}
+    query["filter"] = {}
+    query["projection"] = {"conllFormat": 1, "_id": 0}
+    query["limit"] = 0
+    query["skip"] = 0
+    query["no_cursor_timeout"] = True
+    count = 0
+    cursor = mongo_base.finder(connection_params, query, False)
+
+    with open(settings.DATASET_PATH + "hs_candidates_exp6_conll", "w+") as conll_file:
+        for doc in cursor:
+            count += 1
+            for entry in doc["conllFormat"]:
+                conll_file.write(entry + "\n")
+            conll_file.write("\n")
+            print("count ", count)
+        conll_file.close()
+
+
 def start_feature_extraction():
     """Run operations"""
     connection_params_0 = ["twitter", "CrowdFlower", "crowdflower_conll"]
     connection_params_1 = ["twitter", "CrowdFlower", "crowdflower_analysis"]
     connection_params_2 = ["twitter", "CrowdFlower", "crowdflower_features"]
     usage = ["conll", "analysis", "features"]
-    nlp = init_nlp_pipeline()
+    # nlp = init_nlp_pipeline()
     # tweet_list = ["I'm here :) :D 99", "get rekt",
     #               "lol hi", "just a prank bro", "#squadgoals okay"]
     # extract_lexical_features_test(nlp, tweet_list)
-    feature_extraction_pipeline(connection_params_1, nlp, usage[1])
+    # feature_extraction_pipeline(connection_params_1, nlp, usage[1])
+    connection_params_4 = ["twitter", "hs_candidates_exp6_conll"]
+    write_conll_file(connection_params_4)

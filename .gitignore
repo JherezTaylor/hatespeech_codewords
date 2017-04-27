@@ -91,3 +91,4 @@ ENV/
 
 # Pickled objects
 hatespeech_core/data/persistence/df/
+hatespeech_core/data/datasets/hs_candidates_exp6_conll
