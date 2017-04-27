@@ -58,7 +58,7 @@ def extract_lexical_features_test(nlp, tweet_list):
 
 
 # @notifiers.do_cprofile
-def feature_extraction_pipeline(connection_params, nlp):
+def feature_extraction_pipeline(connection_params, nlp, usage=None):
     """Handles the extraction of features needed for the model.
     Inserts parsed documents to database.
     Args:
@@ -125,14 +125,28 @@ def feature_extraction_pipeline(connection_params, nlp):
         # Construct a new tweet object to be appended
         parsed_tweet = {}
         parsed_tweet["_id"] = object_id
-        parsed_tweet["text"] = doc.text
-        parsed_tweet["annotation_label"] = label
-        parsed_tweet["tokens"] = list([token.lower_ for token in doc if not(
-            token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")])
-        parsed_tweet = text_preprocessing.prep_linguistic_features(
-            parsed_tweet, hs_keywords, doc)
-        parsed_tweet = text_preprocessing.prep_dependency_features(
-            parsed_tweet, doc)
+        if usage == "conll":
+            parsed_tweet = text_preprocessing.prep_dependency_features(
+                parsed_tweet, doc, usage)
+
+        else:
+            parsed_tweet["text"] = doc.text
+            parsed_tweet["annotation_label"] = label
+            if usage == "analysis":
+                parsed_tweet["tokens"] = list([token.lower_ for token in doc if not(
+                    token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")])
+                parsed_tweet = text_preprocessing.prep_linguistic_features(
+                    parsed_tweet, hs_keywords, doc, usage)
+                parsed_tweet = text_preprocessing.prep_dependency_features(
+                    parsed_tweet, doc, usage)
+            elif usage == "features":
+                parsed_tweet["tokens"] = list([token.lower_ for token in doc if not(
+                    token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")])
+                parsed_tweet = text_preprocessing.prep_linguistic_features(
+                    parsed_tweet, hs_keywords, doc, usage)
+                parsed_tweet = text_preprocessing.prep_dependency_features(
+                    parsed_tweet, doc, usage)
+
         # parsed_tweet["related_keywords"] = [[w.lower_ for w in text_preprocessing.get_similar_words(
         # nlp.vocab[token], settings.NUM_SYNONYMS)] for token in
         # text_preprocessing.get_keywords(doc)]
@@ -193,9 +207,12 @@ def update_schema(staging):
 
 def start_feature_extraction():
     """Run operations"""
-    connection_params = ["twitter", "CrowdFlower", "crowdflower_features"]
+    connection_params_1 = ["twitter", "CrowdFlower", "crowdflower_conll"]
+    connection_params_2 = ["twitter", "CrowdFlower", "crowdflower_analysis"]
+    connection_params_3 = ["twitter", "CrowdFlower", "crowdflower_features"]
+    usage = ["conll", "analysis", "features"]
     nlp = init_nlp_pipeline()
     # tweet_list = ["I'm here :) :D 99", "get rekt",
     #               "lol hi", "just a prank bro", "#squadgoals okay"]
     # extract_lexical_features_test(nlp, tweet_list)
-    feature_extraction_pipeline(connection_params, nlp)
+    feature_extraction_pipeline(connection_params_3, nlp, usage[2])
