@@ -555,10 +555,14 @@ def extract_dep_contexts(doc):
     Returns:
         result: List of word:dependency pairs.
     """
+
     dependency_contexts = []
     dependency_contexts_concat = []
     for word in doc:
-        if not str(word.head.prefix_).isalpha() or not str(word.prefix_).isalpha() or "." in word.text or "." in str(word.head):
+        # I originally did this because Mongo doesn't allow these prefixes to be keys in a dictionary
+        # if not str(word.head.prefix_).isalpha() or not str(word.prefix_).isalpha() or "." in word.text or "." in str(word.head):
+        #     pass
+        if word.is_punct:
             pass
         elif len(list(word.children)) == 0:
             dependency_contexts.append(
@@ -567,7 +571,7 @@ def extract_dep_contexts(doc):
                 word.lower_ + "_" + word.head.lower_ + "_" + str(word.dep_) + "INV")
         elif len(list(word.children)) >= 1:
             for child in word.children:
-                if child.lower_ != word.lower_:
+                if child.lower_ != word.lower_ and not child.is_punct:
                     dependency_contexts.append(
                         {word.lower_: str(child.lower_) + " " + str(child.dep_)})
                     dependency_contexts_concat.append(
