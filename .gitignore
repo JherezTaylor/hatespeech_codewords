@@ -91,4 +91,5 @@ ENV/
 
 # Pickled objects
 hatespeech_core/data/persistence/df/
+hatespeech_core/data/persistence/word_embeddings/
 hatespeech_core/data/conll_data/
