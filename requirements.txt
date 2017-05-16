@@ -1,5 +1,6 @@
 pymongo
 langid
+elasticsearch
 nltk
 textblob
 plotly
