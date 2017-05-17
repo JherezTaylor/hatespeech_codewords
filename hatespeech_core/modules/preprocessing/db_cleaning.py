@@ -208,17 +208,17 @@ def run_clean_source_field(connection_params, job_name):
         [time1, time2], [str(job_name) + " ", connection_params[0] + " " + str(job_name)])
 
 
-def run_update_missing_text():
+def run_update_missing_text(connection_params):
     """ Start the missing tweet text replacement job
     """
-
-    connection_params = ["twitter_test", "tweets"]
+    client = mongo_base.connect()
+    connection_params.insert(0, client)
     time1 = notifiers.time()
     db_response = mongo_base.update_missing_text(connection_params)
     time2 = notifiers.time()
 
     notifiers.send_job_completion(
-        [time1, time2], ["update_missing_text", connection_params[0] + ": Replace missing text took " + str(
+        [time1, time2], ["update_missing_text", connection_params[1] + ": Replace missing text took " + str(
             db_response[0]) + "Not Found: " + str(db_response[1]) + "Total Requests: "
             + str(db_response[2])])
 
@@ -238,6 +238,10 @@ def preprocessing_pipeline():
     #              'it', 'ja', 'fr', 'de', 'ar', 'zh']
 
     connection_params = ["inauguration", "tweets"]
+    connection_params_1 = ["twitter", "NAACL_SRW_2016"]
+    connection_params_2 = ["twitter", "NLP_CSS_2016_expert"]
+    run_update_missing_text(connection_params_1)
+    run_update_missing_text(connection_params_2)
     # connection_params = ["inauguration_no_filter", "tweets"]
 
     # hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
@@ -297,7 +301,7 @@ def preprocessing_pipeline():
     #     connection_params, "quoted_status", "Quoted Status Extended Tweet")
 
     # Remove final field set
-    run_final_field_removal(connection_params, "Final Field Removal")
+    # run_final_field_removal(connection_params, "Final Field Removal")
 
     # Clean source field
-    run_clean_source_field(connection_params, "Clean Source Field")
+    # run_clean_source_field(connection_params, "Clean Source Field")
