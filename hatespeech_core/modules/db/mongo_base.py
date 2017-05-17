@@ -264,7 +264,7 @@ def update_missing_text(connection_params):
             not_found_count += response[2]
             raw_docs.clear()
 
-        if len(operations) != 0 and (len(operations) % settings.BULK_BATCH_SIZE) == 0:
+        if len(operations) == settings.BULK_BATCH_SIZE:
             _ = do_bulk_op(dbo, collection, operations)
             operations = []
 
@@ -278,7 +278,8 @@ def update_missing_text(connection_params):
         not_found_count += response[2]
         raw_docs.clear()
 
-    _ = do_bulk_op(dbo, collection, operations)
+    if (len(operations) % settings.BULK_BATCH_SIZE) != 0:
+        _ = do_bulk_op(dbo, collection, operations)
     # Do a manual delete many to clean up tweets that weren't found
     return [found_count, not_found_count, request_count]
 
