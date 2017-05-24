@@ -16,6 +16,7 @@ from ..utils import file_ops
 from ..utils import notifiers
 from ..utils import text_preprocessing
 from ..db import mongo_base
+from ..db import elasticsearch
 from ..utils.CustomTwokenizer import CustomTwokenizer
 from ..pattern_classifier import SimpleClassifier, PatternVectorizer
 
@@ -229,16 +230,57 @@ def write_conll_file(connection_params):
         conll_file.close()
 
 
+def fetch_es_tweets(connection_params, args):
+    """ Scroll an elasticsearch instance and insert the tweets into MongoDB
+    """
+
+    db_name = connection_params[0]
+    target_collection = connection_params[1]
+
+    es_url = args[0]
+    es_index = args[1]
+    doc_type = args[2]
+    field = args[3]
+    lookup_list = args[4]
+    _es = elasticsearch.connect(es_url)
+
+    # Setup client object for bulk op
+    bulk_client = mongo_base.connect()
+    dbo = bulk_client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
+
+    es_results = elasticsearch.match(
+        _es, es_index, doc_type, field, lookup_list)
+
+    operations = []
+    for doc in es_results:
+        operations.append(InsertOne(doc["_source"]))
+
+        if len(operations) == settings.BULK_BATCH_SIZE:
+            _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+            operations = []
+
+    if operations:
+        _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+
+
 def start_feature_extraction():
     """Run operations"""
     connection_params_0 = ["twitter", "CrowdFlower", "crowdflower_conll"]
     connection_params_1 = ["twitter", "CrowdFlower", "crowdflower_analysis"]
     connection_params_2 = ["twitter", "CrowdFlower", "crowdflower_features"]
+    connection_params_4 = ["twitter", "hs_candidates_exp6_conll"]
+    connection_params_5 = ["twitter", "melvyn_hs_users"]
     usage = ["conll", "analysis", "features"]
+
+    lookup_list = file_ops.read_csv_file(
+        'melvyn_hs_user_ids', settings.TWITTER_SEARCH_PATH)
+    fetch_es_tweets(connection_params_5, [
+                    "192.168.2.33", "tweets", "tweet", "user.id_str", lookup_list])
     # nlp = init_nlp_pipeline()
     # tweet_list = ["I'm here :) :D 99", "get rekt",
     #               "lol hi", "just a prank bro", "#squadgoals okay"]
     # extract_lexical_features_test(nlp, tweet_list)
     # feature_extraction_pipeline(connection_params_1, nlp, usage[1])
-    connection_params_4 = ["twitter", "hs_candidates_exp6_conll"]
-    write_conll_file(connection_params_4)
+    # write_conll_file(connection_params_4)

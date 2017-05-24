@@ -18,6 +18,7 @@ DATASET_PATH = PATH + "/datasets/"
 WORDLIST_PATH = PATH + "/wordlists/"
 MODEL_PATH = PATH + "/persistence/"
 DB_URL = os.environ["MONGODB_URL"]
+ES_URL = os.environ["ES_URL"]
 MONGO_USER = os.environ["MONGO_USER"]
 MONGO_PW = os.environ["MONGO_PW"]
 DB_AUTH_SOURCE = 'admin'
