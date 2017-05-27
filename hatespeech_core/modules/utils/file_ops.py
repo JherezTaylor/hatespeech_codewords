@@ -11,8 +11,6 @@ import csv
 from collections import OrderedDict
 import glob
 import ujson
-import pandas as pd
-from ..db import mongo_base
 from . import settings
 from . import notifiers
 
@@ -283,27 +281,3 @@ def parse_category_files():
 
     result = filter1 + filter2 + filter3
     return result
-
-
-def fetch_as_df(connection_params, projection):
-    """ Takes MongoDB connection params and returns the specified
-    collection as a pandas dataframe.
-
-    Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: db_name     (str): Name of database to query.
-            1: collection  (str): Name of collection to use.
-        projection (dict): Dictionary of fields to return, returns all fields if blank.
-    """
-
-    client = mongo_base.connect()
-    connection_params.insert(0, client)
-    query = {}
-    query["filter"] = {}
-    query["projection"] = projection
-    query["limit"] = 0
-    query["skip"] = 0
-    query["no_cursor_timeout"] = True
-    cursor = mongo_base.finder(connection_params, query, False)
-    _df = pd.DataFrame(list(cursor))
-    return _df

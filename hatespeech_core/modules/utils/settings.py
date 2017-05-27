@@ -7,7 +7,7 @@
 import os
 
 DIR = os.path.dirname
-## Jump up three directories
+# Jump up three directories
 PATH = os.path.join(DIR(DIR(DIR(__file__))), os.path.join("data"))
 
 JSON_PATH = PATH + "/hatebase_data/json/"
@@ -37,3 +37,9 @@ TWITTER_APP_KEY = os.environ["TWITTER_APP_KEY"]
 TWITTER_APP_SECRET = os.environ["TWITTER_APP_SECRET"]
 TWITTER_OAUTH = os.environ["TWITTER_OAUTH"]
 TWITTER_OAUTH_SECRET = os.environ["TWITTER_OAUTH_SECRET"]
+SPACY_EN_MODEL = "en_core_web_md"
+SPACY_GLOVE_MODEL = "en_vectors_glove_md"
+CRWDFLR_DATA_RAW = 'data/persistence/df/crowdflower_features_raw.pkl.compressed'
+CRWDFLR_DATA = 'data/persistence/df/crowdflower_features.pkl.compressed'
+NAACL_2016_DATA = 'data/persistence/df/naacl_2016.pkl.compressed'
+NLP_2016_DATA = 'data/persistence/df/nlp_2016.pkl.compressed'
