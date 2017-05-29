@@ -387,7 +387,7 @@ def emotion_coverage_pipeline(connection_params, filter_options, partition):
 
         if create_ngrams:
             cleaned_result = text_preprocessing.clean_tweet_text(document[
-                                                                 projection])
+                                                                 projection], True)
             xgrams = ([(text_preprocessing.create_ngrams(cleaned_result[0], i))
                        for i in range(1, 6)])
             operations.append(UpdateOne({"_id": document["_id"]}, {
