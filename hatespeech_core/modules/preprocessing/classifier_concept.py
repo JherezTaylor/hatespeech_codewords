@@ -16,7 +16,7 @@ from ..utils import file_ops
 from ..utils import notifiers
 from ..utils import text_preprocessing
 from ..db import mongo_base
-from ..db import elasticsearch
+from ..db import elasticsearch_base
 from ..utils.CustomTwokenizer import CustomTwokenizer
 from ..pattern_classifier import SimpleClassifier, PatternVectorizer
 
@@ -242,7 +242,7 @@ def fetch_es_tweets(connection_params, args):
     doc_type = args[2]
     field = args[3]
     lookup_list = args[4]
-    _es = elasticsearch.connect(es_url)
+    _es = elasticsearch_base.connect(es_url)
 
     # Setup client object for bulk op
     bulk_client = mongo_base.connect()
@@ -250,7 +250,7 @@ def fetch_es_tweets(connection_params, args):
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
                      source=settings.DB_AUTH_SOURCE)
 
-    es_results = elasticsearch.match(
+    es_results = elasticsearch_base.match(
         _es, es_index, doc_type, field, lookup_list)
 
     operations = []
