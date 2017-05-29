@@ -6,15 +6,18 @@
 This module houses various helper functions for use with the various models
 """
 
+import joblib
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.decomposition import IncrementalPCA
 from sklearn.base import TransformerMixin, BaseEstimator
 import cufflinks as cf
 import plotly as py
 import plotly.graph_objs as go
+from . import settings
 from ..db import mongo_base
 
 
@@ -49,12 +52,13 @@ def fetch_as_df(connection_params, projection):
     return _df
 
 
-def plot_confusion_matrix(_cm, labels, chart_title):
+def plot_confusion_matrix(_cm, labels, chart_title, filename):
     """ Accept and plot a confusion matrix
     Args:
         cm (numpy.array): Confusion matrix
         labels (list): Feature labels
         chart_title (str)
+        filename (str)
     """
 
     labels = sorted(labels.tolist())
@@ -67,6 +71,70 @@ def plot_confusion_matrix(_cm, labels, chart_title):
                             yaxis=dict(title='True Label',
                                        autorange='reversed')
                             )
+    })
+
+
+def plot_scatter_chart(values, chart_title):
+    """ Accept and plot values on a scatter chart
+    Args:
+        value_list  (list): Numerical values to plot.
+        chart_title (str)
+        filename (str)
+    """
+
+    trace = go.Scatter(
+        x=list(range(1, len(values) + 1)),
+        y=values
+    )
+    data = [trace]
+    py.offline.iplot({
+        "data": data,
+        "layout": go.Layout(title=chart_title)
+    })
+
+
+def plot_histogram(values):
+    """ Accept and plot values on a histogram
+    Args:
+       value_list  (list): Numerical values to plot.
+       chart_title (str)
+       filename (str)
+    """
+    data = [go.Histogram(x=values)]
+    py.offline.iplot({
+        "data": data
+    })
+
+
+def plot_word_embedding(X_tsne, vocab, chart_title, show_labels):
+    """ Accept and plot values for a word embedding
+    Args:
+       value_list  (list): Numerical values to plot.
+       chart_title (str)
+       filename (str)
+    """
+    if show_labels:
+        display_mode = 'markers+text'
+        display_text = vocab
+    else:
+        display_mode = 'markers'
+        display_text = None
+
+    trace = go.Scatter(
+        x=X_tsne[:, 0],
+        y=X_tsne[:, 1],
+        mode=display_mode,
+        text=display_text,
+        marker=dict(size=14,
+                    line=dict(width=0.5),
+                    opacity=0.3,
+                    color='rgba(217, 217, 217, 0.14)'
+                    )
+    )
+    data = [trace]
+    py.offline.iplot({
+        "data": data,
+        "layout": go.Layout(title=chart_title)
     })
 
 
@@ -110,8 +178,18 @@ def run_experiment(X, y, pipeline, process_name, display_args, num_expts=1):
             print("Confusion matrix: ")
             print(cm)
         if display_args[1]:
-            plot_confusion_matrix(cm, y.unique(), process_name)
+            plot_confusion_matrix(
+                cm, y.unique(), process_name, process_name + "_cm")
 #     print(sum(scores) / num_expts)
+
+
+def pca_reduction(vectors, num_dimensions, model_name):
+    print('Reducing to ' + str(num_dimensions) + 'D using IncrementalPCA...')
+    ipca = IncrementalPCA(n_components=num_dimensions)
+    vectors = ipca.fit_transform(vectors)
+    joblib.dump(vectors, model_name, compress=True)
+    print('Done')
+    return vectors
 
 
 def run_gridsearch_cv(pipeline, X, y, param_grid, n_jobs, score):
@@ -166,12 +244,13 @@ def get_feature_stats(vectorizer, X, skb, feature_names):
         return len(vectorizer.get_feature_names())
 
 
-def fetch_top_k_similar(model, row, field_name, k):
+def gensim_top_k_similar(model, row, field_name, k):
     """ Returns the top k similar word vectors from a word embedding model.
     Args:
         model (gensim.models): Gensim word embedding model.
         row (pandas.Dataframe): Row extracted from a dataframe.
         field_name (str): Name of dataframe column to extract.
+        k (int): Number of results to return.
     """
 
     similar_words = []
@@ -181,6 +260,20 @@ def fetch_top_k_similar(model, row, field_name, k):
             for _m in matches:
                 similar_words.append(_m[0])
     return similar_words
+
+
+def spacy_top_k_similar(word, k):
+    """ Returns the top k similar word vectors from a spacy embedding model.
+    Args:
+        word (spacy.token): Gensim word embedding model.
+        k (int): Number of results to return.
+    """
+    queries = [w for w in word.vocab if not (word.is_oov or word.is_punct or word.like_num or word.is_stop or word.lower_ == "rt")
+               and w.has_vector and w.lower_ != word.lower_ and w.is_lower == word.is_lower and w.prob >= -15]
+    by_similarity = sorted(
+        queries, key=lambda w: word.similarity(w), reverse=True)
+    cosine_score = [word.similarity(w) for w in by_similarity]
+    return by_similarity[:k], cosine_score[:k]
 
 
 def empty_analyzer():
