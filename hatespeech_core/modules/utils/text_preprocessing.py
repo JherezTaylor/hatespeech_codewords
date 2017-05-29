@@ -20,10 +20,11 @@ from pymongo import UpdateOne
 from . import EmotionDetection
 from . import twokenize
 from . import notifiers
+from . import settings
 
 PUNCTUATION = list(string.punctuation)
 STOP_LIST = set(stopwords.words(
-    "english") + PUNCTUATION + ["rt", "via", "RT"])
+    "english") + PUNCTUATION + ["rt", "via", "RT", "..."])
 
 
 @notifiers.timing
@@ -39,7 +40,7 @@ def preprocess_text(raw_text):
         list: vectorized tweet.
     """
 
-    cleaned_result = clean_tweet_text(raw_text)
+    cleaned_result = clean_tweet_text(raw_text, True)
     terms_single = cleaned_result[1]
 
     # unigrams = [ w for doc in documents for w in doc if len(w)==1]
@@ -162,7 +163,7 @@ def prepare_text(raw_text, args):
     stop_list = args[0]
     hs_keywords = args[1]
 
-    cleaned_result = clean_tweet_text(raw_text)
+    cleaned_result = clean_tweet_text(raw_text, False)
     clean_text = cleaned_result[0]
     terms_single = cleaned_result[1]
 
@@ -357,12 +358,18 @@ def is_garbage(raw_text, precision):
         return False
 
 
-def clean_tweet_text(raw_text):
-    """Clean up tweet text and preserve emojis"""
+def clean_tweet_text(raw_text, normalize_mentions):
+    """Clean up tweet text and preserve emojis
+    Args:
+        normalize_mentions (boolean): Covert @ to user_mentions
+    """
 
     # Remove urls
     clean_text = remove_urls(raw_text)
-    clean_text = twokenize.tokenizeRawTweetText(clean_text)
+    if normalize_mentions:
+        clean_text = twokenize.customTokenizeRawTweetText(clean_text)
+    else:
+        clean_text = twokenize.tokenizeRawTweetText(clean_text)
 
     # Remove numbers
     clean_text = [token for token in clean_text if len(
@@ -703,3 +710,42 @@ def prep_dependency_features(parsed_tweet, doc, usage=None):
     elif usage == "conll":
         parsed_tweet["conllFormat"] = extract_conll_format(doc)
     return parsed_tweet
+
+
+def prep_word_embedding_file(collection, filename):
+    """ Takes a MongoDB or other cursor, preprocesses the text
+    and writes the data to a text file.
+    Args:
+        collection (iterable)
+        filename (str)
+    """
+
+    count = 0
+    with open(settings.EMBEDDING_INPUT + filename, "w+") as _f:
+        for doc in collection:
+            count += 1
+            cleaned_text = clean_tweet_text(doc["text"], True)
+            words = [word for word in cleaned_text[0] if word not in STOP_LIST]
+            result = " ".join(words)
+            _f.write(result + "\n")
+            print("count ", count)
+        _f.close()
+
+
+def prep_conll_file(collection, filename):
+    """ Takes a MongoDB or other cursor
+    and writes the coNLL data to a text file.
+    Args:
+        collection (iterable)
+        filename (str)
+    """
+
+    count = 0
+    with open(settings.CONLL_PATH + filename, "w+") as _f:
+        for doc in collection:
+            count += 1
+            for entry in doc["conllFormat"]:
+                _f.write(entry + "\n")
+            _f.write("\n")
+            print("count ", count)
+        _f.close()

@@ -20,6 +20,7 @@ def main():
     # candidate_selection.sentiment_pipeline()
     # db_cleaning.run_update_missing_text()
     # classifier_concept.start_feature_extraction()
+    classifier_concept.train_embeddings()
 
 if __name__ == "__main__":
     main()

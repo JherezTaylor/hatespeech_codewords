@@ -94,7 +94,10 @@ hatespeech_core/data/persistence/df/*
 hatespeech_core/data/persistence/word_embeddings/*
 hatespeech_core/data/conll_data/*
 
+hatespeech_core/data/neural_embedding_data/*
+
 # Exceptions
 !hatespeech_core/data/persistence/df/readme.txt
 !hatespeech_core/data/persistence/word_embeddings/readme.txt
 !hatespeech_core/data/conll_data/readme.txt
+!hatespeech_core/data/neural_embedding_data/readme.txt

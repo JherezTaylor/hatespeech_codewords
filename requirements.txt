@@ -20,3 +20,5 @@ scikit-learn
 regex
 tqdm
 gensim
+Cython
+fasttext

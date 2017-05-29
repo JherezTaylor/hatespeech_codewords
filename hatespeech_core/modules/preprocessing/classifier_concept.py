@@ -9,12 +9,12 @@ This module serves as a proof of concept for the classifier model
 import itertools
 import spacy
 import joblib
-import pandas as pd
 from pymongo import InsertOne, UpdateOne
 from ..utils import settings
 from ..utils import file_ops
 from ..utils import notifiers
 from ..utils import text_preprocessing
+from ..utils import model_helpers
 from ..db import mongo_base
 from ..db import elasticsearch_base
 from ..utils.CustomTwokenizer import CustomTwokenizer
@@ -27,7 +27,7 @@ def init_nlp_pipeline():
     Returns:
         nlp: spaCy language model
     """
-    nlp = spacy.load('en', create_make_doc=CustomTwokenizer)
+    nlp = spacy.load(settings.SPACY_EN_MODEL, create_make_doc=CustomTwokenizer)
     return nlp
 
 
@@ -206,30 +206,6 @@ def update_schema(staging):
     return operations
 
 
-def write_conll_file(connection_params):
-    """ Read and write the data from a conll collection"""
-    client = mongo_base.connect()
-    connection_params.insert(0, client)
-
-    query = {}
-    query["filter"] = {}
-    query["projection"] = {"conllFormat": 1, "_id": 0}
-    query["limit"] = 0
-    query["skip"] = 0
-    query["no_cursor_timeout"] = True
-    count = 0
-    cursor = mongo_base.finder(connection_params, query, False)
-
-    with open(settings.DATASET_PATH + "hs_candidates_exp6_conll", "w+") as conll_file:
-        for doc in cursor:
-            count += 1
-            for entry in doc["conllFormat"]:
-                conll_file.write(entry + "\n")
-            conll_file.write("\n")
-            print("count ", count)
-        conll_file.close()
-
-
 def fetch_es_tweets(connection_params, args):
     """ Scroll an elasticsearch instance and insert the tweets into MongoDB
     """
@@ -265,22 +241,68 @@ def fetch_es_tweets(connection_params, args):
         _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
 
+def create_dep_embedding_input(connection_params, filename):
+    """ Read and write the data from a conll collection"""
+    client = mongo_base.connect()
+    connection_params.insert(0, client)
+
+    query = {}
+    query["filter"] = {}
+    query["projection"] = {"conllFormat": 1, "_id": 0}
+    query["limit"] = 0
+    query["skip"] = 0
+    query["no_cursor_timeout"] = True
+
+    cursor = mongo_base.finder(connection_params, query, False)
+    text_preprocessing.prep_conll_file(cursor, filename)
+
+
+def create_word_embedding_input(connection_params, filename):
+    """ Call a collection and write it to disk
+    """
+    client = mongo_base.connect()
+    connection_params.insert(0, client)
+
+    query = {}
+    query["filter"] = {"text": {"$ne": None}}
+    query["projection"] = {"text": 1, "_id": 0}
+    query["limit"] = 0
+    query["skip"] = 0
+    query["no_cursor_timeout"] = True
+
+    cursor = mongo_base.finder(connection_params, query, False)
+    text_preprocessing.prep_word_embedding_file(cursor, filename)
+
+
 def start_feature_extraction():
     """Run operations"""
-    connection_params_0 = ["twitter", "CrowdFlower", "crowdflower_conll"]
-    connection_params_1 = ["twitter", "CrowdFlower", "crowdflower_analysis"]
-    connection_params_2 = ["twitter", "CrowdFlower", "crowdflower_features"]
-    connection_params_4 = ["twitter", "hs_candidates_exp6_conll"]
-    connection_params_5 = ["twitter", "melvyn_hs_users"]
-    usage = ["conll", "analysis", "features"]
+    # connection_params_0 = ["twitter", "CrowdFlower", "crowdflower_conll"]
+    # connection_params_1 = ["twitter", "CrowdFlower", "crowdflower_analysis"]
+    # connection_params_2 = ["twitter", "CrowdFlower", "crowdflower_features"]
+    # connection_params_5 = ["twitter", "melvyn_hs_users"]
 
-    lookup_list = file_ops.read_csv_file(
-        'melvyn_hs_user_ids', settings.TWITTER_SEARCH_PATH)
-    fetch_es_tweets(connection_params_5, [
-                    "192.168.2.33", "tweets", "tweet", "user.id_str", lookup_list])
+    # usage = ["conll", "analysis", "features"]
+
+    # lookup_list = file_ops.read_csv_file(
+    #     'melvyn_hs_user_ids', settings.TWITTER_SEARCH_PATH)
+    # fetch_es_tweets(connection_params_5, [
+    #                 "192.168.2.33", "tweets", "tweet", "user.id_str", lookup_list])
     # nlp = init_nlp_pipeline()
     # tweet_list = ["I'm here :) :D 99", "get rekt",
     #               "lol hi", "just a prank bro", "#squadgoals okay"]
     # extract_lexical_features_test(nlp, tweet_list)
     # feature_extraction_pipeline(connection_params_1, nlp, usage[1])
-    # write_conll_file(connection_params_4)
+
+
+def train_embeddings():
+    connection_params_0 = ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004"]
+    # connection_params_1 = ["twitter", "hs_candidates_exp6_conll"]
+    # write_conll_file(connection_params_1, "hs_candidates_exp6_conll")
+    # create_word_embedding_input(
+    #     connection_params_0, "word_embedding_hs_exp6.txt")
+
+    model_helpers.train_fasttext_model(
+        settings.EMBEDDING_INPUT + "word_embedding_hs_exp6.txt", settings.EMBEDDING_MODELS + "fasttext_hs_exp6")
+
+    model_helpers.train_word2vec_model(
+        settings.EMBEDDING_INPUT + "word_embedding_hs_exp6.txt", settings.EMBEDDING_MODELS + "word2vec_hs_exp6")

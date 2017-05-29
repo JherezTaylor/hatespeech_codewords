@@ -7,6 +7,8 @@ This module houses various helper functions for use with the various models
 """
 
 import joblib
+import gensim
+import fasttext
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -18,6 +20,7 @@ import cufflinks as cf
 import plotly as py
 import plotly.graph_objs as go
 from . import settings
+from . import notifiers
 from ..db import mongo_base
 
 
@@ -346,3 +349,19 @@ class BooleanExtractor(BaseEstimator, TransformerMixin):
 
     def fit(self, *_):
         return self
+
+
+@notifiers.do_cprofile
+def train_fasttext_model(input_data, filename):
+    """ Train a fasttext model
+    """
+    model = fasttext.skipgram(input_data, filename, thread=4)
+
+
+@notifiers.do_cprofile
+def train_word2vec_model(input_data, filename):
+    """ Train a word2vec model
+    """
+    sentences = gensim.models.word2vec.LineSentence(input_data)
+    model = gensim.models.Word2Vec(sentences, min_count=5, workers=4)
+    model.save(filename)
