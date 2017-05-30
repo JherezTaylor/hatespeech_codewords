@@ -377,6 +377,7 @@ def start_store_preprocessed_text():
         # ["manchester_event", "tweets", "text"],
         # ["inauguration", "tweets", "text"],
         ["uselections", "tweets", "text"],
+        ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "text"],
         # ["unfiltered_stream_May17", "tweets", "text"],
         # ["twitter", "tweets", "text"]
     ]
