@@ -60,7 +60,7 @@ def create_word_embedding_input(connection_params, filename):
     partitions[-1] = (partitions[-1][0], (collection_size - partitions[-1][0]))
 
     for idx, _partition in enumerate(partitions):
-        partitions[idx] = (partitions[idx][0], partitions[idx][0], idx)
+        partitions[idx] = (partitions[idx][0], partitions[idx][1], idx)
 
     Parallel(n_jobs=num_cores)(delayed(text_preprocessing.prep_word_embedding_file)(
         connection_params, query, partition, filename) for partition in partitions)
@@ -82,28 +82,28 @@ def train_embeddings():
     # write_conll_file(connection_params_1, "hs_candidates_exp6_conll")
 
     job_list = [
-        ["twitter_annotated_datasets",
-            "NAACL_SRW_2016_features", "word_embedding_NACCL"],
-        ["twitter_annotated_datasets",
-         "NLP_CSS_2016_expert_features", "word_embedding_NLP_CSS"],
-        ["twitter_annotated_datasets", "crowdflower_features", "word_embedding_crwdflr"],
-        ["dailystormer_archive", "d_stormer_documents",
-            "word_embedding_daily_stormer"],
-        ["twitter", "melvyn_hs_users", "word_embedding_melvyn_hs"],
-        ["manchester_event", "tweets", "word_embedding_daily_manchester"],
-        ["inauguration", "tweets", "word_embedding_inauguration"],
-        # ["uselections", "tweets", "word_embedding_uselections"],
-        # ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "word_embedding_hs_exp6"],
-        ["unfiltered_stream_May17", "tweets", "word_embedding_unfiltered_stream"],
-        # ["twitter", "tweets", "word_embedding_twitter"]
+        # ["twitter_annotated_datasets",
+        #     "NAACL_SRW_2016_features", "word_embedding_NACCL"],
+        # ["twitter_annotated_datasets",
+        #  "NLP_CSS_2016_expert_features", "word_embedding_NLP_CSS"],
+        # ["twitter_annotated_datasets", "crowdflower_features", "word_embedding_crwdflr"],
+        # ["dailystormer_archive", "d_stormer_documents",
+        #     "word_embedding_daily_stormer"],
+        # ["twitter", "melvyn_hs_users", "word_embedding_melvyn_hs"],
+        # ["manchester_event", "tweets", "word_embedding_daily_manchester"],
+        # ["inauguration", "tweets", "word_embedding_inauguration"],
+        ["uselections", "tweets", "word_embedding_uselections"],
+        ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "word_embedding_hs_exp6"],
+        # ["unfiltered_stream_May17", "tweets", "word_embedding_unfiltered_stream"],
+        ["twitter", "tweets", "word_embedding_twitter"]
     ]
+    # Prep data
     for job in job_list:
         create_word_embedding_input(job, job[2])
 
-    # model_helpers.train_fasttext_model(
-    # settings.EMBEDDING_INPUT + "word_embedding_hs_exp6.txt",
-    # settings.EMBEDDING_MODELS + "fasttext_hs_exp6")
-
-    # model_helpers.train_word2vec_model(
-    # settings.EMBEDDING_INPUT + "word_embedding_hs_exp6.txt",
-    # settings.EMBEDDING_MODELS + "word2vec_hs_exp6")
+    # Train model
+    for job in job_list:
+        model_helpers.train_fasttext_model(
+            settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS + "fasttext_" + job[2])
+        model_helpers.train_word2vec_model(
+            settings.EMBEDDING_INPUT + "word_embedding_hs_exp6.txt", settings.EMBEDDING_MODELS + "word2vec_" + job[2])
