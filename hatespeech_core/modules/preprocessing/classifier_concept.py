@@ -56,6 +56,7 @@ def extract_lexical_features_test(nlp, tweet_list):
         print(doc)
         for parsed_doc in doc:
             result.append((parsed_doc.orth_, parsed_doc.tag_))
+    return result
 
 
 # @notifiers.do_cprofile
@@ -279,19 +280,17 @@ def start_feature_extraction():
     # connection_params_0 = ["twitter", "CrowdFlower", "crowdflower_conll"]
     # connection_params_1 = ["twitter", "CrowdFlower", "crowdflower_analysis"]
     # connection_params_2 = ["twitter", "CrowdFlower", "crowdflower_features"]
-    # connection_params_5 = ["twitter", "melvyn_hs_users"]
-
     # usage = ["conll", "analysis", "features"]
-
-    # lookup_list = file_ops.read_csv_file(
-    #     'melvyn_hs_user_ids', settings.TWITTER_SEARCH_PATH)
-    # fetch_es_tweets(connection_params_5, [
-    #                 "192.168.2.33", "tweets", "tweet", "user.id_str", lookup_list])
     # nlp = init_nlp_pipeline()
-    # tweet_list = ["I'm here :) :D 99", "get rekt",
-    #               "lol hi", "just a prank bro", "#squadgoals okay"]
-    # extract_lexical_features_test(nlp, tweet_list)
     # feature_extraction_pipeline(connection_params_1, nlp, usage[1])
+
+
+def run_fetch_es_tweets():
+    connection_params = ["twitter", "melvyn_hs_users"]
+    lookup_list = file_ops.read_csv_file(
+        'melvyn_hs_user_ids', settings.TWITTER_SEARCH_PATH)
+    fetch_es_tweets(connection_params, [
+                    "192.168.2.33", "tweets", "tweet", "user.id_str", lookup_list])
 
 
 def train_embeddings():

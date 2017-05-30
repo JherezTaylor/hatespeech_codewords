@@ -238,10 +238,7 @@ def preprocessing_pipeline():
     #              'it', 'ja', 'fr', 'de', 'ar', 'zh']
 
     connection_params = ["inauguration", "tweets"]
-    connection_params_1 = ["twitter", "NAACL_SRW_2016"]
-    connection_params_2 = ["twitter", "NLP_CSS_2016_expert"]
-    run_update_missing_text(connection_params_1)
-    run_update_missing_text(connection_params_2)
+
     # connection_params = ["inauguration_no_filter", "tweets"]
 
     # hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
@@ -305,3 +302,12 @@ def preprocessing_pipeline():
 
     # Clean source field
     # run_clean_source_field(connection_params, "Clean Source Field")
+
+
+def fetch_missing_text_pipeline():
+    """ Get missing text from Twitter API
+    """
+    connection_params_1 = ["twitter", "NAACL_SRW_2016"]
+    connection_params_2 = ["twitter", "NLP_CSS_2016_expert"]
+    run_update_missing_text(connection_params_1)
+    run_update_missing_text(connection_params_2)
