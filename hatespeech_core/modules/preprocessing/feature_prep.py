@@ -284,12 +284,15 @@ def store_preprocessed_text(connection_params, query, partition):
 
     # Makes a copy of the MongoDB cursor, to the best of my
     # knowledge this does not attempt to exhaust the cursor
+    count = 0
     cursor_1, cursor_2 = itertools.tee(cursor, 2)
     object_ids = (object_id["_id"] for object_id in cursor_1)
     tweet_texts = (tweet_text[projection] for tweet_text in cursor_2)
 
     docs = nlp.pipe(tweet_texts, batch_size=15000, n_threads=4)
     for object_id, doc in zip(object_ids, docs):
+        print("Progress {0} out of {1}".format(count, partition[1]))
+        count += 1
 
         parsed_tweet = {}
         parsed_tweet["_id"] = object_id
@@ -365,11 +368,12 @@ def start_store_preprocessed_text():
     """ Start the job
     """
     job_list = [
-        ["twitter_annotated_datasets", "NAACL_SRW_2016_features", "text"],
-        ["twitter_annotated_datasets",
-         "NLP_CSS_2016_expert_features", "text"],
-        ["twitter_annotated_datasets", "crowdflower_features", "text"],
-        ["dailystormer_archive", "d_stormer_documents", "article"],
+        # ["twitter_annotated_datasets", "NAACL_SRW_2016_features", "text"],
+        # ["twitter_annotated_datasets",
+        #  "NLP_CSS_2016_expert_features", "text"],
+        # ["twitter_annotated_datasets", "crowdflower_features", "text"],
+        # ["dailystormer_archive", "d_stormer_documents", "article"]
+        ["twitter", "melvyn_hs_users", "text"],
         ["manchester_event", "tweets", "text"],
         ["inauguration", "tweets", "text"],
         ["uselections", "tweets", "text"],
