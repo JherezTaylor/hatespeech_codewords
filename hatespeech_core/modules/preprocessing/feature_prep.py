@@ -291,7 +291,6 @@ def store_preprocessed_text(connection_params, query, partition):
 
     docs = nlp.pipe(tweet_texts, batch_size=15000, n_threads=4)
     for object_id, doc in zip(object_ids, docs):
-        print("Progress {0} out of {1}".format(count, partition[1]))
         count += 1
 
         parsed_tweet = {}
@@ -304,6 +303,7 @@ def store_preprocessed_text(connection_params, query, partition):
         if len(operations) == settings.BULK_BATCH_SIZE:
             _ = mongo_base.do_bulk_op(dbo, collection, operations)
             operations = []
+            print("Progress {0} out of {1}".format(count, partition[1]))
 
     if operations:
         _ = mongo_base.do_bulk_op(dbo, collection, operations)
