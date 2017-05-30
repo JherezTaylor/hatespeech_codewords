@@ -14,20 +14,19 @@ from ..utils import settings
 from ..utils import file_ops
 from ..utils import notifiers
 from ..utils import text_preprocessing
-from ..utils import model_helpers
 from ..db import mongo_base
 from ..db import elasticsearch_base
-from ..utils.CustomTwokenizer import CustomTwokenizer
+from ..utils.CustomTwokenizer import CustomTwokenizer, EmbeddingTwokenizer
 from ..pattern_classifier import SimpleClassifier, PatternVectorizer
 
 
-def init_nlp_pipeline():
+def init_nlp_pipeline(tokenizer=CustomTwokenizer):
     """Initialize spaCy nlp pipeline
 
     Returns:
         nlp: spaCy language model
     """
-    nlp = spacy.load(settings.SPACY_EN_MODEL, create_make_doc=CustomTwokenizer)
+    nlp = spacy.load(settings.SPACY_EN_MODEL, create_make_doc=tokenizer)
     return nlp
 
 
@@ -207,6 +206,106 @@ def update_schema(staging):
     return operations
 
 
+def run_store_preprocessed_text(connection_params):
+    """ Read a MongoDB collection and store the preprocessed text
+    as a separate field. Preprocessing removes URLS, numbers, and
+    stopwords, normalizes @usermentions. Updates the passed collection.
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
+            2: projection (str): Document field name to return.
+    """
+
+    client = mongo_base.connect()
+    query = {}
+
+    projection = connection_params[2]
+    query["filter"] = {projection: {"$ne": None}}
+    query["projection"] = {projection: 1}
+    query["limit"] = 0
+    query["skip"] = 0
+    query["no_cursor_timeout"] = True
+
+    connection_params.insert(0, client)
+    collection_size = mongo_base.finder(connection_params, query, True)
+    del connection_params[0]
+    client.close()
+
+    num_cores = 2
+    partition_size = collection_size // num_cores
+    partitions = [(i, partition_size)
+                  for i in range(0, collection_size, partition_size)]
+    # Account for lists that aren't evenly divisible, update the last tuple to
+    # retrieve the remainder of the items
+    partitions[-1] = (partitions[-1][0], (collection_size - partitions[-1][0]))
+
+    time1 = notifiers.time()
+    joblib.Parallel(n_jobs=num_cores)(joblib.delayed(store_preprocessed_text)(
+        connection_params, query, partition) for partition in partitions)
+    time2 = notifiers.time()
+    notifiers.send_job_completion(
+        [time1, time2], ["store_preprocessed_text", connection_params[0] + ": Preprocess Text"])
+
+
+def store_preprocessed_text(connection_params, query, partition):
+    """ Read a MongoDB collection and store the preprocessed text
+    as a separate field. Preprocessing removes URLS, numbers, and
+    stopwords, normalizes @usermentions. Updates the passed collection.
+    Args:
+        connection_params (list): Contains connection objects and params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
+            2: projection (str): Document field name to return.
+        query (dict): Query to execute.
+        partition   (tuple): Contains skip and limit values.
+
+    """
+
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
+    projection = connection_params[2]
+    connection_params.insert(0, client)
+
+    # Set skip limit values
+    query["skip"] = partition[0]
+    query["limit"] = partition[1]
+
+    # Setup client object for bulk op
+    bulk_client = mongo_base.connect()
+    dbo = bulk_client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
+
+    operations = []
+    nlp = init_nlp_pipeline(tokenizer=EmbeddingTwokenizer)
+    cursor = mongo_base.finder(connection_params, query, False)
+
+    # Makes a copy of the MongoDB cursor, to the best of my
+    # knowledge this does not attempt to exhaust the cursor
+    cursor_1, cursor_2 = itertools.tee(cursor, 2)
+    object_ids = (object_id["_id"] for object_id in cursor_1)
+    tweet_texts = (tweet_text[projection] for tweet_text in cursor_2)
+
+    docs = nlp.pipe(tweet_texts, batch_size=15000, n_threads=4)
+    for object_id, doc in zip(object_ids, docs):
+
+        parsed_tweet = {}
+        parsed_tweet["_id"] = object_id
+        parsed_tweet["preprocessed_txt"] = doc.text
+
+        operations.append(UpdateOne({"_id": parsed_tweet["_id"]}, {
+            "$set": {"preprocessed_txt": parsed_tweet["preprocessed_txt"]}}, upsert=False))
+
+        if len(operations) == settings.BULK_BATCH_SIZE:
+            _ = mongo_base.do_bulk_op(dbo, collection, operations)
+            operations = []
+
+    if operations:
+        _ = mongo_base.do_bulk_op(dbo, collection, operations)
+
+
 def fetch_es_tweets(connection_params, args):
     """ Scroll an elasticsearch instance and insert the tweets into MongoDB
     """
@@ -242,39 +341,6 @@ def fetch_es_tweets(connection_params, args):
         _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
 
-def create_dep_embedding_input(connection_params, filename):
-    """ Read and write the data from a conll collection"""
-    client = mongo_base.connect()
-    connection_params.insert(0, client)
-
-    query = {}
-    query["filter"] = {}
-    query["projection"] = {"conllFormat": 1, "_id": 0}
-    query["limit"] = 0
-    query["skip"] = 0
-    query["no_cursor_timeout"] = True
-
-    cursor = mongo_base.finder(connection_params, query, False)
-    text_preprocessing.prep_conll_file(cursor, filename)
-
-
-def create_word_embedding_input(connection_params, filename):
-    """ Call a collection and write it to disk
-    """
-    client = mongo_base.connect()
-    connection_params.insert(0, client)
-
-    query = {}
-    query["filter"] = {"text": {"$ne": None}}
-    query["projection"] = {"text": 1, "_id": 0}
-    query["limit"] = 0
-    query["skip"] = 0
-    query["no_cursor_timeout"] = True
-
-    cursor = mongo_base.finder(connection_params, query, False)
-    text_preprocessing.prep_word_embedding_file(cursor, filename)
-
-
 def start_feature_extraction():
     """Run operations"""
     # connection_params_0 = ["twitter", "CrowdFlower", "crowdflower_conll"]
@@ -286,6 +352,8 @@ def start_feature_extraction():
 
 
 def run_fetch_es_tweets():
+    """ Fetch tweets from elasticsearch
+    """
     connection_params = ["twitter", "melvyn_hs_users"]
     lookup_list = file_ops.read_csv_file(
         'melvyn_hs_user_ids', settings.TWITTER_SEARCH_PATH)
@@ -293,15 +361,20 @@ def run_fetch_es_tweets():
                     "192.168.2.33", "tweets", "tweet", "user.id_str", lookup_list])
 
 
-def train_embeddings():
-    connection_params_0 = ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004"]
-    # connection_params_1 = ["twitter", "hs_candidates_exp6_conll"]
-    # write_conll_file(connection_params_1, "hs_candidates_exp6_conll")
-    # create_word_embedding_input(
-    #     connection_params_0, "word_embedding_hs_exp6.txt")
-
-    model_helpers.train_fasttext_model(
-        settings.EMBEDDING_INPUT + "word_embedding_hs_exp6.txt", settings.EMBEDDING_MODELS + "fasttext_hs_exp6")
-
-    model_helpers.train_word2vec_model(
-        settings.EMBEDDING_INPUT + "word_embedding_hs_exp6.txt", settings.EMBEDDING_MODELS + "word2vec_hs_exp6")
+def start_store_preprocessed_text():
+    """ Start the job
+    """
+    job_list = [
+        ["twitter_annotated_datasets", "NAACL_SRW_2016_features", "text"],
+        ["twitter_annotated_datasets",
+         "NLP_CSS_2016_expert_features", "text"],
+        ["twitter_annotated_datasets", "crowdflower_features", "text"],
+        ["dailystormer_archive", "d_stormer_documents", "article"],
+        ["manchester_event", "tweets", "text"],
+        ["inauguration", "tweets", "text"],
+        ["uselections", "tweets", "text"],
+        ["unfiltered_stream_May17", "tweets", "text"],
+        ["twitter", "tweets", "text"]
+    ]
+    for job in job_list:
+        run_store_preprocessed_text(job)
