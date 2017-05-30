@@ -106,4 +106,4 @@ def train_embeddings():
         model_helpers.train_fasttext_model(
             settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS + "fasttext_" + job[2])
         model_helpers.train_word2vec_model(
-            settings.EMBEDDING_INPUT + "word_embedding_hs_exp6.txt", settings.EMBEDDING_MODELS + "word2vec_" + job[2])
+            settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS + "word2vec_" + job[2])
