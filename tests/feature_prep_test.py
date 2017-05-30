@@ -2,7 +2,7 @@
 # License: MIT
 # Python 3.5
 
-"""Test classifier_concept module
+"""Test feature_prep module
 """
 
 import string
@@ -24,9 +24,9 @@ class TestFileOps(object):
 
     def test_extract_lexical_features(self):
         """This method tests the OR concatenation function"""
-        result_set = [("I'm", 'NNS'), ('here', 'RB'), ('get', 'VB'),
-                      ('rekt', 'JJ'), ('#squadgoals', 'NNS'), ('okay', 'JJ')]
-        response_string = hatespeech_core.classifier_concept.extract_lexical_features_test(
-            self.test_list)
+        nlp = hatespeech_core.feature_prep.init_nlp_pipeline()
+        result_set = [("I'm", 'NN'), ('here', 'RB'), ('get', 'VB'),
+                      ('rekt', 'NN'), ('#squadgoals', 'NNS'), ('okay', 'JJ')]
+        response_string = hatespeech_core.feature_prep.extract_lexical_features_test(nlp,
+                                                                                     self.test_list)
         assert_equals(response_string, result_set)
-
