@@ -373,12 +373,12 @@ def start_store_preprocessed_text():
         #  "NLP_CSS_2016_expert_features", "text"],
         # ["twitter_annotated_datasets", "crowdflower_features", "text"],
         # ["dailystormer_archive", "d_stormer_documents", "article"]
-        ["twitter", "melvyn_hs_users", "text"],
-        ["manchester_event", "tweets", "text"],
-        ["inauguration", "tweets", "text"],
+        # ["twitter", "melvyn_hs_users", "text"],
+        # ["manchester_event", "tweets", "text"],
+        # ["inauguration", "tweets", "text"],
         ["uselections", "tweets", "text"],
-        ["unfiltered_stream_May17", "tweets", "text"],
-        ["twitter", "tweets", "text"]
+        # ["unfiltered_stream_May17", "tweets", "text"],
+        # ["twitter", "tweets", "text"]
     ]
     for job in job_list:
         run_store_preprocessed_text(job)

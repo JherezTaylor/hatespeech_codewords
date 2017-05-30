@@ -21,6 +21,7 @@ from . import EmotionDetection
 from . import twokenize
 from . import notifiers
 from . import settings
+from ..db import mongo_base
 
 PUNCTUATION = list(string.punctuation)
 STOP_LIST = set(stopwords.words(
@@ -712,23 +713,34 @@ def prep_dependency_features(parsed_tweet, doc, usage=None):
     return parsed_tweet
 
 
-def prep_word_embedding_file(collection, filename):
+def prep_word_embedding_file(connection_params, query, partition, filename):
     """ Takes a MongoDB or other cursor, preprocesses the text
     and writes the data to a text file.
     Args:
-        collection (iterable)
+        connection_params (list): Contains connection objects and params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
+        query (dict): Query to execute.
+        partition   (tuple): Contains skip and limit values.
         filename (str)
     """
 
+    client = mongo_base.connect()
+    connection_params.insert(0, client)
+
+    # Set skip limit values
+    query["skip"] = partition[0]
+    query["limit"] = partition[1]
+    job_id = partition[2]
+
+    cursor = mongo_base.finder(connection_params, query, False)
+
     count = 0
-    with open(settings.EMBEDDING_INPUT + filename, "w+") as _f:
-        for doc in collection:
+    with open(settings.EMBEDDING_INPUT + filename + "_" + str(job_id) + ".txt", "w+") as _f:
+        for doc in cursor:
             count += 1
-            cleaned_text = clean_tweet_text(doc["text"], True)
-            words = [word for word in cleaned_text[0] if word not in STOP_LIST]
-            result = " ".join(words)
-            _f.write(result + "\n")
-            print("count ", count)
+            _f.write(doc["preprocessed_txt"] + "\n")
+            print("Progress {0} out of {1}".format(count, partition[1]))
         _f.close()
 
 
