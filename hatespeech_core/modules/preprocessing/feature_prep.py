@@ -221,7 +221,7 @@ def run_store_preprocessed_text(connection_params):
     query = {}
 
     projection = connection_params[2]
-    query["filter"] = {projection: {"$ne": None}}
+    query["filter"] = {"preprocessed_txt": {"$exists": False}}
     query["projection"] = {projection: 1}
     query["limit"] = 0
     query["skip"] = 0
@@ -231,6 +231,9 @@ def run_store_preprocessed_text(connection_params):
     collection_size = mongo_base.finder(connection_params, query, True)
     del connection_params[0]
     client.close()
+
+    if collection_size == 0:
+        return
 
     num_cores = 2
     partition_size = collection_size // num_cores
@@ -245,10 +248,12 @@ def run_store_preprocessed_text(connection_params):
         connection_params, query, partition) for partition in partitions)
     time2 = notifiers.time()
     notifiers.send_job_completion(
-        [time1, time2], ["store_preprocessed_text", connection_params[0] + ": Preprocess Text"])
+        [time1, time2], ["store_preprocessed_text", connection_params[1] + ": Preprocess Text"])
 
 
 def store_preprocessed_text(connection_params, query, partition):
+    # TODO collection count taking too long, use no filter and just check if the text is null locally
+    # {"preprocessed_txt":{$exists: true}}
     """ Read a MongoDB collection and store the preprocessed text
     as a separate field. Preprocessing removes URLS, numbers, and
     stopwords, normalizes @usermentions. Updates the passed collection.
@@ -368,18 +373,18 @@ def start_store_preprocessed_text():
     """ Start the job
     """
     job_list = [
-        # ["twitter_annotated_datasets", "NAACL_SRW_2016_features", "text"],
-        # ["twitter_annotated_datasets",
-        #  "NLP_CSS_2016_expert_features", "text"],
-        # ["twitter_annotated_datasets", "crowdflower_features", "text"],
-        # ["dailystormer_archive", "d_stormer_documents", "article"]
-        # ["twitter", "melvyn_hs_users", "text"],
-        # ["manchester_event", "tweets", "text"],
-        # ["inauguration", "tweets", "text"],
+        ["twitter_annotated_datasets", "NAACL_SRW_2016_features", "text"],
+        ["twitter_annotated_datasets",
+         "NLP_CSS_2016_expert_features", "text"],
+        ["twitter_annotated_datasets", "crowdflower_features", "text"],
+        ["dailystormer_archive", "d_stormer_documents", "article"],
+        ["twitter", "melvyn_hs_users", "text"],
+        ["manchester_event", "tweets", "text"],
+        ["inauguration", "tweets", "text"],
         ["uselections", "tweets", "text"],
         ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "text"],
-        # ["unfiltered_stream_May17", "tweets", "text"],
-        # ["twitter", "tweets", "text"]
+        ["unfiltered_stream_May17", "tweets", "text"],
+        ["twitter", "tweets", "text"]
     ]
     for job in job_list:
         run_store_preprocessed_text(job)
