@@ -20,8 +20,8 @@ def main():
     # candidate_selection.sentiment_pipeline()
     # feature_prep.start_feature_extraction()
     # db_cleaning.preprocessing_pipeline()
-    feature_prep.start_store_preprocessed_text()
-    neural_embeddings.train_embeddings()
+    # feature_prep.start_store_preprocessed_text()
+    # neural_embeddings.train_embeddings()
 
 
 if __name__ == "__main__":
