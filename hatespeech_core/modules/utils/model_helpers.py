@@ -359,13 +359,15 @@ class BooleanExtractor(BaseEstimator, TransformerMixin):
 def train_fasttext_model(input_data, filename):
     """ Train a fasttext model
     """
-    model = fasttext.skipgram(input_data, filename, thread=4)
+    cpu_count = joblib.cpu_count()
+    model = fasttext.skipgram(input_data, filename, thread=cpu_count)
 
 
 @notifiers.do_cprofile
 def train_word2vec_model(input_data, filename):
     """ Train a word2vec model
     """
+    cpu_count = joblib.cpu_count()
     sentences = gensim.models.word2vec.LineSentence(input_data)
-    model = gensim.models.Word2Vec(sentences, min_count=5, workers=4)
+    model = gensim.models.Word2Vec(sentences, min_count=5, workers=cpu_count)
     model.save(filename)
