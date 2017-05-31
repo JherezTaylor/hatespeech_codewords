@@ -98,13 +98,13 @@ def train_embeddings():
         ["twitter", "tweets", "word_embedding_twitter"]
     ]
     # Prep data
-    for job in job_list:
-        create_word_embedding_input(job, job[2])
-
-    # # Train model
     # for job in job_list:
-    #     model_helpers.train_fasttext_model(
-    #         settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS + "fasttext_" + job[2])
-    #     model_helpers.train_word2vec_model(
-    # settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS +
-    # "word2vec_" + job[2])
+    #     create_word_embedding_input(job, job[2])
+
+    # Train model
+    for job in job_list:
+        model_helpers.train_fasttext_model(
+            settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS + "fasttext_" + job[2])
+        model_helpers.train_word2vec_model(
+            settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS +
+            "word2vec_" + job[2])
