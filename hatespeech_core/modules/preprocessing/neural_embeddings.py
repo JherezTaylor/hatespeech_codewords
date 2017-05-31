@@ -9,8 +9,8 @@ embedding approaches as well as training ther models.
 
 import glob
 import os
-from joblib import Parallel, delayed, cpu_count
 import fileinput
+from joblib import Parallel, delayed, cpu_count
 from ..db import mongo_base
 from ..utils import text_preprocessing
 from ..utils import model_helpers
@@ -39,7 +39,7 @@ def create_word_embedding_input(connection_params, filename):
     client = mongo_base.connect()
 
     query = {}
-    query["filter"] = {"preprocessed_txt": {"$ne": None}}
+    query["filter"] = {}
     query["projection"] = {"preprocessed_txt": 1, "_id": 0}
     query["limit"] = 0
     query["skip"] = 0
