@@ -10,7 +10,6 @@ from modules.preprocessing import db_cleaning
 from modules.preprocessing import candidate_selection
 from modules.preprocessing import feature_prep
 from modules.preprocessing import neural_embeddings
-from modules.utils import twitter_api
 
 
 def main():
