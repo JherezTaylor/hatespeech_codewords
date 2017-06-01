@@ -131,7 +131,7 @@ def feature_extraction_pipeline(connection_params, nlp, usage=None):
 
         else:
             parsed_tweet["text"] = doc.text
-            parsed_tweet["annotation_label"] = label
+            parsed_tweet["annotation"] = label
             if usage == "analysis":
                 parsed_tweet["tokens"] = list([token.lower_ for token in doc if not(
                     token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")])
@@ -252,8 +252,6 @@ def run_store_preprocessed_text(connection_params):
 
 
 def store_preprocessed_text(connection_params, query, partition):
-    # TODO collection count taking too long, use no filter and just check if the text is null locally
-    # {"preprocessed_txt":{$exists: true}}
     """ Read a MongoDB collection and store the preprocessed text
     as a separate field. Preprocessing removes URLS, numbers, and
     stopwords, normalizes @usermentions. Updates the passed collection.
