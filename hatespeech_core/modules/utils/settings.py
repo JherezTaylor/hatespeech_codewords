@@ -21,14 +21,26 @@ EMBEDDING_INPUT = PATH + "/neural_embedding_data/"
 EMBEDDING_MODELS = PATH + "/persistence/word_embeddings"
 CONLL_PATH = PATH + "/conll_data/"
 PLOTLY_PATH = PATH + "/plotly_output/"
-DB_URL = os.environ["MONGODB_URL"]
-ES_URL = os.environ["ES_URL"]
-MONGO_USER = os.environ["MONGO_USER"]
-MONGO_PW = os.environ["MONGO_PW"]
+DB_URL = os.environ[
+    "MONGODB_URL"] if "MONGODB_URL" in os.environ else "NOT SET"
+ES_URL = os.environ["ES_URL"] if "ES_URL" in os.environ else "NOT SET"
+MONGO_USER = os.environ[
+    "MONGO_USER"] if "MONGO_USER" in os.environ else "NOT SET"
+MONGO_PW = os.environ["MONGO_PW"] if "MONGO_PW" in os.environ else "NOT SET"
+TWITTER_APP_KEY = os.environ[
+    "TWITTER_APP_KEY"] if "TWITTER_APP_KEY" in os.environ else "NOT SET"
+TWITTER_APP_SECRET = os.environ[
+    "TWITTER_APP_SECRET"] if "TWITTER_APP_SECRET" in os.environ else "NOT SET"
+TWITTER_OAUTH = os.environ[
+    "TWITTER_OAUTH"] if "TWITTER_OAUTH" in os.environ else "NOT SET"
+TWITTER_OAUTH_SECRET = os.environ[
+    "TWITTER_OAUTH_SECRET"] if "TWITTER_OAUTH_SECRET" in os.environ else "NOT SET"
+PUSHBULLET_API_KEY = os.environ[
+    "PUSHBULLET_API_KEY"] if "PUSHBULLET_API_KEY" in os.environ else "NOT SET"
+MONGO_SOURCE = os.environ[
+    "MONGO_SOURCE"] if "MONGO_SOURCE" in os.environ else "NOT SET"
 DB_AUTH_SOURCE = "admin"
 # DB_URL = os.environ["LOCAL_MONGO"]
-PUSHBULLET_API_KEY = os.environ["PUSHBULLET_API_KEY"]
-MONGO_SOURCE = os.environ["MONGO_SOURCE"]
 HASHTAGS = "entities.hashtags"
 USER_MENTIONS = "entities.user_mentions"
 HASHTAG_LIMIT = 50
@@ -37,10 +49,6 @@ BULK_BATCH_SIZE = 10000
 USER_MENTIONS_LIMIT = 50
 GARBAGE_TWEET_DIFF = 0.4
 NUM_SYNONYMS = 5
-TWITTER_APP_KEY = os.environ["TWITTER_APP_KEY"]
-TWITTER_APP_SECRET = os.environ["TWITTER_APP_SECRET"]
-TWITTER_OAUTH = os.environ["TWITTER_OAUTH"]
-TWITTER_OAUTH_SECRET = os.environ["TWITTER_OAUTH_SECRET"]
 SPACY_EN_MODEL = "en_core_web_md"
 SPACY_GLOVE_MODEL = "en_vectors_glove_md"
 CRWDFLR_DATA_RAW = "data/persistence/df/crowdflower_features_raw.pkl.compressed"
