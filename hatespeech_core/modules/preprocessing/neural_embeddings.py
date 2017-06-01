@@ -81,7 +81,7 @@ def create_fasttext_clf_input(connection_params, filename):
     _df["annotation"] = ['__label__' +
                          str(annotation) for annotation in _df.annotation]
     _df[['annotation', 'text']].to_csv(
-        settings.EMBEDDING_INPUT + "ftxt_clf_" + filename + ".txt", index=False, header=None, sep=" ")
+        settings.EMBEDDING_INPUT + filename + ".txt", index=False, header=None, sep=" ")
 
 
 def train_embeddings():
