@@ -76,8 +76,9 @@ def create_word_embedding_input(connection_params, filename):
 
 def create_fasttext_clf_input(connection_params, filename):
     """ Call a collection and write to disk in fasttext classification format"""
+    conn = [connection_params[0], connection_params[1]]
     projection = {"_id": 0, "text": 1, "annotation": 1}
-    _df = model_helpers.fetch_as_df(connection_params, projection)
+    _df = model_helpers.fetch_as_df(conn, projection)
     _df["annotation"] = ['__label__' +
                          str(annotation) for annotation in _df.annotation]
     _df[['annotation', 'text']].to_csv(
