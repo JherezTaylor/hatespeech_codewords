@@ -371,3 +371,11 @@ def train_word2vec_model(input_data, filename):
     sentences = gensim.models.word2vec.LineSentence(input_data)
     model = gensim.models.Word2Vec(sentences, min_count=5, workers=cpu_count)
     model.save(filename)
+
+
+@notifiers.do_cprofile
+def train_fasttext_classifier(input_data, filename):
+    """ Train a fasttext model
+    """
+    cpu_count = joblib.cpu_count()
+    _classifier = fasttext.supervised(input_data, filename, thread=cpu_count)

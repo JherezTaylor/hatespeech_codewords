@@ -34,8 +34,7 @@ def create_dep_embedding_input(connection_params, filename):
 
 
 def create_word_embedding_input(connection_params, filename):
-    """ Call a collection and write it to disk
-    """
+    """ Call a collection and write it to disk """
     client = mongo_base.connect()
 
     query = {}
@@ -75,27 +74,37 @@ def create_word_embedding_input(connection_params, filename):
         os.remove(_f)
 
 
+def create_fasttext_clf_input(connection_params, filename):
+    """ Call a collection and write to disk in fasttext classification format"""
+    projection = {"_id": 0, "text": 1, "annotation": 1}
+    _df = model_helpers.fetch_as_df(connection_params, projection)
+    _df["annotation"] = ['__label__' +
+                         str(annotation) for annotation in _df.annotation]
+    _df[['annotation', 'text']].to_csv(
+        settings.EMBEDDING_INPUT + "ftxt_clf_" + filename + ".txt", index=False, header=None, sep=" ")
+
+
 def train_embeddings():
-    """ Start job
+    """ Start embedding tasks
     """
     # connection_params_1 = ["twitter", "hs_candidates_exp6_conll"]
     # write_conll_file(connection_params_1, "hs_candidates_exp6_conll")
 
     job_list = [
         ["twitter_annotated_datasets",
-            "NAACL_SRW_2016_features", "word_embedding_NACCL"],
+            "NAACL_SRW_2016_features", "embedding_NACCL"],
         ["twitter_annotated_datasets",
-         "NLP_CSS_2016_expert_features", "word_embedding_NLP_CSS"],
-        ["twitter_annotated_datasets", "crowdflower_features", "word_embedding_crwdflr"],
+         "NLP_CSS_2016_expert_features", "embedding_NLP_CSS"],
+        ["twitter_annotated_datasets", "crowdflower_features", "embedding_crwdflr"],
         ["dailystormer_archive", "d_stormer_documents",
-            "word_embedding_daily_stormer"],
-        ["twitter", "melvyn_hs_users", "word_embedding_melvyn_hs"],
-        ["manchester_event", "tweets", "word_embedding_manchester"],
-        ["inauguration", "tweets", "word_embedding_inauguration"],
-        ["uselections", "tweets", "word_embedding_uselections"],
-        ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "word_embedding_hs_exp6"],
-        ["unfiltered_stream_May17", "tweets", "word_embedding_unfiltered_stream"],
-        ["twitter", "tweets", "word_embedding_twitter"]
+            "embedding_daily_stormer"],
+        ["twitter", "melvyn_hs_users", "embedding_melvyn_hs"],
+        ["manchester_event", "tweets", "embedding_manchester"],
+        ["inauguration", "tweets", "embedding_inauguration"],
+        ["uselections", "tweets", "embedding_uselections"],
+        ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "embedding_hs_exp6"],
+        ["unfiltered_stream_May17", "tweets", "embedding_unfiltered_stream"],
+        ["twitter", "tweets", "embedding_twitter"]
     ]
     # Prep data
     # for job in job_list:
@@ -108,3 +117,22 @@ def train_embeddings():
         model_helpers.train_word2vec_model(
             settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS +
             "word2vec_" + job[2])
+
+
+def train_fasttext_classifier():
+    """ Start fasttext classification
+    """
+    job_list = [
+        ["twitter_annotated_datasets",
+            "NAACL_SRW_2016_features", "fasttext_clf_NACCL"],
+        ["twitter_annotated_datasets",
+         "NLP_CSS_2016_expert_features", "fasttext_clf_NLP_CSS"],
+        ["twitter_annotated_datasets", "crowdflower_features", "fasttext_clf_crwdflr"]
+    ]
+
+    for job in job_list:
+        create_fasttext_clf_input(job, job[2])
+
+    for job in job_list:
+        model_helpers.train_fasttext_classifier(
+            settings.EMBEDDING_INPUT + job[2] + ".txt", settings.CLASSIFIER_MODELS + job[2])
