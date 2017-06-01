@@ -90,7 +90,7 @@ def train_embeddings():
         ["dailystormer_archive", "d_stormer_documents",
             "word_embedding_daily_stormer"],
         ["twitter", "melvyn_hs_users", "word_embedding_melvyn_hs"],
-        ["manchester_event", "tweets", "word_embedding_daily_manchester"],
+        ["manchester_event", "tweets", "word_embedding_manchester"],
         ["inauguration", "tweets", "word_embedding_inauguration"],
         ["uselections", "tweets", "word_embedding_uselections"],
         ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "word_embedding_hs_exp6"],

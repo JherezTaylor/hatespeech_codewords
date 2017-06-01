@@ -360,7 +360,7 @@ def train_fasttext_model(input_data, filename):
     """ Train a fasttext model
     """
     cpu_count = joblib.cpu_count()
-    model = fasttext.skipgram(input_data, filename, thread=cpu_count)
+    _model = fasttext.skipgram(input_data, filename, thread=cpu_count)
 
 
 @notifiers.do_cprofile
