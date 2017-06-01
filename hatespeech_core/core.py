@@ -20,7 +20,7 @@ def main():
     # feature_prep.start_feature_extraction()
     # db_cleaning.preprocessing_pipeline()
     # feature_prep.start_store_preprocessed_text()
-    neural_embeddings.train_embeddings()
+    # neural_embeddings.train_embeddings()
     neural_embeddings.train_fasttext_classifier()
 
 
