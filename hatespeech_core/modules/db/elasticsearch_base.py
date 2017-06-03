@@ -18,7 +18,7 @@ def connect(es_url=None):
             settings.logger.info(
                 "Connected to ElasticSearch at %s successfully", es_url)
     except ValueError as ex:
-        settings.logger.error("Could not connect to ElasticSearch: %s", ex)
+        settings.logger.error("Could not connect to ElasticSearch: %s", ex, exc_info=True)
     return _es
 
 
