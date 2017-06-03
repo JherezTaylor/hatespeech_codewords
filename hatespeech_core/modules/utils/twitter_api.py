@@ -28,5 +28,5 @@ def run_status_lookup(id_list):
             "Rate limit reached, taking a break for a minute...\n")
     except TwythonError as err:
         settings.logger.error(
-            "Some other error occured, taking a break for half a minute: " + str(err))
+            "Some other error occured, taking a break for half a minute: " + str(err), exc_info=True)
     return result
