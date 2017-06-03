@@ -154,9 +154,9 @@ def run_experiment(X, y, pipeline, process_name, display_args, num_expts=1):
         num_expts (int): Number of times to run model.
         plot_cm=False, print_cm=False
     """
-    print("Predicting the labels of the test set...")
-    print("%d documents" % len(X))
-    print("%d categories" % len(y.value_counts()))
+    settings.logger.info("Predicting the labels of the test set...")
+    settings.logger.debug("%s documents", len(X))
+    settings.logger.debug("%s categories", len(y.value_counts()))
 
     scores = list()
     for i in tqdm(range(num_expts)):
@@ -171,7 +171,7 @@ def run_experiment(X, y, pipeline, process_name, display_args, num_expts=1):
         # compare the results to the gold standard
         score = accuracy_score(y_prediction, y_test)
         scores.append(score)
-        print("Classification Report: {0}".format(process_name))
+        settings.logger.info("Classification Report: %s", process_name)
         print(report)
 
         cm = confusion_matrix(y_test, y_prediction)
@@ -187,11 +187,12 @@ def run_experiment(X, y, pipeline, process_name, display_args, num_expts=1):
 
 
 def pca_reduction(vectors, num_dimensions, model_name):
-    print('Reducing to ' + str(num_dimensions) + 'D using IncrementalPCA...')
+    settings.logger.info(
+        "Reducing to %sD using IncrementalPCA...", num_dimensions)
     ipca = IncrementalPCA(n_components=num_dimensions)
     vectors = ipca.fit_transform(vectors)
     joblib.dump(vectors, model_name, compress=True)
-    print('Done')
+    settings.logger.info("Reduction Complete")
     return vectors
 
 

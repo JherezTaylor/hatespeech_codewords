@@ -84,7 +84,8 @@ def select_porn_candidates(connection_params, filter_options, partition):
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
-            print("Progress: ", (progress * 100) / partition[1], "%")
+            settings.logger.debug(
+                "Progress: %s", (progress * 100) / partition[1])
             for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
@@ -190,7 +191,8 @@ def select_hs_candidates(connection_params, filter_options, partition):
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
-            print("Progress: ", (progress * 100) / partition[1], "%")
+            settings.logger.debug(
+                "Progress: %s", (progress * 100) / partition[1])
             for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
@@ -308,7 +310,8 @@ def select_general_candidates(connection_params, filter_options, partition):
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
-            print("Progress: ", (progress * 100) / partition[1], "%")
+            settings.logger.debug(
+                "Progress: %s", (progress * 100) / partition[1])
             for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))
@@ -377,7 +380,8 @@ def emotion_coverage_pipeline(connection_params, filter_options, partition):
         staging.append(document)
 
         if len(staging) == 3000:
-            print("Progress: ", (progress * 100) / partition[1], "%")
+            settings.logger.debug(
+                "Progress: %s", (progress * 100) / partition[1])
             for job in text_preprocessing.parallel_emotion_coverage(staging, projection):
                 if job:
                     operations.append(job)
@@ -472,7 +476,8 @@ def linear_test(connection_params, filter_options):
 
         # Send once every settings.BULK_BATCH_SIZE in batch
         if len(staging) == settings.BULK_BATCH_SIZE:
-            print("Progress: ", (progress * 100) / cursor_count, "%")
+            settings.logger.debug(
+                "Progress: %s", (progress * 100) / cursor_count)
             for job in text_preprocessing.parallel_preprocess(staging, hs_keywords, subj_check, sent_check):
                 if job:
                     operations.append(InsertOne(job))

@@ -107,7 +107,7 @@ def read_json_file(filename, path):
         with open(path + filename + ".json", "r") as entry:
             result = ujson.load(entry)
     except IOError as ex:
-        print("I/O error({0}): {1}".format(ex.errno, ex.strerror))
+        settings.logger.error("I/O error %s: %s", ex.errno, ex.strerror)
     else:
         entry.close()
         return result
@@ -143,7 +143,7 @@ def read_csv_file(filename, path):
             # flatten to 1D, it gets loaded as 2D array
             result = [x for sublist in temp for x in sublist]
     except IOError as ex:
-        print("I/O error({0}): {1}".format(ex.errno, ex.strerror))
+        settings.logger.error("I/O error %s: %s", ex.errno, ex.strerror)
     else:
         entry.close()
         return result

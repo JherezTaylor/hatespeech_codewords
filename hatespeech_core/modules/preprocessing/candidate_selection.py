@@ -178,7 +178,8 @@ def get_ngrams(connection_params, ngram_field):
     count = 0
     for account in user_accounts:
         count += 1
-        print("Count: {0} out of {1}".format(count, len(user_accounts)))
+        settings.logger.debug(
+            "Count: %s out of %s", count, len(user_accounts))
         query = {}
         query["filter"] = {"user.screen_name": account}
         query["projection"] = {"_id": False, ngram_field: True}
