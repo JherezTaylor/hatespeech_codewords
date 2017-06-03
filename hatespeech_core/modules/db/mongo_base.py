@@ -11,7 +11,6 @@ Simple aggregations.
 Removes all entries from a collection not matching a given language.
 """
 
-from pprint import pprint
 from time import sleep
 from pymongo import MongoClient, UpdateOne, errors
 from bson.objectid import ObjectId
@@ -34,9 +33,9 @@ def connect(db_url=None):
         conn = MongoClient(
             db_url, serverSelectionTimeoutMS=max_sev_sel_delay, socketKeepAlive=True)
         conn.server_info()
-        print("Connected to DB at " + db_url + " successfully")
+        settings.logger.info("Connected to DB at %s successfully", db_url)
     except errors.ServerSelectionTimeoutError as ex:
-        print("Could not connect to MongoDB: %s" % ex)
+        settings.logger.error("Could not connect to MongoDB: %s", ex)
     return conn
 
 
@@ -258,7 +257,7 @@ def update_missing_text(connection_params):
             request_count += 1
 
             response = do_missing_text_op(raw_docs, request_count)
-            print("Req Count", request_count)
+            settings.logger.debug("Req Count: %s", request_count)
             operations += response[0]
             found_count += response[1]
             not_found_count += response[2]
@@ -271,7 +270,7 @@ def update_missing_text(connection_params):
     # Exit loop and flush remaining entries
     if (len(raw_docs) % 100) != 0:
         request_count += 1
-        print("Req Count", request_count)
+        settings.logger.debug("Req Count: %s", request_count)
         response = do_missing_text_op(raw_docs, request_count)
         operations += response[0]
         found_count += response[1]
@@ -325,7 +324,7 @@ def do_bulk_op(dbo, collection, operations):
     try:
         result = dbo[collection].bulk_write(operations, ordered=False)
     except errors.BulkWriteError as bwe:
-        print(bwe.details)
-        print(result)
+        settings.logger.error(bwe.details)
+        settings.logger.error(result)
         raise
     return result

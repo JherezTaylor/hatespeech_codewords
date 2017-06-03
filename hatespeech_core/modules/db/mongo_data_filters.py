@@ -69,27 +69,27 @@ def create_indexes(connection_params):
 
     dbo[collection].create_index(
         [("entities.user_mentions", ASCENDING)], background=True)
-    print("User mentions Index built")
+    settings.logger.info("User mentions Index built")
 
     dbo[collection].create_index(
         [("entities.hashtags", ASCENDING)], background=True)
-    print("Hashtag Index built")
+    settings.logger.info("Hashtag Index built")
 
     dbo[collection].create_index(
         [("quoted_status_id", ASCENDING)], background=True)
-    print("Quoted status Index built")
+    settings.logger.info("Quoted status Index built")
 
     dbo[collection].create_index(
         [("extended_tweet.id_str", ASCENDING)], background=True)
-    print("Extended tweet Index built")
+    settings.logger.info("Extended tweet Index built")
 
     dbo[collection].create_index(
         [("quoted_status.entities.hashtags", ASCENDING)], background=True)
-    print("Quoted status hashtag Index built")
+    settings.logger.info("Quoted status hashtag Index built")
 
     dbo[collection].create_index(
         [("quoted_status.entities.user_mentions", ASCENDING)], background=True)
-    print("Quoted status user_mention Index built")
+    settings.logger.info("Quoted status user_mention Index built")
 
 
 @notifiers.timing

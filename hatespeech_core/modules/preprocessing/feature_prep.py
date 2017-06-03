@@ -52,7 +52,7 @@ def extract_lexical_features_test(nlp, tweet_list):
     result = []
     texts = (tweet for tweet in tweet_list)
     for doc in nlp.pipe(texts, batch_size=10000, n_threads=3):
-        print(doc)
+        settings.logger.info(doc)
         for parsed_doc in doc:
             result.append((parsed_doc.orth_, parsed_doc.tag_))
     return result
@@ -153,7 +153,7 @@ def feature_extraction_pipeline(connection_params, nlp, usage=None):
 
         staging.append(parsed_tweet)
         if len(staging) == 5000:
-            print("count ", count)
+            settings.logger.debug("Count: %s", count)
             operations = unpack_emotions(staging, emotion_vector, None, None)
             # operations = update_schema(staging)
             _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
@@ -306,7 +306,7 @@ def store_preprocessed_text(connection_params, query, partition):
         if len(operations) == settings.BULK_BATCH_SIZE:
             _ = mongo_base.do_bulk_op(dbo, collection, operations)
             operations = []
-            print("Progress {0} out of {1}".format(count, partition[1]))
+            settings.logger.debug("Progress %s out of %s", count, partition[1])
 
     if operations:
         _ = mongo_base.do_bulk_op(dbo, collection, operations)
