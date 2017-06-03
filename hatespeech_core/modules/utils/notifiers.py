@@ -23,8 +23,8 @@ def timing(func):
         time1 = time()
         ret = func(*args)
         time2 = time()
-        print("%s function took %0.3f ms" %
-              (func.__name__, (time2 - time1) * 1000.0))
+        settings.logger.debug("%s function took %0.3f ms",
+                              func.__name__, (time2 - time1) * 1000.0)
         return ret
 
     return wrap
@@ -77,7 +77,7 @@ def send_job_completion(run_time, args):
     """
 
     time_diff = round((run_time[1] - run_time[0]), 2)
-    print("%s function took %0.3f seconds" % (args[0], time_diff))
+    settings.logger.debug("%s function took %0.3f seconds", args[0], time_diff)
     send_notification = send_job_notification(
         settings.MONGO_SOURCE + ": " + args[1] + " took " + str(time_diff) + " seconds", "Complete")
-    print(send_notification.content)
+    settings.logger.debug(send_notification.content)

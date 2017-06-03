@@ -84,7 +84,7 @@ def run_retweet_removal(connection_params):
     time2 = notifiers.time()
 
     result = db_response
-    print(result.modified_count)
+    settings.logger.debug(result.modified_count)
     notifiers.send_job_completion(
         [time1, time2], ["run_retweet_removal", connection_params[0] + ": Retweet Removal"])
 
@@ -114,7 +114,7 @@ def run_field_removal(connection_params):
     time2 = notifiers.time()
 
     result = db_response
-    print(result.modified_count)
+    settings.logger.debug(result.modified_count)
     notifiers.send_job_completion(
         [time1, time2], ["field_removal", connection_params[0] + ": Field Removal took"])
 
@@ -124,7 +124,7 @@ def run_field_removal(connection_params):
     time2 = notifiers.time()
 
     result = db_response
-    print(result.modified_count)
+    settings.logger.debug(result.modified_count)
     notifiers.send_job_completion(
         [time1, time2], ["quoted_status_field_removal", connection_params[0] + ": Quoted_status Field Removal took"])
 
@@ -141,7 +141,7 @@ def run_language_trimming(connection_params, lang_list):
     time2 = notifiers.time()
 
     result = db_response
-    print(result.modified_count)
+    settings.logger.debug(result.modified_count)
     notifiers.send_job_completion(
         [time1, time2], ["language_trimming", connection_params[0] + ": Language trimming took"])
 

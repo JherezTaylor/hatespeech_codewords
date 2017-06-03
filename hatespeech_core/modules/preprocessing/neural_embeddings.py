@@ -9,16 +9,12 @@ embedding approaches as well as training ther models.
 
 import glob
 import os
-import logging
 import fileinput
 from joblib import Parallel, delayed, cpu_count
 from ..db import mongo_base
 from ..utils import text_preprocessing
 from ..utils import model_helpers
 from ..utils import settings
-
-logging.basicConfig(
-    format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 
 def create_dep_embedding_input(connection_params, filename):

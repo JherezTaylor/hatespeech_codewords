@@ -740,7 +740,7 @@ def prep_word_embedding_file(connection_params, query, partition, filename):
         for doc in cursor:
             count += 1
             _f.write(doc["preprocessed_txt"] + "\n")
-            print("Progress {0} out of {1}".format(count, partition[1]))
+            settings.logger.debug("Progress %s out of %s", count, partition[1])
         _f.close()
 
 
@@ -759,5 +759,5 @@ def prep_conll_file(collection, filename):
             for entry in doc["conllFormat"]:
                 _f.write(entry + "\n")
             _f.write("\n")
-            print("count ", count)
+            settings.logger.debug("Count %s", count)
         _f.close()
