@@ -9,12 +9,16 @@ embedding approaches as well as training ther models.
 
 import glob
 import os
+import logging
 import fileinput
 from joblib import Parallel, delayed, cpu_count
 from ..db import mongo_base
 from ..utils import text_preprocessing
 from ..utils import model_helpers
 from ..utils import settings
+
+logging.basicConfig(
+    format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 
 def create_dep_embedding_input(connection_params, filename):
@@ -74,15 +78,20 @@ def create_word_embedding_input(connection_params, filename):
         os.remove(_f)
 
 
-def create_fasttext_clf_input(connection_params, filename):
+def create_fasttext_clf_input(connection_params, filename, train_size):
     """ Call a collection and write to disk in fasttext classification format"""
     conn = [connection_params[0], connection_params[1]]
     projection = {"_id": 0, "text": 1, "annotation": 1}
     _df = model_helpers.fetch_as_df(conn, projection)
     _df["annotation"] = ['__label__' +
                          str(annotation) for annotation in _df.annotation]
-    _df[['annotation', 'text']].to_csv(
-        settings.EMBEDDING_INPUT + filename + ".txt", index=False, header=None, sep=" ")
+
+    df_train, df_test = model_helpers.train_test_split(
+        _df, train_size=train_size)
+    df_train[['annotation', 'text']].to_csv(
+        settings.EMBEDDING_INPUT + filename + "_train.txt", index=False, header=None, sep=" ")
+    df_test[['annotation', 'text']].to_csv(
+        settings.EMBEDDING_INPUT + filename + "_test.txt", index=False, header=None, sep=" ")
 
 
 def train_embeddings():
@@ -132,8 +141,8 @@ def train_fasttext_classifier():
     ]
 
     for job in job_list:
-        create_fasttext_clf_input(job, job[2])
+        create_fasttext_clf_input(job, job[2], 0.8)
 
     for job in job_list:
         model_helpers.train_fasttext_classifier(
-            settings.EMBEDDING_INPUT + job[2] + ".txt", settings.CLASSIFIER_MODELS + job[2])
+            settings.EMBEDDING_INPUT + job[2] + "_train.txt", settings.CLASSIFIER_MODELS + job[2])

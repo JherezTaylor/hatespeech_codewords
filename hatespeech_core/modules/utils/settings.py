@@ -5,6 +5,12 @@
 """Define project settings
 """
 import os
+import logging
+
+logging.basicConfig(
+    format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+
+logger = logging.getLogger(__name__)
 
 DIR = os.path.dirname
 # Jump up three directories

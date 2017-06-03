@@ -1,6 +1,5 @@
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers as es_helpers
-
 from ..utils import settings
 
 
@@ -16,9 +15,10 @@ def connect(es_url=None):
         es_host = {"host": es_url, "port": 9200}
         _es = Elasticsearch([es_host])
         if _es.ping():
-            print("Connected to ElasticSearch at " + es_url + " successfully")
+            settings.logger.info(
+                "Connected to ElasticSearch at %s successfully", es_url)
     except ValueError as ex:
-        print("Could not connect to ElasticSearch: %s" % ex)
+        settings.logger.error("Could not connect to ElasticSearch: %s", ex)
     return _es
 
 

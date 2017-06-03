@@ -6,7 +6,6 @@
 This module houses various helper functions for use with the various models
 """
 
-import logging
 import joblib
 import gensim
 import fasttext
@@ -23,9 +22,6 @@ import plotly.graph_objs as go
 from . import settings
 from . import notifiers
 from ..db import mongo_base
-
-logging.basicConfig(
-    format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 
 def init_plotly():
