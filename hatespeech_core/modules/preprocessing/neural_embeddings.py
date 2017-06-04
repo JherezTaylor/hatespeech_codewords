@@ -143,4 +143,4 @@ def train_fasttext_classifier():
 
     for job in job_list:
         model_helpers.train_fasttext_classifier(
-            settings.EMBEDDING_INPUT + job[2] + "_train.txt", settings.CLASSIFIER_MODELS + job[2])
+            settings.EMBEDDING_INPUT + job[2] + "_train.txt", settings.CLASSIFIER_MODELS + job[2], lr=1.0, epoch=25, word_ngrams=2, dim=200)

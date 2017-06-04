@@ -371,8 +371,10 @@ def train_word2vec_model(input_data, filename):
 
 
 # @notifiers.do_cprofile
-def train_fasttext_classifier(input_data, filename):
+def train_fasttext_classifier(input_data, filename, lr=0.1, dim=100, ws=5, epoch=5, min_count=1, word_ngrams=1):
     """ Train a fasttext model
+    See https://github.com/salestock/fastText.py for params. 
     """
     cpu_count = joblib.cpu_count()
-    _classifier = fasttext.supervised(input_data, filename, thread=cpu_count)
+    _classifier = fasttext.supervised(
+        input_data, filename, thread=cpu_count, lr=lr, dim=dim, ws=5, epoch=epoch, min_count=1, word_ngrams=1)
