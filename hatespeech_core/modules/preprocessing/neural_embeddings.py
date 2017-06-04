@@ -74,19 +74,21 @@ def create_word_embedding_input(connection_params, filename):
         os.remove(_f)
 
 
-def create_fasttext_clf_input(connection_params, filename, train_size):
+def create_fasttext_clf_input(connection_params, filename, fieldname, train_size):
     """ Call a collection and write to disk in fasttext classification format"""
+
     conn = [connection_params[0], connection_params[1]]
-    projection = {"_id": 0, "text": 1, "annotation": 1}
+    projection = {"_id": 0, fieldname: 1, "annotation": 1}
     _df = model_helpers.fetch_as_df(conn, projection)
     _df["annotation"] = ['__label__' +
                          str(annotation) for annotation in _df.annotation]
 
+    _df[fieldname].str.lower()
     df_train, df_test = model_helpers.train_test_split(
         _df, train_size=train_size)
-    df_train[['annotation', 'text']].to_csv(
+    df_train[['annotation', fieldname]].to_csv(
         settings.EMBEDDING_INPUT + filename + "_train.txt", index=False, header=None, sep=" ")
-    df_test[['annotation', 'text']].to_csv(
+    df_test[['annotation', fieldname]].to_csv(
         settings.EMBEDDING_INPUT + filename + "_test.txt", index=False, header=None, sep=" ")
 
 
@@ -137,7 +139,7 @@ def train_fasttext_classifier():
     ]
 
     for job in job_list:
-        create_fasttext_clf_input(job, job[2], 0.8)
+        create_fasttext_clf_input(job, job[2], "text", 0.8)
 
     for job in job_list:
         model_helpers.train_fasttext_classifier(

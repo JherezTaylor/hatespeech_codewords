@@ -370,7 +370,7 @@ def train_word2vec_model(input_data, filename):
     model.save(filename)
 
 
-@notifiers.do_cprofile
+# @notifiers.do_cprofile
 def train_fasttext_classifier(input_data, filename):
     """ Train a fasttext model
     """
