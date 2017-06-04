@@ -10,7 +10,7 @@ embedding approaches as well as training ther models.
 import glob
 import os
 import fileinput
-from joblib import Parallel, delayed, cpu_count
+from joblib import Parallel, delayed, cpu_count, dump
 from ..db import mongo_base
 from ..utils import text_preprocessing
 from ..utils import model_helpers
@@ -91,6 +91,11 @@ def create_fasttext_clf_input(connection_params, filename, fieldname, train_size
     df_test[['annotation', fieldname]].to_csv(
         settings.EMBEDDING_INPUT + filename + "_test.txt", index=False, header=None, sep=" ")
 
+    dump(df_train, settings.EMBEDDING_INPUT + filename +
+         "_train.pkl.compressed", compress=True)
+    dump(df_test, settings.EMBEDDING_INPUT + filename +
+         "_test.pkl.compressed", compress=True)
+
 
 def train_embeddings():
     """ Start embedding tasks
@@ -143,4 +148,4 @@ def train_fasttext_classifier():
 
     for job in job_list:
         model_helpers.train_fasttext_classifier(
-            settings.EMBEDDING_INPUT + job[2] + "_train.txt", settings.CLASSIFIER_MODELS + job[2], lr=1.0, epoch=25, word_ngrams=2, dim=200)
+            settings.EMBEDDING_INPUT + job[2] + "_train.txt", settings.CLASSIFIER_MODELS + job[2], epoch=20, dim=200)
