@@ -20,13 +20,16 @@ from ..utils.CustomTwokenizer import CustomTwokenizer, EmbeddingTwokenizer
 from ..pattern_classifier import SimpleClassifier, PatternVectorizer
 
 
-def init_nlp_pipeline(tokenizer=CustomTwokenizer):
+def init_nlp_pipeline(parser=True, tagger=True, entity=True, tokenizer=CustomTwokenizer):
     """Initialize spaCy nlp pipeline
+    The params are boolean values that determine if that feature should
+    be loaded with the pipeline.
 
     Returns:
         nlp: spaCy language model
     """
-    nlp = spacy.load(settings.SPACY_EN_MODEL, create_make_doc=tokenizer)
+    nlp = spacy.load(settings.SPACY_EN_MODEL, create_make_doc=tokenizer,
+                     parser=parser, tagger=tagger, entity=entity)
     return nlp
 
 
@@ -221,7 +224,7 @@ def run_store_preprocessed_text(connection_params):
     query = {}
 
     projection = connection_params[2]
-    query["filter"] = {"preprocessed_txt": {"$exists": False}}
+    query["filter"] = {}
     query["projection"] = {projection: 1}
     query["limit"] = 0
     query["skip"] = 0
@@ -282,7 +285,8 @@ def store_preprocessed_text(connection_params, query, partition):
                      source=settings.DB_AUTH_SOURCE)
 
     operations = []
-    nlp = init_nlp_pipeline(tokenizer=EmbeddingTwokenizer)
+    nlp = init_nlp_pipeline(parser=False, tagger=False,
+                            entity=False, tokenizer=EmbeddingTwokenizer)
     cursor = mongo_base.finder(connection_params, query, False)
 
     # Makes a copy of the MongoDB cursor, to the best of my
@@ -295,10 +299,9 @@ def store_preprocessed_text(connection_params, query, partition):
     docs = nlp.pipe(tweet_texts, batch_size=15000, n_threads=4)
     for object_id, doc in zip(object_ids, docs):
         count += 1
-
         parsed_tweet = {}
         parsed_tweet["_id"] = object_id
-        parsed_tweet["preprocessed_txt"] = doc.text
+        parsed_tweet["preprocessed_txt"] = str(doc.text).lower()
 
         operations.append(UpdateOne({"_id": parsed_tweet["_id"]}, {
             "$set": {"preprocessed_txt": parsed_tweet["preprocessed_txt"]}}, upsert=False))
