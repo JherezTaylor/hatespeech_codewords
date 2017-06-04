@@ -83,7 +83,7 @@ def create_fasttext_clf_input(connection_params, filename, fieldname, train_size
     _df["annotation"] = ['__label__' +
                          str(annotation) for annotation in _df.annotation]
 
-    _df[fieldname].str.lower()
+    _df[fieldname] = _df[fieldname].str.lower()
     df_train, df_test = model_helpers.train_test_split(
         _df, train_size=train_size)
     df_train[['annotation', fieldname]].to_csv(
