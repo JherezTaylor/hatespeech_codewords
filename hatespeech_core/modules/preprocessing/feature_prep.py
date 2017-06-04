@@ -238,7 +238,7 @@ def run_store_preprocessed_text(connection_params):
     if collection_size == 0:
         return
 
-    num_cores = 2
+    num_cores = joblib.cpu_count()
     partition_size = collection_size // num_cores
     partitions = [(i, partition_size)
                   for i in range(0, collection_size, partition_size)]
