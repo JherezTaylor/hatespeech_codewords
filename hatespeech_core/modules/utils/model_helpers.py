@@ -231,6 +231,11 @@ def run_gridsearch_cv(pipeline, X, y, param_grid, n_jobs, score):
     print(classification_report(y_true, y_pred))
 
 
+def evaluate_prediction(predictions, target):
+    print(classification_report(target, predictions))
+    print("Accuracy: ", accuracy_score(target, predictions))
+
+
 def get_feature_stats(vectorizer, X, skb, feature_names):
     """ Returns the number of features after vectorization,
     also returns the top features as determined by a chi square test.
@@ -373,7 +378,7 @@ def train_word2vec_model(input_data, filename):
 # @notifiers.do_cprofile
 def train_fasttext_classifier(input_data, filename, lr=0.1, dim=100, ws=5, epoch=5, min_count=1, word_ngrams=1):
     """ Train a fasttext model
-    See https://github.com/salestock/fastText.py for params. 
+    See https://github.com/salestock/fastText.py for params.
     """
     cpu_count = joblib.cpu_count()
     _classifier = fasttext.supervised(
