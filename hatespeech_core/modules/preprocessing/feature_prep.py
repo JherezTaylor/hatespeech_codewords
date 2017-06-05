@@ -94,7 +94,7 @@ def run_parallel_pipeline(connection_params, method, job_details):
     if collection_size == 0:
         return
 
-    num_cores = 1
+    num_cores = 4
     partition_size = collection_size // num_cores
     partitions = [(i, partition_size)
                   for i in range(0, collection_size, partition_size)]
