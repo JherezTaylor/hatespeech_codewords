@@ -20,7 +20,7 @@ from ..utils.CustomTwokenizer import CustomTwokenizer, EmbeddingTwokenizer
 from ..pattern_classifier import SimpleClassifier, PatternVectorizer
 
 
-def init_nlp_pipeline(parser=True, tagger=True, entity=True, tokenizer=CustomTwokenizer):
+def init_nlp_pipeline(parser, tokenizer=CustomTwokenizer):
     """Initialize spaCy nlp pipeline
     The params are boolean values that determine if that feature should
     be loaded with the pipeline.
@@ -28,8 +28,12 @@ def init_nlp_pipeline(parser=True, tagger=True, entity=True, tokenizer=CustomTwo
     Returns:
         nlp: spaCy language model
     """
-    nlp = spacy.load(settings.SPACY_EN_MODEL, create_make_doc=tokenizer,
-                     parser=parser, tagger=tagger, entity=entity)
+    if parser is False:
+        nlp = spacy.load(settings.SPACY_EN_MODEL, create_make_doc=tokenizer,
+                         parser=False)
+    else:
+        nlp = spacy.load(settings.SPACY_EN_MODEL,
+                         create_make_doc=tokenizer)
     return nlp
 
 
@@ -61,22 +65,72 @@ def extract_lexical_features_test(nlp, tweet_list):
     return result
 
 
-# @notifiers.do_cprofile
-def feature_extraction_pipeline(connection_params, nlp, usage=None):
+def run_parallel_pipeline(connection_params, method, job_details):
+    """ Generic function for processing a collection in parallel.
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
+            2: projection (str): Document field name to return.
+        job_details (list): Info to insert in job complete notifcation
+
+    """
+
+    client = mongo_base.connect()
+    query = {}
+
+    projection = connection_params[2]
+    query["filter"] = {}
+    query["projection"] = {projection: 1}
+    query["limit"] = 0
+    query["skip"] = 0
+    query["no_cursor_timeout"] = True
+
+    connection_params.insert(0, client)
+    collection_size = mongo_base.finder(connection_params, query, True)
+    del connection_params[0]
+    client.close()
+
+    if collection_size == 0:
+        return
+
+    num_cores = 1
+    partition_size = collection_size // num_cores
+    partitions = [(i, partition_size)
+                  for i in range(0, collection_size, partition_size)]
+    # Account for lists that aren't evenly divisible, update the last tuple to
+    # retrieve the remainder of the items
+    partitions[-1] = (partitions[-1][0], (collection_size - partitions[-1][0]))
+
+    time1 = notifiers.time()
+    joblib.Parallel(n_jobs=num_cores)(joblib.delayed(method)(
+        connection_params, query, partition) for partition in partitions)
+    time2 = notifiers.time()
+    notifiers.send_job_completion(
+        [time1, time2], [job_details[0], connection_params[1] + ": " + job_details[1]])
+
+
+def feature_extraction_pipeline(connection_params, query, partition, usage=None):
     """Handles the extraction of features needed for the model.
     Inserts parsed documents to database.
     Args:
         connection_params  (list): Contains connection objects and params as follows:
             0: db_name     (str): Name of database to query.
             1: collection  (str): Name of collection to use.
-            2: target_collection (str): Name of output collection.
-        nlp  (spaCy model): Language processing pipeline
-        tweet_generator_obj: (generator): MongoDB cursor or file loaded documents.
+            2: projection (str): Document field name to return.
+            3: target_collection (str): Name of output collection.
     """
 
+    # Set skip limit values
+    query["skip"] = partition[0]
+    query["limit"] = partition[1]
+
+    nlp = init_nlp_pipeline(True)
     client = mongo_base.connect()
     db_name = connection_params[0]
-    target_collection = connection_params[2]
+    projection = connection_params[2]
+    target_collection = connection_params[3]
+    usage = connection_params[4]
     connection_params.insert(0, client)
     # _cls, _pv = load_emotion_classifier()
 
@@ -86,13 +140,6 @@ def feature_extraction_pipeline(connection_params, nlp, usage=None):
     dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
                      source=settings.DB_AUTH_SOURCE)
 
-    query = {}
-    query["filter"] = {"tweet_text": {"$ne": None}}
-    query["projection"] = {"tweet_text": 1,
-                           "does_this_tweet_contain_hate_speech": 1}
-    query["limit"] = 0
-    query["skip"] = 0
-    query["no_cursor_timeout"] = True
     cursor = mongo_base.finder(connection_params, query, False)
 
     hs_keywords = set(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
@@ -101,11 +148,9 @@ def feature_extraction_pipeline(connection_params, nlp, usage=None):
 
     # Makes a copy of the MongoDB cursor, to the best of my
     # knowledge this does not attempt to exhaust the cursor
-    cursor_1, cursor_2, cursor_3 = itertools.tee(cursor, 3)
+    cursor_1, cursor_2 = itertools.tee(cursor, 2)
     object_ids = (object_id["_id"] for object_id in cursor_1)
-    tweet_texts = (tweet_text["tweet_text"] for tweet_text in cursor_2)
-    contains_hs = (label["does_this_tweet_contain_hate_speech"]
-                   for label in cursor_3)
+    tweet_texts = (tweet_text[projection] for tweet_text in cursor_2)
 
     operations = []
     staging = []
@@ -113,17 +158,10 @@ def feature_extraction_pipeline(connection_params, nlp, usage=None):
     count = 0
 
     # https://github.com/explosion/spaCy/issues/172
-    docs = nlp.pipe(tweet_texts, batch_size=15000, n_threads=3)
-    for object_id, doc, label in zip(object_ids, docs, contains_hs):
+    docs = nlp.pipe(tweet_texts, batch_size=15000, n_threads=4)
+    for object_id, doc in zip(object_ids, docs):
         # emotion_vector.append(doc.text)
         count += 1
-
-        if str(label) == "The tweet is not offensive":
-            label = "not_offensive"
-        elif str(label) == "The tweet uses offensive language but not hate speech":
-            label = "not_offensive"
-        else:
-            label = "hatespeech"
 
         # Construct a new tweet object to be appended
         parsed_tweet = {}
@@ -134,7 +172,6 @@ def feature_extraction_pipeline(connection_params, nlp, usage=None):
 
         else:
             parsed_tweet["text"] = doc.text
-            parsed_tweet["annotation"] = label
             if usage == "analysis":
                 parsed_tweet["tokens"] = list([token.lower_ for token in doc if not(
                     token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")])
@@ -155,8 +192,8 @@ def feature_extraction_pipeline(connection_params, nlp, usage=None):
         # text_preprocessing.get_keywords(doc)]
 
         staging.append(parsed_tweet)
-        if len(staging) == 5000:
-            settings.logger.debug("Count: %s", count)
+        if len(staging) == settings.BULK_BATCH_SIZE:
+            print("count ", count)
             operations = unpack_emotions(staging, emotion_vector, None, None)
             # operations = update_schema(staging)
             _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
@@ -209,51 +246,6 @@ def update_schema(staging):
     return operations
 
 
-def run_store_preprocessed_text(connection_params):
-    """ Read a MongoDB collection and store the preprocessed text
-    as a separate field. Preprocessing removes URLS, numbers, and
-    stopwords, normalizes @usermentions. Updates the passed collection.
-    Args:
-        connection_params  (list): Contains connection objects and params as follows:
-            0: db_name     (str): Name of database to query.
-            1: collection  (str): Name of collection to use.
-            2: projection (str): Document field name to return.
-    """
-
-    client = mongo_base.connect()
-    query = {}
-
-    projection = connection_params[2]
-    query["filter"] = {}
-    query["projection"] = {projection: 1}
-    query["limit"] = 0
-    query["skip"] = 0
-    query["no_cursor_timeout"] = True
-
-    connection_params.insert(0, client)
-    collection_size = mongo_base.finder(connection_params, query, True)
-    del connection_params[0]
-    client.close()
-
-    if collection_size == 0:
-        return
-
-    num_cores = 4
-    partition_size = collection_size // num_cores
-    partitions = [(i, partition_size)
-                  for i in range(0, collection_size, partition_size)]
-    # Account for lists that aren't evenly divisible, update the last tuple to
-    # retrieve the remainder of the items
-    partitions[-1] = (partitions[-1][0], (collection_size - partitions[-1][0]))
-
-    time1 = notifiers.time()
-    joblib.Parallel(n_jobs=num_cores)(joblib.delayed(store_preprocessed_text)(
-        connection_params, query, partition) for partition in partitions)
-    time2 = notifiers.time()
-    notifiers.send_job_completion(
-        [time1, time2], ["store_preprocessed_text", connection_params[1] + ": Preprocess Text"])
-
-
 def store_preprocessed_text(connection_params, query, partition):
     """ Read a MongoDB collection and store the preprocessed text
     as a separate field. Preprocessing removes URLS, numbers, and
@@ -285,8 +277,7 @@ def store_preprocessed_text(connection_params, query, partition):
                      source=settings.DB_AUTH_SOURCE)
 
     operations = []
-    nlp = init_nlp_pipeline(parser=False, tagger=False,
-                            entity=False, tokenizer=EmbeddingTwokenizer)
+    nlp = init_nlp_pipeline(False, tokenizer=EmbeddingTwokenizer)
     cursor = mongo_base.finder(connection_params, query, False)
 
     # Makes a copy of the MongoDB cursor, to the best of my
@@ -350,16 +341,6 @@ def fetch_es_tweets(connection_params, args):
         _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
 
-def start_feature_extraction():
-    """Run operations"""
-    # connection_params_0 = ["twitter", "CrowdFlower", "crowdflower_conll"]
-    # connection_params_1 = ["twitter", "CrowdFlower", "crowdflower_analysis"]
-    # connection_params_2 = ["twitter", "CrowdFlower", "crowdflower_features"]
-    # usage = ["conll", "analysis", "features"]
-    # nlp = init_nlp_pipeline()
-    # feature_extraction_pipeline(connection_params_1, nlp, usage[1])
-
-
 def run_fetch_es_tweets():
     """ Fetch tweets from elasticsearch
     """
@@ -370,22 +351,44 @@ def run_fetch_es_tweets():
                     "192.168.2.33", "tweets", "tweet", "user.id_str", lookup_list])
 
 
+def start_feature_extraction():
+    """Run operations"""
+    job_list = [
+        ["twitter_annotated_datasets", "NAACL_SRW_2016_features",
+            "text", "test_conll", "conll"]
+        # ["dailystormer_archive", "d_stormer_documents", "article",
+        #     "d_stormer_documents_conll", "conll"],
+        # ["twitter", "melvyn_hs_users", "text", "melvyn_hs_users_conll", "conll"],
+        # ["manchester_event", "tweets", "text", "tweets_conll", "conll"],
+        # ["inauguration", "tweets",  "text", "tweets_conll", "conll"],
+        # ["uselections", "tweets", "text", "tweets_conll", "conll"],
+        # ["unfiltered_stream_May17", "tweets",
+        #     "text", "tweets_conll", "conll"],
+        # ["twitter", "tweets", "text", "tweets_conll", "conll"]
+    ]
+
+    for job in job_list:
+        run_parallel_pipeline(
+            job[0:5], feature_extraction_pipeline, [job[0] + "_" + job[3], "Prep conll format"])
+
+
 def start_store_preprocessed_text():
     """ Start the job
     """
     job_list = [
-        ["twitter_annotated_datasets", "NAACL_SRW_2016_features", "text"],
-        ["twitter_annotated_datasets",
-         "NLP_CSS_2016_expert_features", "text"],
-        ["twitter_annotated_datasets", "crowdflower_features", "text"],
-        ["dailystormer_archive", "d_stormer_documents", "article"],
-        ["twitter", "melvyn_hs_users", "text"],
-        ["manchester_event", "tweets", "text"],
-        ["inauguration", "tweets", "text"],
-        ["uselections", "tweets", "text"],
-        ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "text"],
-        ["unfiltered_stream_May17", "tweets", "text"],
-        ["twitter", "tweets", "text"]
+        ["twitter_annotated_datasets", "NAACL_SRW_2016_features", "text"]
+        # ["twitter_annotated_datasets",
+        #  "NLP_CSS_2016_expert_features", "text"],
+        # ["twitter_annotated_datasets", "crowdflower_features", "text"],
+        # ["dailystormer_archive", "d_stormer_documents", "article"],
+        # ["twitter", "melvyn_hs_users", "text"],
+        # ["manchester_event", "tweets", "text"],
+        # ["inauguration", "tweets", "text"],
+        # ["uselections", "tweets", "text"],
+        # ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "text"],
+        # ["unfiltered_stream_May17", "tweets", "text"],
+        # ["twitter", "tweets", "text"]
     ]
     for job in job_list:
-        run_store_preprocessed_text(job)
+        run_parallel_pipeline(
+            job, store_preprocessed_text, ["store_preprocessed_text", "Preprocess Text"])
