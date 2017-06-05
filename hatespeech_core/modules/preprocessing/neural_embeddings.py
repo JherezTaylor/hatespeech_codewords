@@ -145,7 +145,7 @@ def train_embeddings():
     ]
 
     for job in dep_job_list:
-        create_dep_embedding_input(job[0:2], [2])
+        create_dep_embedding_input(job[0:2], job[2])
 
     job_list = [
         ["twitter_annotated_datasets",
