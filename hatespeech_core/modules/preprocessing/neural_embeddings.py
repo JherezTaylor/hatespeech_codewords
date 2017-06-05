@@ -169,7 +169,7 @@ def train_dep2vec_model():
         ["inauguration", "tweets_conll", "inauguration_conll"],
         ["uselections", "tweets_conll", "uselections_conll"],
         ["unfiltered_stream_May17", "tweets_conll", "unfiltered_stream_conll"],
-        ["twitter", "tweets_conll", "tweets_conll"]
+        ["twitter", "tweets_conll", "twitter_conll"]
     ]
 
     # Prep data
