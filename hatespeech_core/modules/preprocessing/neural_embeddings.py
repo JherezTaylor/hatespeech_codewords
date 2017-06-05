@@ -162,13 +162,13 @@ def train_word_embeddings():
 def train_dep2vec_model():
     """ Start dependenc2vec classification"""
     dep_job_list = [
-        ["dailystormer_archive", "d_stormer_documents_conll",
-            "d_stormer_documents_conll"],
-        ["twitter", "melvyn_hs_users_conll", "melvyn_hs_users_conll"],
-        ["manchester_event", "tweets_conll", "manchester_event_conll"],
-        ["inauguration", "tweets_conll", "inauguration_conll"],
-        ["uselections", "tweets_conll", "uselections_conll"],
-        ["unfiltered_stream_May17", "tweets_conll", "unfiltered_stream_conll"],
+       ["dailystormer_archive", "d_stormer_documents_conll",
+            "dstormer_conll"],
+        ["twitter", "melvyn_hs_users_conll", "melvynhs_conll"],
+        ["manchester_event", "tweets_conll", "manch_conll"],
+        ["inauguration", "tweets_conll", "inaug_conll"],
+        ["uselections", "tweets_conll", "uselec_conll"],
+        ["unfiltered_stream_May17", "tweets_conll", "ustream_conll"],
         ["twitter", "tweets_conll", "twitter_conll"]
     ]
 
