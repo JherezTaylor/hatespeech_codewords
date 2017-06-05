@@ -355,16 +355,16 @@ def start_feature_extraction():
     """Run operations"""
     job_list = [
         ["twitter_annotated_datasets", "NAACL_SRW_2016_features",
-            "text", "test_conll", "conll"]
-        # ["dailystormer_archive", "d_stormer_documents", "article",
-        #     "d_stormer_documents_conll", "conll"],
-        # ["twitter", "melvyn_hs_users", "text", "melvyn_hs_users_conll", "conll"],
-        # ["manchester_event", "tweets", "text", "tweets_conll", "conll"],
-        # ["inauguration", "tweets",  "text", "tweets_conll", "conll"],
-        # ["uselections", "tweets", "text", "tweets_conll", "conll"],
-        # ["unfiltered_stream_May17", "tweets",
-        #     "text", "tweets_conll", "conll"],
-        # ["twitter", "tweets", "text", "tweets_conll", "conll"]
+            "text", "test_conll", "conll"],
+        ["dailystormer_archive", "d_stormer_documents", "article",
+            "d_stormer_documents_conll", "conll"],
+        ["twitter", "melvyn_hs_users", "text", "melvyn_hs_users_conll", "conll"],
+        ["manchester_event", "tweets", "text", "tweets_conll", "conll"],
+        ["inauguration", "tweets",  "text", "tweets_conll", "conll"],
+        ["uselections", "tweets", "text", "tweets_conll", "conll"],
+        ["unfiltered_stream_May17", "tweets",
+            "text", "tweets_conll", "conll"],
+        ["twitter", "tweets", "text", "tweets_conll", "conll"]
     ]
 
     for job in job_list:
@@ -376,18 +376,18 @@ def start_store_preprocessed_text():
     """ Start the job
     """
     job_list = [
-        ["twitter_annotated_datasets", "NAACL_SRW_2016_features", "text"]
-        # ["twitter_annotated_datasets",
-        #  "NLP_CSS_2016_expert_features", "text"],
-        # ["twitter_annotated_datasets", "crowdflower_features", "text"],
-        # ["dailystormer_archive", "d_stormer_documents", "article"],
-        # ["twitter", "melvyn_hs_users", "text"],
-        # ["manchester_event", "tweets", "text"],
-        # ["inauguration", "tweets", "text"],
-        # ["uselections", "tweets", "text"],
-        # ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "text"],
-        # ["unfiltered_stream_May17", "tweets", "text"],
-        # ["twitter", "tweets", "text"]
+        ["twitter_annotated_datasets", "NAACL_SRW_2016_features", "text"],
+        ["twitter_annotated_datasets",
+         "NLP_CSS_2016_expert_features", "text"],
+        ["twitter_annotated_datasets", "crowdflower_features", "text"],
+        ["dailystormer_archive", "d_stormer_documents", "article"],
+        ["twitter", "melvyn_hs_users", "text"],
+        ["manchester_event", "tweets", "text"],
+        ["inauguration", "tweets", "text"],
+        ["uselections", "tweets", "text"],
+        ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "text"],
+        ["unfiltered_stream_May17", "tweets", "text"],
+        ["twitter", "tweets", "text"]
     ]
     for job in job_list:
         run_parallel_pipeline(
