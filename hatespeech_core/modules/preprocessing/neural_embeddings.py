@@ -129,23 +129,9 @@ def create_fasttext_clf_input(connection_params, filename, fieldname, train_size
          "_test.pkl.compressed", compress=True)
 
 
-def train_embeddings():
+def train_word_embeddings():
     """ Start embedding tasks
     """
-    # connection_params_1 = ["twitter", "hs_candidates_exp6_conll"]
-    # write_conll_file(connection_params_1, "hs_candidates_exp6_conll")
-    dep_job_list = [
-        ["dailystormer_archive", "d_stormer_documents_conll", "d_stormer_documents_conll"],
-        ["twitter", "melvyn_hs_users_conll", "melvyn_hs_users_conll"],
-        ["manchester_event", "tweets_conll", "manchester_event_conll"],
-        ["inauguration", "tweets_conll", "inauguration_conll"],
-        ["uselections", "tweets_conll", "uselections_conll"],
-        ["unfiltered_stream_May17", "tweets_conll", "unfiltered_stream_conll"],
-        ["twitter", "tweets_conll"]
-    ]
-
-    for job in dep_job_list:
-        create_dep_embedding_input(job[0:2], job[2])
 
     job_list = [
         ["twitter_annotated_datasets",
@@ -163,17 +149,38 @@ def train_embeddings():
         ["unfiltered_stream_May17", "tweets", "embedding_unfiltered_stream"],
         ["twitter", "tweets", "embedding_twitter"]
     ]
+
+    # Train fasttext and w2v model
+    for job in job_list:
+        model_helpers.train_fasttext_model(
+            settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS + "fasttext_" + job[2])
+        model_helpers.train_word2vec_model(
+            settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS +
+            "word2vec_" + job[2])
+
+
+def train_dep2vec_model():
+    """ Start dependenc2vec classification"""
+    dep_job_list = [
+        ["dailystormer_archive", "d_stormer_documents_conll",
+            "d_stormer_documents_conll"],
+        ["twitter", "melvyn_hs_users_conll", "melvyn_hs_users_conll"],
+        ["manchester_event", "tweets_conll", "manchester_event_conll"],
+        ["inauguration", "tweets_conll", "inauguration_conll"],
+        ["uselections", "tweets_conll", "uselections_conll"],
+        ["unfiltered_stream_May17", "tweets_conll", "unfiltered_stream_conll"],
+        ["twitter", "tweets_conll", "tweets_conll"]
+    ]
+
     # Prep data
     # for job in job_list:
     #     create_word_embedding_input(job, job[2])
 
-    # Train model
-    # for job in job_list:
-    #     model_helpers.train_fasttext_model(
-    #         settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS + "fasttext_" + job[2])
-    #     model_helpers.train_word2vec_model(
-    #         settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS +
-    #         "word2vec_" + job[2])
+    # for job in dep_job_list:
+    #     create_dep_embedding_input(job[0:2], job[2])
+
+    for job in dep_job_list:
+        model_helpers.train_dep2vec_model(job[2], 50, 100, 200)
 
 
 def train_fasttext_classifier():
