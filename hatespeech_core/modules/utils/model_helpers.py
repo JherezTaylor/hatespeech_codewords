@@ -418,4 +418,4 @@ def train_dep2vec_model(filename, filter_count, min_count, dimensions):
 
     time2 = notifiers.time()
     notifiers.send_job_completion(
-        [time1, time2], ["dependency2vec", "dependency2vec" + filename])
+        [time1, time2], ["dependency2vec", "dependency2vec " + filename])
