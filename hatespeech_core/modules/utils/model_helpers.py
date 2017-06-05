@@ -390,7 +390,7 @@ def train_dep2vec_model(filename, filter_count, min_count, dimensions):
     """ Train a dependency2vec model.
     Follows the same steps outlined in the dependency2vec readme
     """
-
+    time1 = notifiers.time()
     # Step 1
     output = subprocess.run("cut -f 2 hatespeech_core/data/conll_data/" + filename + " | python hatespeech_core/data/conll_data/dependency2vec/scripts/vocab.py " + str(
         filter_count) + " > " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/counted_vocabulary_" + filename, shell=True, check=True, stdout=subprocess.PIPE)
@@ -415,3 +415,7 @@ def train_dep2vec_model(filename, filter_count, min_count, dimensions):
                             "hatespeech_core/data/conll_data/dependency2vec/vocab_data/cv_" + filename + " -wvocab " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/wv_" + filename + " -size " + str(dimensions) + " -negative 15 -threads 10 -output hatespeech_core/data/conll_data/dependency2vec/embedding_output/dim" + str(dimensions) + "vecs_" + filename, shell=True, check=True, stdout=subprocess.PIPE)
     for line in output.stdout.splitlines():
         print(line)
+
+    time2 = notifiers.time()
+    notifiers.send_job_completion(
+        [time1, time2], ["dependency2vec", "dependency2vec" + filename])
