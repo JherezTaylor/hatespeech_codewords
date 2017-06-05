@@ -34,7 +34,7 @@ class TestFileOps(object):
         """Combined test for file based ops
         """
 
-        file_list = hatespeech_core.file_ops.get_filenames(
+        file_list = hatespeech_core.file_ops.get_json_filenames(
             hatespeech_core.settings.JSON_PATH)
         hatespeech_core.file_ops.extract_corpus(file_list)
         response = hatespeech_core.file_ops.read_csv_file("about_sexual_orientation_eng_pg1",
