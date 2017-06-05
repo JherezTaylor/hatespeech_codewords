@@ -72,8 +72,7 @@ def prep_json_entry(entry):
     return json_obj
 
 
-@notifiers.do_cprofile
-def get_filenames(directory):
+def get_json_filenames(directory):
     """Reads all the json files names in the directory.
 
     Returns:
@@ -87,6 +86,23 @@ def get_filenames(directory):
         path, filename = os.path.split(path)
         name = os.path.splitext(filename)[0]
         result.append(str(name))
+    return result
+
+
+def get_model_names(filenames):
+    """
+    Takes a list of files and removes the drive and path, only
+    returning a list of strings with that reference stored models.
+    Args:
+        filenames (list): List of absolute paths.
+    """
+    result = []
+    for _f in filenames:
+        _drive, path = os.path.splitdrive(_f)
+        path, filename = os.path.split(path)
+        ext = os.path.splitext(filename)[1]
+        if ext != ".npy":
+            result.append(str(filename))
     return result
 
 
@@ -107,7 +123,8 @@ def read_json_file(filename, path):
         with open(path + filename + ".json", "r") as entry:
             result = ujson.load(entry)
     except IOError as ex:
-        settings.logger.error("I/O error %s: %s", ex.errno, ex.strerror, exc_info=True)
+        settings.logger.error("I/O error %s: %s", ex.errno,
+                              ex.strerror, exc_info=True)
     else:
         entry.close()
         return result
@@ -143,7 +160,8 @@ def read_csv_file(filename, path):
             # flatten to 1D, it gets loaded as 2D array
             result = [x for sublist in temp for x in sublist]
     except IOError as ex:
-        settings.logger.error("I/O error %s: %s", ex.errno, ex.strerror, exc_info=True)
+        settings.logger.error("I/O error %s: %s", ex.errno,
+                              ex.strerror, exc_info=True)
     else:
         entry.close()
         return result
@@ -234,7 +252,7 @@ def filter_hatebase_categories():
     filter3 = ["Hispanic", "hispanic", "Hispanics", "Mexican", "Mexicans", "Latino", "Latinos",
                "Cuban", "Cubans"]
 
-    file_list = get_filenames(settings.JSON_PATH)
+    file_list = get_json_filenames(settings.JSON_PATH)
     for entry in file_list:
         json_data = read_json_file(entry, settings.JSON_PATH)
 

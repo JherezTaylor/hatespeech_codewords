@@ -11,10 +11,42 @@ import glob
 import os
 import fileinput
 from joblib import Parallel, delayed, cpu_count, dump
+from gensim.models import KeyedVectors, Word2Vec
 from ..db import mongo_base
 from ..utils import text_preprocessing
 from ..utils import model_helpers
 from ..utils import settings
+
+
+def load_embedding(filename, embedding_type):
+    """ Load a fasttext or word2vec embedding
+    Args:
+        filename (str)
+        embedding_type (str): kv:keyedVectors w2v:word2vec
+    """
+    if embedding_type == "kv":
+        return KeyedVectors.load_word2vec_format(settings.EMBEDDING_MODELS + filename, binary=False)
+    elif embedding_type == "w2v":
+        model = Word2Vec.load(settings.EMBEDDING_MODELS + filename)
+        word_vectors = model.wv
+        del model
+        return word_vectors
+
+
+def get_model_vocabulary(model):
+    """ Return the stored vocabulary for an embedding model
+    Args:
+        model (gensim.models) KeyedVectors or Word2Vec model.
+    """
+    return set(model.vocab.keys())
+
+
+def get_model_word_count(model, word):
+    """ Return the count for a given word in an embedding model
+    Args:
+        model (gensim.models) KeyedVectors or Word2Vec model
+    """
+    return model.vocab[word].count
 
 
 def create_dep_embedding_input(connection_params, filename):
