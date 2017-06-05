@@ -23,3 +23,5 @@ A real word example takes the following format:
 > https://api.hatebase.org/v3-0/API_KEY/vocabulary/json/about_nationality=1%7clanguage=eng%7cpage=1
 
 The list of available filters can be found at the Hatebase API link mentioned above.  
+
+Unzip dependency2vec to `hatespeech_core/data/conll_data`
