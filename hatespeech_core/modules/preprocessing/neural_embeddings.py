@@ -25,7 +25,7 @@ def load_embedding(filename, embedding_type):
         embedding_type (str): kv:keyedVectors w2v:word2vec
     """
     if embedding_type == "kv":
-        return KeyedVectors.load_word2vec_format(settings.EMBEDDING_MODELS + filename, binary=False)
+        return KeyedVectors.load_word2vec_format(settings.EMBEDDING_MODELS + filename, binary=False, unicode_errors="ignore")
     elif embedding_type == "w2v":
         model = Word2Vec.load(settings.EMBEDDING_MODELS + filename)
         word_vectors = model.wv
