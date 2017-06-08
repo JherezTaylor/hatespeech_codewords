@@ -1,6 +1,16 @@
+# Author: Jherez Taylor <jherez.taylor@gmail.com>
+# License: MIT
+# Python 3.5
+
+"""
+This module stores base methods for elasticsearch.
+"""
+
+from pymongo import InsertOne
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers as es_helpers
 from ..utils import settings
+from ..db import mongo_base
 
 
 def connect(es_url=None):
@@ -18,7 +28,8 @@ def connect(es_url=None):
             settings.logger.info(
                 "Connected to ElasticSearch at %s successfully", es_url)
     except ValueError as ex:
-        settings.logger.error("Could not connect to ElasticSearch: %s", ex, exc_info=True)
+        settings.logger.error(
+            "Could not connect to ElasticSearch: %s", ex, exc_info=True)
     return _es
 
 
@@ -70,3 +81,38 @@ def match(_es, es_index, doc_type, field, lookup_list):
     results = es_helpers.scan(
         _es, index=es_index, doc_type=doc_type, query=query, scroll='2m', size=3400)
     return results
+
+
+def migrate_es_tweets(connection_params, args):
+    """ Scroll an elasticsearch instance and insert the tweets into MongoDB
+    """
+
+    db_name = connection_params[0]
+    target_collection = connection_params[1]
+
+    es_url = args[0]
+    es_index = args[1]
+    doc_type = args[2]
+    field = args[3]
+    lookup_list = args[4]
+    _es = connect(es_url)
+
+    # Setup client object for bulk op
+    bulk_client = mongo_base.connect()
+    dbo = bulk_client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
+
+    es_results = match(
+        _es, es_index, doc_type, field, lookup_list)
+
+    operations = []
+    for doc in es_results:
+        operations.append(InsertOne(doc["_source"]))
+
+        if len(operations) == settings.BULK_BATCH_SIZE:
+            _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+            operations = []
+
+    if operations:
+        _ = mongo_base.do_bulk_op(dbo, target_collection, operations)

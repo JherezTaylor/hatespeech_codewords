@@ -246,10 +246,10 @@ def update_schema(staging):
     return operations
 
 
-def store_preprocessed_text(connection_params, query, partition):
+def prep_word_embedding_text(connection_params, query, partition):
     """ Read a MongoDB collection and store the preprocessed text
-    as a separate field. Preprocessing removes URLS, numbers, and
-    stopwords, normalizes @usermentions. Updates the passed collection.
+    as a separate field. Text is preprocessed for training a word embedding model.
+    Removes URLS, numbers, and stopwords, normalizes @usermentions. Updates the passed collection.
     Args:
         connection_params (list): Contains connection objects and params as follows:
             0: db_name     (str): Name of database to query.
@@ -292,10 +292,10 @@ def store_preprocessed_text(connection_params, query, partition):
         count += 1
         parsed_tweet = {}
         parsed_tweet["_id"] = object_id
-        parsed_tweet["preprocessed_txt"] = str(doc.text).lower()
+        parsed_tweet["word_embedding_txt"] = str(doc.text).lower()
 
         operations.append(UpdateOne({"_id": parsed_tweet["_id"]}, {
-            "$set": {"preprocessed_txt": parsed_tweet["preprocessed_txt"]}}, upsert=False))
+            "$set": {"word_embedding_txt": parsed_tweet["word_embedding_txt"]}}, upsert=False))
 
         if len(operations) == settings.BULK_BATCH_SIZE:
             _ = mongo_base.do_bulk_op(dbo, collection, operations)
@@ -306,49 +306,14 @@ def store_preprocessed_text(connection_params, query, partition):
         _ = mongo_base.do_bulk_op(dbo, collection, operations)
 
 
-def fetch_es_tweets(connection_params, args):
-    """ Scroll an elasticsearch instance and insert the tweets into MongoDB
-    """
-
-    db_name = connection_params[0]
-    target_collection = connection_params[1]
-
-    es_url = args[0]
-    es_index = args[1]
-    doc_type = args[2]
-    field = args[3]
-    lookup_list = args[4]
-    _es = elasticsearch_base.connect(es_url)
-
-    # Setup client object for bulk op
-    bulk_client = mongo_base.connect()
-    dbo = bulk_client[db_name]
-    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
-                     source=settings.DB_AUTH_SOURCE)
-
-    es_results = elasticsearch_base.match(
-        _es, es_index, doc_type, field, lookup_list)
-
-    operations = []
-    for doc in es_results:
-        operations.append(InsertOne(doc["_source"]))
-
-        if len(operations) == settings.BULK_BATCH_SIZE:
-            _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
-            operations = []
-
-    if operations:
-        _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
-
-
 def run_fetch_es_tweets():
     """ Fetch tweets from elasticsearch
     """
     connection_params = ["twitter", "melvyn_hs_users"]
     lookup_list = file_ops.read_csv_file(
         'melvyn_hs_user_ids', settings.TWITTER_SEARCH_PATH)
-    fetch_es_tweets(connection_params, [
-                    "192.168.2.33", "tweets", "tweet", "user.id_str", lookup_list])
+    elasticsearch_base.migrate_es_tweets(connection_params, [
+        "192.168.2.33", "tweets", "tweet", "user.id_str", lookup_list])
 
 
 def start_feature_extraction():
@@ -391,4 +356,4 @@ def start_store_preprocessed_text():
     ]
     for job in job_list:
         run_parallel_pipeline(
-            job, store_preprocessed_text, ["store_preprocessed_text", "Preprocess Text"])
+            job, prep_word_embedding_text, ["prep_word_embedding_text", "Preprocess Text"])

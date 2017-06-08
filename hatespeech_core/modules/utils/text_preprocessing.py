@@ -739,7 +739,7 @@ def prep_word_embedding_file(connection_params, query, partition, filename):
     with open(settings.EMBEDDING_INPUT + filename + "_" + str(job_id) + ".txt", "w+") as _f:
         for doc in cursor:
             count += 1
-            _f.write(doc["preprocessed_txt"] + "\n")
+            _f.write(doc["word_embedding_txt"] + "\n")
             settings.logger.debug("Progress %s out of %s", count, partition[1])
         _f.close()
 

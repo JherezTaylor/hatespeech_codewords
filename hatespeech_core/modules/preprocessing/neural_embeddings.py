@@ -71,7 +71,7 @@ def create_word_embedding_input(connection_params, filename):
 
     query = {}
     query["filter"] = {}
-    query["projection"] = {"preprocessed_txt": 1, "_id": 0}
+    query["projection"] = {"word_embedding_txt": 1, "_id": 0}
     query["limit"] = 0
     query["skip"] = 0
     query["no_cursor_timeout"] = True
