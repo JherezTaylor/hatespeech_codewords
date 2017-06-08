@@ -24,7 +24,7 @@ class TestFileOps(object):
 
     def test_extract_lexical_features(self):
         """This method tests the OR concatenation function"""
-        nlp = hatespeech_core.feature_prep.init_nlp_pipeline()
+        nlp = hatespeech_core.feature_prep.init_nlp_pipeline(False)
         result_set = [("I'm", 'NN'), ('here', 'RB'), ('get', 'VB'),
                       ('rekt', 'NN'), ('#squadgoals', 'NNS'), ('okay', 'JJ')]
         response_string = hatespeech_core.feature_prep.extract_lexical_features_test(nlp,
