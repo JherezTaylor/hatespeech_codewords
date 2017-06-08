@@ -306,6 +306,66 @@ def prep_word_embedding_text(connection_params, query, partition):
         _ = mongo_base.do_bulk_op(dbo, collection, operations)
 
 
+def prep_preprocessed_text(connection_params, query, partition):
+    """ Read a MongoDB collection and store the preprocessed text
+    as a separate field. Text is preprocessed for generic usage.
+    Removes URLS, normalizes @usermentions, and lowercases text. Updates the passed collection.
+    Args:
+        connection_params (list): Contains connection objects and params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
+            2: projection (str): Document field name to return.
+        query (dict): Query to execute.
+        partition   (tuple): Contains skip and limit values.
+
+    """
+
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
+    projection = connection_params[2]
+    connection_params.insert(0, client)
+
+    # Set skip limit values
+    query["skip"] = partition[0]
+    query["limit"] = partition[1]
+
+    # Setup client object for bulk op
+    bulk_client = mongo_base.connect()
+    dbo = bulk_client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
+
+    operations = []
+    nlp = init_nlp_pipeline(False)
+    cursor = mongo_base.finder(connection_params, query, False)
+
+    # Makes a copy of the MongoDB cursor, to the best of my
+    # knowledge this does not attempt to exhaust the cursor
+    count = 0
+    cursor_1, cursor_2 = itertools.tee(cursor, 2)
+    object_ids = (object_id["_id"] for object_id in cursor_1)
+    tweet_texts = (tweet_text[projection] for tweet_text in cursor_2)
+
+    docs = nlp.pipe(tweet_texts, batch_size=15000, n_threads=4)
+    for object_id, doc in zip(object_ids, docs):
+        count += 1
+        parsed_tweet = {}
+        parsed_tweet["_id"] = object_id
+        parsed_tweet["preprocessed_txt"] = str(doc.text).lower()
+
+        operations.append(UpdateOne({"_id": parsed_tweet["_id"]}, {
+            "$set": {"preprocessed_txt": parsed_tweet["preprocessed_txt"]}}, upsert=False))
+
+        if len(operations) == settings.BULK_BATCH_SIZE:
+            _ = mongo_base.do_bulk_op(dbo, collection, operations)
+            operations = []
+            settings.logger.debug("Progress %s out of %s", count, partition[1])
+
+    if operations:
+        _ = mongo_base.do_bulk_op(dbo, collection, operations)
+
+
 def run_fetch_es_tweets():
     """ Fetch tweets from elasticsearch
     """
@@ -338,7 +398,7 @@ def start_feature_extraction():
 
 
 def start_store_preprocessed_text():
-    """ Start the job
+    """ Start the job for both word embedding and generic text preprocessing
     """
     job_list = [
         ["twitter_annotated_datasets", "NAACL_SRW_2016_features", "text"],
@@ -355,5 +415,8 @@ def start_store_preprocessed_text():
         ["twitter", "tweets", "text"]
     ]
     for job in job_list:
+        # run_parallel_pipeline(
+        # job, prep_word_embedding_text, ["prep_word_embedding_text",
+        # "Preprocess embedding text"])
         run_parallel_pipeline(
-            job, prep_word_embedding_text, ["prep_word_embedding_text", "Preprocess Text"])
+            job, prep_preprocessed_text, ["prep_preprocessed_text", "Preprocess Text"])
