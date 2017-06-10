@@ -396,7 +396,7 @@ def start_feature_extraction():
 
     for job in job_list:
         run_parallel_pipeline(
-            job[0:4], feature_extraction_pipeline, [job[0] + "_" + job[2], "Prep conll format"])
+            job[0:4], feature_extraction_pipeline, [job[0] + "_" + job[2], "Extract features"])
 
 
 def start_store_preprocessed_text():
