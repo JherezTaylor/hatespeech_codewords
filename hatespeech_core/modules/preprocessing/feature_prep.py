@@ -112,13 +112,13 @@ def run_parallel_pipeline(connection_params, method, job_details):
 
 def feature_extraction_pipeline(connection_params, query, partition, usage=None):
     """Handles the extraction of features needed for the model.
-    Inserts parsed documents to database.
+    Updates collection in place.
     Args:
         connection_params  (list): Contains connection objects and params as follows:
             0: db_name     (str): Name of database to query.
             1: collection  (str): Name of collection to use.
             2: projection (str): Document field name to return.
-            3: target_collection (str): Name of output collection.
+            3: usage (str): Operation to apply.
     """
 
     # Set skip limit values
@@ -128,9 +128,9 @@ def feature_extraction_pipeline(connection_params, query, partition, usage=None)
     nlp = init_nlp_pipeline(True)
     client = mongo_base.connect()
     db_name = connection_params[0]
+    collection = connection_params[1]
     projection = connection_params[2]
-    target_collection = connection_params[3]
-    usage = connection_params[4]
+    usage = connection_params[3]
     connection_params.insert(0, client)
     # _cls, _pv = load_emotion_classifier()
 
@@ -154,7 +154,6 @@ def feature_extraction_pipeline(connection_params, query, partition, usage=None)
 
     operations = []
     staging = []
-    emotion_vector = []
     count = 0
 
     # https://github.com/explosion/spaCy/issues/172
@@ -193,17 +192,28 @@ def feature_extraction_pipeline(connection_params, query, partition, usage=None)
 
         staging.append(parsed_tweet)
         if len(staging) == settings.BULK_BATCH_SIZE:
-            print("count ", count)
-            operations = unpack_emotions(staging, emotion_vector, None, None)
-            # operations = update_schema(staging)
-            _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+            settings.logger.debug("Progress %s out of %s", count, partition[1])
+            operations = update_schema(staging)
+            _ = mongo_base.do_bulk_op(dbo, collection, operations)
             operations = []
             staging = []
-            emotion_vector = []
     if staging:
-        operations = unpack_emotions(staging, emotion_vector, None, None)
-        # operations = update_schema(staging)
-        _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+        operations = update_schema(staging)
+        _ = mongo_base.do_bulk_op(dbo, collection, operations)
+
+
+def update_schema(staging):
+    """ Short function for appending features"""
+    operations = []
+    for _idx, parsed_tweet in enumerate(staging):
+        update_values = {}
+        for key, val in parsed_tweet.items():
+            update_values[key] = val
+
+        update_values.pop("_id", None)
+        operations.append(UpdateOne({"_id": parsed_tweet["_id"]}, {
+            "$set": update_values}, upsert=False))
+    return operations
 
 
 def unpack_emotions(staging, emotion_vector, _pv, _cls):
@@ -233,16 +243,6 @@ def unpack_emotions(staging, emotion_vector, _pv, _cls):
         # parsed_tweet["emotions"]["second"] = emotion_coverage[idx][1]
         # parsed_tweet["emotions"]["min"] = emotion_min_score[idx]
         operations.append(InsertOne(parsed_tweet))
-    return operations
-
-
-def update_schema(staging):
-    """ Short function for appending features"""
-    operations = []
-    for idx, parsed_tweet in enumerate(staging):
-        operations.append(UpdateOne({"_id": parsed_tweet["_id"]}, {
-            "$set": {"word_dep_root": parsed_tweet["word_dep_root"], "pos_dep_rootPos": parsed_tweet["pos_dep_rootPos"], "word_root_preRoot": parsed_tweet["word_root_preRoot"], "tokens": parsed_tweet["tokens"], "conllFormat": parsed_tweet["conllFormat"], "dependency_contexts": parsed_tweet[
-                "dependency_contexts"]}}, upsert=False))
     return operations
 
 
@@ -379,32 +379,34 @@ def run_fetch_es_tweets():
 def start_feature_extraction():
     """Run operations"""
     job_list = [
-        ["twitter_annotated_datasets", "NAACL_SRW_2016_features",
-            "text", "test_conll", "conll"],
-        ["dailystormer_archive", "d_stormer_documents", "article",
-            "d_stormer_documents_conll", "conll"],
-        ["twitter", "melvyn_hs_users", "text", "melvyn_hs_users_conll", "conll"],
-        ["manchester_event", "tweets", "text", "tweets_conll", "conll"],
-        ["inauguration", "tweets",  "text", "tweets_conll", "conll"],
-        ["uselections", "tweets", "text", "tweets_conll", "conll"],
-        ["unfiltered_stream_May17", "tweets",
-            "text", "tweets_conll", "conll"],
-        ["twitter", "tweets", "text", "tweets_conll", "conll"]
+        ["twitter_annotated_datasets", "NAACL_SRW_2016",
+            "preprocessed_txt", "features"],
+        ["twitter_annotated_datasets",
+         "NLP_CSS_2016_expert", "preprocessed_txt", "features"],
+        ["twitter_annotated_datasets", "crowdflower",
+            "preprocessed_txt", "features"],
+        ["dailystormer_archive", "d_stormer_documents",
+            "preprocessed_txt", "features"],
+        ["twitter", "melvyn_hs_users", "preprocessed_txt", "features"],
+        ["manchester_event", "tweets", "preprocessed_txt", "features"],
+        ["inauguration", "tweets",  "preprocessed_txt", "features"],
+        ["unfiltered_stream_May17", "tweets", "preprocessed_txt", "features"],
+        ["twitter", "tweets", "preprocessed_txt", "features"]
     ]
 
     for job in job_list:
         run_parallel_pipeline(
-            job[0:5], feature_extraction_pipeline, [job[0] + "_" + job[3], "Prep conll format"])
+            job[0:4], feature_extraction_pipeline, [job[0] + "_" + job[2], "Prep conll format"])
 
 
 def start_store_preprocessed_text():
     """ Start the job for both word embedding and generic text preprocessing
     """
     job_list = [
-        ["twitter_annotated_datasets", "NAACL_SRW_2016_features", "text"],
+        ["twitter_annotated_datasets", "NAACL_SRW_2016", "text"],
         ["twitter_annotated_datasets",
-         "NLP_CSS_2016_expert_features", "text"],
-        ["twitter_annotated_datasets", "crowdflower_features", "text"],
+         "NLP_CSS_2016_expert", "text"],
+        ["twitter_annotated_datasets", "crowdflower", "text"],
         ["dailystormer_archive", "d_stormer_documents", "article"],
         ["twitter", "melvyn_hs_users", "text"],
         ["manchester_event", "tweets", "text"],
