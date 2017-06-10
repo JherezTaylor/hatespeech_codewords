@@ -162,7 +162,7 @@ def feature_extraction_pipeline(connection_params, query, partition, usage=None)
     for object_id, doc in zip(object_ids, docs):
         # emotion_vector.append(doc.text)
         count += 1
-        settings.logger.debug("Document %s out of %s", count, partition[1])
+        # settings.logger.debug("Document %s out of %s", count, partition[1])
 
         # Construct a new tweet object to be appended
         parsed_tweet = {}
@@ -387,13 +387,13 @@ def start_feature_extraction():
         #  "NLP_CSS_2016_expert", "preprocessed_txt", "features"],
         # ["twitter_annotated_datasets", "crowdflower",
         #     "preprocessed_txt", "features"],
-        ["dailystormer_archive", "d_stormer_documents",
-            "preprocessed_txt", "features"]
-        # ["twitter", "melvyn_hs_users", "preprocessed_txt", "features"],
-        # ["manchester_event", "tweets", "preprocessed_txt", "features"],
-        # ["inauguration", "tweets",  "preprocessed_txt", "features"],
-        # ["unfiltered_stream_May17", "tweets", "preprocessed_txt", "features"],
-        # ["twitter", "tweets", "preprocessed_txt", "features"]
+        # ["dailystormer_archive", "d_stormer_documents",
+        #     "preprocessed_txt", "features"],
+        ["twitter", "melvyn_hs_users", "preprocessed_txt", "features"],
+        ["manchester_event", "tweets", "preprocessed_txt", "features"],
+        ["inauguration", "tweets",  "preprocessed_txt", "features"],
+        ["unfiltered_stream_May17", "tweets", "preprocessed_txt", "features"],
+        ["twitter", "tweets", "preprocessed_txt", "features"]
     ]
 
     for job in job_list:
