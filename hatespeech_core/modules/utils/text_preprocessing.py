@@ -288,8 +288,8 @@ def create_dep_ngrams(dependency_list, length):
         dependency_list (list): List of dependency dicts.
         length      (int):  Length of ngrams to create.
     """
-    dependencies = [[dependency["text"], dependency["root"], dependency[
-        "dependency"], dependency["pos"]] for dependency in dependency_list]
+    dependencies = [[dependency["dependency"], dependency["root"], dependency[
+        "text"], dependency["pos"]] for dependency in dependency_list]
     for idx, dep in enumerate(dependencies):
         dependencies[idx] = "_".join(_ele for _ele in dep)
 
@@ -547,51 +547,6 @@ def extract_conll_format(doc):
     return result
 
 
-def extract_dep_contexts(doc):
-    """Extract dependency contexts as key:val pairs
-    Given a word in a sentence, return it's modifiers:dependency and
-    it's head:dependency with this relation being labeled as INV.
-
-    Example:
-    {'austrailian': 'scientists amod-INV'}
-    {'scientists': 'austrailian amod'}
-
-    scientists acts as the root for austrailian and scientists modifies austrailian
-
-    Args:
-        doc (spaCy Doc): A container for accessing linguistic annotations.
-    Returns:
-        result: List of word:dependency pairs.
-    """
-
-    dependency_contexts = []
-    dependency_contexts_concat = []
-    for word in doc:
-        # I originally did this because Mongo doesn't allow these prefixes to be keys in a dictionary
-        # if not str(word.head.prefix_).isalpha() or not str(word.prefix_).isalpha() or "." in word.text or "." in str(word.head):
-        #     pass
-        if word.is_punct:
-            pass
-        elif len(list(word.children)) == 0:
-            dependency_contexts.append(
-                {word.lower_: str(word.head.lower_) + " " + str(word.dep_) + "INV"})
-            dependency_contexts_concat.append(
-                word.lower_ + "_" + word.head.lower_ + "_" + str(word.dep_) + "INV")
-        elif len(list(word.children)) >= 1:
-            for child in word.children:
-                if child.lower_ != word.lower_ and not child.is_punct:
-                    dependency_contexts.append(
-                        {word.lower_: str(child.lower_) + " " + str(child.dep_)})
-                    dependency_contexts_concat.append(
-                        word.lower_ + "_" + child.lower_ + "_" + str(child.dep_))
-            if word.dep_ != "ROOT":
-                dependency_contexts.append(
-                    {word.lower_: word.head.lower_ + " " + str(word.dep_) + "INV"})
-                dependency_contexts_concat.append(
-                    word.lower_ + "_" + word.head.lower_ + "_" + str(word.dep_) + "INV")
-    return dependency_contexts, dependency_contexts_concat
-
-
 def prep_linguistic_features(parsed_tweet, hs_keywords, doc, usage=None):
     """Append the linguistic features to the tweet body
     Args:
@@ -648,11 +603,11 @@ def prep_dependency_features(parsed_tweet, doc, usage=None):
     """
 
     word_dep_root = []
-    feat_word_dep_root = []
+    feat_dep_root_word = []
     pos_dep_rootpos = []
     feat_pos_dep_rootpos = []
     word_root_rootparent = []
-    feat_word_root_rootparent = []
+    feat_rootparent_root_word = []
     feat_dep_unigrams = []
     dependencies = []
 
@@ -687,19 +642,19 @@ def prep_dependency_features(parsed_tweet, doc, usage=None):
             _np.merge(_np.root.tag_, _np.root.lemma_, _np.root.ent_type_)
         for token in doc:
             if not token.is_punct:
-                feat_word_dep_root.append(
-                    str(token.lower_) + "_" + str(token.dep_) + "_" + str(token.head.lower_))
+                feat_dep_root_word.append(
+                    str(token.dep_) + "_" + str(token.head.lower_) + "_" + str(token.lower_))
                 feat_pos_dep_rootpos.append(
                     str(token.tag_) + "_" + str(token.dep_) + "_" + str(token.head.tag_))
-                feat_word_root_rootparent.append(str(
-                    token.lower_) + "_" + str(token.head.lower_) + "_" + str(token.head.head.lower_))
+                feat_rootparent_root_word.append(str(
+                    token.head.head.lower_) + "_" + str(token.head.lower_) + "_" + str(token.lower_))
                 dependencies.append({"text": token.lower_, "root": token.head.lower_,
                                      "dependency": token.dep_, "pos": token.tag_})
-                feat_dep_unigrams.append(str(token.lower_) + "_" + str(
-                    token.head.lower_) + "_" + str(token.dep_) + "_" + str(token.tag_))
-        parsed_tweet["feat_word_dep_root"] = feat_word_dep_root
+                feat_dep_unigrams.append(str(token.dep_) + "_" + str(
+                    token.head.lower_) + "_" + str(token.lower_) + "_" + str(token.tag_))
+        parsed_tweet["feat_dep_root_word"] = feat_dep_root_word
         parsed_tweet["feat_pos_dep_rootPos"] = feat_pos_dep_rootpos
-        parsed_tweet["feat_word_root_rootparent"] = feat_word_root_rootparent
+        parsed_tweet["feat_rootparent_root_word"] = feat_rootparent_root_word
         parsed_tweet["feat_dep_unigrams"] = feat_dep_unigrams
         parsed_tweet["feat_dep_bigrams"] = create_dep_ngrams(dependencies, 2)
         parsed_tweet["feat_dep_trigrams"] = create_dep_ngrams(dependencies, 3)
@@ -711,6 +666,51 @@ def prep_dependency_features(parsed_tweet, doc, usage=None):
     elif usage == "conll":
         parsed_tweet["conllFormat"] = extract_conll_format(doc)
     return parsed_tweet
+
+
+def extract_dep_contexts(doc):
+    """Extract dependency contexts as key:val pairs
+    Given a word in a sentence, return it's modifiers:dependency and
+    it's head:dependency with this relation being labeled as INV.
+
+    Example:
+    {'austrailian': 'scientists amod-INV'}
+    {'scientists': 'austrailian amod'}
+
+    scientists acts as the root for austrailian and scientists modifies austrailian
+
+    Args:
+        doc (spaCy Doc): A container for accessing linguistic annotations.
+    Returns:
+        result: List of word:dependency pairs.
+    """
+
+    dependency_contexts = []
+    dependency_contexts_concat = []
+    for word in doc:
+        # I originally did this because Mongo doesn't allow these prefixes to be keys in a dictionary
+        # if not str(word.head.prefix_).isalpha() or not str(word.prefix_).isalpha() or "." in word.text or "." in str(word.head):
+        #     pass
+        if word.is_punct:
+            pass
+        elif len(list(word.children)) == 0:
+            dependency_contexts.append(
+                {word.lower_: str(word.head.lower_) + " " + str(word.dep_) + "INV"})
+            dependency_contexts_concat.append(
+                word.lower_ + "_" + word.head.lower_ + "_" + str(word.dep_) + "INV")
+        elif len(list(word.children)) >= 1:
+            for child in word.children:
+                if child.lower_ != word.lower_ and not child.is_punct:
+                    dependency_contexts.append(
+                        {word.lower_: str(child.lower_) + " " + str(child.dep_)})
+                    dependency_contexts_concat.append(
+                        word.lower_ + "_" + child.lower_ + "_" + str(child.dep_))
+            if word.dep_ != "ROOT":
+                dependency_contexts.append(
+                    {word.lower_: word.head.lower_ + " " + str(word.dep_) + "INV"})
+                dependency_contexts_concat.append(
+                    word.lower_ + "_" + word.head.lower_ + "_" + str(word.dep_) + "INV")
+    return dependency_contexts, dependency_contexts_concat
 
 
 def prep_word_embedding_file(connection_params, query, partition, filename):
