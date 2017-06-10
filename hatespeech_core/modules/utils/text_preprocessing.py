@@ -602,12 +602,15 @@ def prep_dependency_features(parsed_tweet, doc, usage=None):
         parsed_tweet
     """
 
-    word_dep_root = []
+    dep_root_word = []
     feat_dep_root_word = []
-    pos_dep_rootpos = []
-    feat_pos_dep_rootpos = []
-    word_root_rootparent = []
+    feat_dep_root_word_HS = []
+    dep_pos_rootpos = []
+    feat_dep_pos_rootpos = []
+    feat_dep_pos_rootpos_HS = []
+    rootparent_root_word = []
     feat_rootparent_root_word = []
+    feat_rootparent_root_word_HS = []
     feat_dep_unigrams = []
     dependencies = []
 
@@ -617,20 +620,20 @@ def prep_dependency_features(parsed_tweet, doc, usage=None):
             _np.merge(_np.root.tag_, _np.root.lemma_, _np.root.ent_type_)
         for token in doc:
             if not token.is_punct:
-                word_dep_root.append({"word": token.lower_, "dep": token.dep_,
+                dep_root_word.append({"word": token.lower_, "dep": token.dep_,
                                       "root": token.head.lower_})
-                pos_dep_rootpos.append(
+                dep_pos_rootpos.append(
                     {"pos": token.tag_, "dep": token.dep_, "rootPos": token.head.tag_})
-                word_root_rootparent.append(
+                rootparent_root_word.append(
                     {"word": token.lower_, "root": token.head.lower_, "preRoot": token.head.head.lower_})
                 dependencies.append({"text": token.lower_, "root": token.head.lower_,
                                      "dependency": token.dep_, "pos": token.tag_})
-        # parsed_tweet["word_dep_root"] = word_dep_root
-        # parsed_tweet["pos_dep_rootPos"] = pos_dep_rootpos
-        # parsed_tweet["word_root_rootparent"] = word_root_rootparent
-        parsed_tweet["dependencies"] = dependencies
+        # parsed_tweet["dep_root_word"] = dep_root_word
+        # parsed_tweet["dep_pos_rootpos"] = dep_pos_rootpos
+        # parsed_tweet["rootparent_root_word"] = rootparent_root_word
         # dependency_contexts = extract_dep_contexts(doc)
         # parsed_tweet["dependency_contexts"] = dependency_contexts[0]
+        parsed_tweet["dependencies"] = dependencies
         parsed_tweet["feat_dep_bigrams"] = create_dep_ngrams(
             parsed_tweet["dependencies"], 2)
         parsed_tweet["feat_dep_trigrams"] = create_dep_ngrams(
@@ -642,18 +645,28 @@ def prep_dependency_features(parsed_tweet, doc, usage=None):
             _np.merge(_np.root.tag_, _np.root.lemma_, _np.root.ent_type_)
         for token in doc:
             if not token.is_punct:
+                if parsed_tweet["has_hs_keywords"] is True:
+                    feat_dep_root_word_HS.append(
+                        str(token.dep_) + "_" + str(token.head.lower_) + "_" + "HS_WORD")
+                    feat_dep_pos_rootpos_HS.append(
+                        str(token.dep_) + "_" + str(token.tag_) + "_" + str(token.head.tag_))
+                    feat_rootparent_root_word_HS.append(str(
+                        token.head.head.lower_) + "_" + str(token.head.lower_) + "_" + "HS_WORD")
+
                 feat_dep_root_word.append(
                     str(token.dep_) + "_" + str(token.head.lower_) + "_" + str(token.lower_))
-                feat_pos_dep_rootpos.append(
-                    str(token.tag_) + "_" + str(token.dep_) + "_" + str(token.head.tag_))
+                feat_dep_pos_rootpos.append(
+                    str(token.dep_) + "_" + str(token.tag_) + "_" + str(token.head.tag_))
                 feat_rootparent_root_word.append(str(
                     token.head.head.lower_) + "_" + str(token.head.lower_) + "_" + str(token.lower_))
                 dependencies.append({"text": token.lower_, "root": token.head.lower_,
                                      "dependency": token.dep_, "pos": token.tag_})
                 feat_dep_unigrams.append(str(token.dep_) + "_" + str(
                     token.head.lower_) + "_" + str(token.lower_) + "_" + str(token.tag_))
+
+        parsed_tweet["dependencies"] = dependencies
         parsed_tweet["feat_dep_root_word"] = feat_dep_root_word
-        parsed_tweet["feat_pos_dep_rootPos"] = feat_pos_dep_rootpos
+        parsed_tweet["feat_dep_pos_rootPos"] = feat_dep_pos_rootpos
         parsed_tweet["feat_rootparent_root_word"] = feat_rootparent_root_word
         parsed_tweet["feat_dep_unigrams"] = feat_dep_unigrams
         parsed_tweet["feat_dep_bigrams"] = create_dep_ngrams(dependencies, 2)
