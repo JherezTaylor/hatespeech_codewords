@@ -234,74 +234,74 @@ def preprocessing_pipeline():
     field_to_extract = [".text", ".expanded_url",
                         ".screen_name", ".id_str", ".media_url", ".type"]
 
-    # lang_list = ['en', 'und', 'es', 'ru', 'pt',
-    #              'it', 'ja', 'fr', 'de', 'ar', 'zh']
+    hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
+    url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
+    user_mentions_args = [field_names[2], fields_to_set[2], fields_to_set[
+        3], fields_to_set[4], field_to_extract[2], field_to_extract[3]]
+    media_args = [field_names[3], fields_to_set[5], fields_to_set[
+        6], fields_to_set[7], field_to_extract[4], field_to_extract[5]]
 
-    connection_params = ["inauguration", "tweets"]
+    job_list = [
+        ["twitter", "melvyn_hs_users"],
+        ["manchester_event", "tweets"],
+        ["unfiltered_stream_May17", "tweets"]
+    ]
 
-    # connection_params = ["inauguration_no_filter", "tweets"]
+    for job in job_list:
+        # Remove retweets
+        run_retweet_removal(job)
 
-    # hashtag_args = [field_names[0], fields_to_set[0], field_to_extract[0]]
-    # url_args = [field_names[1], fields_to_set[1], field_to_extract[1]]
-    # user_mentions_args = [field_names[2], fields_to_set[2], fields_to_set[
-    #     3], fields_to_set[4], field_to_extract[2], field_to_extract[3]]
-    # media_args = [field_names[3], fields_to_set[5], fields_to_set[
-    #     6], fields_to_set[7], field_to_extract[4], field_to_extract[5]]
+        # Create Indexes
+        run_create_indexes(job)
 
-    # # Remove retweets
-    # run_retweet_removal(connection_params)
+        # Remove unwanted and redundant fields
+        run_field_removal(job)
 
-    # # Create Indexes
-    # run_create_indexes(connection_params)
+        run_language_trimming(job, ['en'])
 
-    # # Remove unwanted and redundant fields
-    # run_field_removal(connection_params)
+        # Hashtags
+        run_field_flattening(
+            job, "top_level", job_names[0], hashtag_args)
 
-    # run_language_trimming(connection_params, ['en', 'und'])
+        # Urls
+        run_field_flattening(
+            job, "top_level", job_names[1], url_args)
 
-    # # Hashtags
-    # run_field_flattening(
-    #     connection_params, "top_level", job_names[0], hashtag_args)
+        # User mentions
+        run_field_flattening(
+            job, "top_level", job_names[2], user_mentions_args)
 
-    # # Urls
-    # run_field_flattening(
-    #     connection_params, "top_level", job_names[1], url_args)
+        # # Media
+        run_field_flattening(
+            job, "top_level", job_names[3], media_args)
 
-    # # User mentions
-    # run_field_flattening(
-    #     connection_params, "top_level", job_names[2], user_mentions_args)
+        # Quoted_status Hashtags
+        run_field_flattening(job, "quoted_status",
+                             job_names[0], hashtag_args)
 
-    # # # Media
-    # run_field_flattening(
-    #     connection_params, "top_level", job_names[3], media_args)
+        # Quoted_status Urls
+        run_field_flattening(job, "quoted_status",
+                             job_names[1], url_args)
 
-    # # Quoted_status Hashtags
-    # run_field_flattening(connection_params, "quoted_status",
-    #                      job_names[0], hashtag_args)
+        # Quoted_status User mentions
+        run_field_flattening(job, "quoted_status",
+                             job_names[2], user_mentions_args)
 
-    # # Quoted_status Urls
-    # run_field_flattening(connection_params, "quoted_status",
-    #                      job_names[1], url_args)
+        # Quoted_status Media
+        run_field_flattening(job, "quoted_status",
+                             job_names[3], media_args)
 
-    # # Quoted_status User mentions
-    # run_field_flattening(connection_params, "quoted_status",
-    #                      job_names[2], user_mentions_args)
+        # Parse extended tweet
+        run_parse_extended_tweet(
+            job, "top_level", "Top Level Extended Tweet")
+        run_parse_extended_tweet(
+            job, "quoted_status", "Quoted Status Extended Tweet")
 
-    # # Quoted_status Media
-    # run_field_flattening(connection_params, "quoted_status",
-    #                      job_names[3], media_args)
+        # Remove final field set
+        run_final_field_removal(job, "Final Field Removal")
 
-    # # Parse extended tweet
-    # run_parse_extended_tweet(
-    #     connection_params, "top_level", "Top Level Extended Tweet")
-    # run_parse_extended_tweet(
-    #     connection_params, "quoted_status", "Quoted Status Extended Tweet")
-
-    # Remove final field set
-    # run_final_field_removal(connection_params, "Final Field Removal")
-
-    # Clean source field
-    # run_clean_source_field(connection_params, "Clean Source Field")
+        # Clean source field
+        run_clean_source_field(job, "Clean Source Field")
 
 
 def fetch_missing_text_pipeline():

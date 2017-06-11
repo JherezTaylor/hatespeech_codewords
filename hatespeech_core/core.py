@@ -17,8 +17,8 @@ def main():
     Run operations
     """
     # candidate_selection.sentiment_pipeline()
-    # db_cleaning.preprocessing_pipeline()
-    feature_prep.start_feature_extraction()
+    db_cleaning.preprocessing_pipeline()
+    # feature_prep.start_feature_extraction()
     # feature_prep.start_store_preprocessed_text()
     # neural_embeddings.train_word_embeddings()
     # neural_embeddings.train_fasttext_classifier()
