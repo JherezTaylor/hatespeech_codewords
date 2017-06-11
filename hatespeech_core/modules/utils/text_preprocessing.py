@@ -561,19 +561,17 @@ def prep_linguistic_features(parsed_tweet, hs_keywords, doc, usage=None):
         set(parsed_tweet["tokens"]).intersection(hs_keywords))
     parsed_tweet["hs_keyword_count"] = len(
         parsed_tweet["hs_keyword_matches"])
-    # TODO undo
-    # parsed_tweet["has_hs_keywords"] = True if parsed_tweet[
-    #     "hs_keyword_count"] > 0 else False
+    parsed_tweet["has_hs_keywords"] = True if parsed_tweet[
+        "hs_keyword_count"] > 0 else False
     parsed_tweet["unknown_words"] = list(set([
         token.lower_ for token in doc if not (str(token.lower_) == "user_mention" or not token.is_oov or str(token.lower_) in hs_keywords or (len(token.lower_) >= 3 and "'" in str(token.lower_)) or token.prefix_ == "#")]))
     parsed_tweet["unknown_words_count"] = len(
         parsed_tweet["unknown_words"])
-    # TODO undo
-    # parsed_tweet["comment_length"] = len(doc)
-    # parsed_tweet["avg_token_length"] = round(
-    #     sum(len(token) for token in doc) / len(doc), 0) if len(doc) > 0 else 0
-    # parsed_tweet[
-    #     "uppercase_token_count"] = count_uppercase_tokens(doc)
+    parsed_tweet["comment_length"] = len(doc)
+    parsed_tweet["avg_token_length"] = round(
+        sum(len(token) for token in doc) / len(doc), 0) if len(doc) > 0 else 0
+    parsed_tweet[
+        "uppercase_token_count"] = count_uppercase_tokens(doc)
 
     if usage == "analysis":
         parsed_tweet["bigrams"] = create_ngrams(
@@ -589,8 +587,6 @@ def prep_linguistic_features(parsed_tweet, hs_keywords, doc, usage=None):
         #     doc.text.split(), 5)
         parsed_tweet["hashtags"] = [
             token.text for token in doc if token.prefix_ == "#"]
-    # if usage == "features":
-    #     parsed_tweet.pop("tokens", None)
     return parsed_tweet
 
 
@@ -630,9 +626,6 @@ def prep_dependency_features(parsed_tweet, doc, usage=None):
                     {"word": token.lower_, "root": token.head.lower_, "preRoot": token.head.head.lower_})
                 dependencies.append({"text": token.lower_, "root": token.head.lower_,
                                      "dependency": token.dep_, "pos": token.tag_})
-        # parsed_tweet["dep_root_word"] = dep_root_word
-        # parsed_tweet["dep_pos_rootpos"] = dep_pos_rootpos
-        # parsed_tweet["rootparent_root_word"] = rootparent_root_word
         # dependency_contexts = extract_dep_contexts(doc)
         # parsed_tweet["dependency_contexts"] = dependency_contexts[0]
         parsed_tweet["dependencies"] = dependencies
