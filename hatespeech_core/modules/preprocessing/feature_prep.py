@@ -126,7 +126,8 @@ def feature_extraction_pipeline(connection_params, query, partition, usage=None)
     query["skip"] = partition[0]
     query["limit"] = partition[1]
 
-    nlp = init_nlp_pipeline(True)
+    # TODO undo
+    nlp = init_nlp_pipeline(False)
     client = mongo_base.connect()
     db_name = connection_params[0]
     collection = connection_params[1]
@@ -174,19 +175,20 @@ def feature_extraction_pipeline(connection_params, query, partition, usage=None)
         else:
             parsed_tweet["text"] = doc.text
             if usage == "analysis":
-                parsed_tweet["tokens"] = list([token.lower_ for token in doc if not(
-                    token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")])
+                parsed_tweet["tokens"] = list(set([token.lower_ for token in doc if not(
+                    token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#" or token.lower_ == "user_mention")]))
                 parsed_tweet = text_preprocessing.prep_linguistic_features(
                     parsed_tweet, hs_keywords, doc, usage)
                 parsed_tweet = text_preprocessing.prep_dependency_features(
                     parsed_tweet, doc, usage)
             elif usage == "features":
-                parsed_tweet["tokens"] = list([token.lower_ for token in doc if not(
-                    token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#")])
+                parsed_tweet["tokens"] = list(set([token.lower_ for token in doc if not(
+                    token.is_stop or token.is_punct or token.lower_ == "rt" or token.is_digit or token.prefix_ == "#" or token.lower_ == "user_mention")]))
                 parsed_tweet = text_preprocessing.prep_linguistic_features(
                     parsed_tweet, hs_keywords, doc, usage)
-                parsed_tweet = text_preprocessing.prep_dependency_features(
-                    parsed_tweet, doc, usage)
+                # TODO undo
+                # parsed_tweet = text_preprocessing.prep_dependency_features(
+                #     parsed_tweet, doc, usage)
 
         # parsed_tweet["related_keywords"] = [[w.lower_ for w in text_preprocessing.get_similar_words(
         # nlp.vocab[token], settings.NUM_SYNONYMS)] for token in
@@ -381,12 +383,12 @@ def run_fetch_es_tweets():
 def start_feature_extraction():
     """Run operations"""
     job_list = [
-        # ["twitter_annotated_datasets", "NAACL_SRW_2016",
-        #     "preprocessed_txt", "features"],
-        # ["twitter_annotated_datasets",
-        #  "NLP_CSS_2016_expert", "preprocessed_txt", "features"],
-        # ["twitter_annotated_datasets", "crowdflower",
-        #     "preprocessed_txt", "features"],
+        ["twitter_annotated_datasets", "NAACL_SRW_2016",
+            "preprocessed_txt", "features"],
+        ["twitter_annotated_datasets",
+         "NLP_CSS_2016_expert", "preprocessed_txt", "features"],
+        ["twitter_annotated_datasets", "crowdflower",
+            "preprocessed_txt", "features"],
         # ["dailystormer_archive", "d_stormer_documents",
         #     "preprocessed_txt", "features"],
         ["twitter", "melvyn_hs_users", "preprocessed_txt", "features"],

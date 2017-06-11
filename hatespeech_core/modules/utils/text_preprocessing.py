@@ -561,17 +561,19 @@ def prep_linguistic_features(parsed_tweet, hs_keywords, doc, usage=None):
         set(parsed_tweet["tokens"]).intersection(hs_keywords))
     parsed_tweet["hs_keyword_count"] = len(
         parsed_tweet["hs_keyword_matches"])
-    parsed_tweet["has_hs_keywords"] = True if parsed_tweet[
-        "hs_keyword_count"] > 0 else False
-    parsed_tweet["unknown_words"] = [
-        token.lower_ for token in doc if not (str(token.lower_) == "user_mention" or not token.is_oov or str(token.lower_) in hs_keywords or (len(token.lower_) >= 3 and "'" in str(token.lower_)) or token.prefix_ == "#")]
+    # TODO undo
+    # parsed_tweet["has_hs_keywords"] = True if parsed_tweet[
+    #     "hs_keyword_count"] > 0 else False
+    parsed_tweet["unknown_words"] = list(set([
+        token.lower_ for token in doc if not (str(token.lower_) == "user_mention" or not token.is_oov or str(token.lower_) in hs_keywords or (len(token.lower_) >= 3 and "'" in str(token.lower_)) or token.prefix_ == "#")]))
     parsed_tweet["unknown_words_count"] = len(
         parsed_tweet["unknown_words"])
-    parsed_tweet["comment_length"] = len(doc)
-    parsed_tweet["avg_token_length"] = round(
-        sum(len(token) for token in doc) / len(doc), 0) if len(doc) > 0 else 0
-    parsed_tweet[
-        "uppercase_token_count"] = count_uppercase_tokens(doc)
+    # TODO undo
+    # parsed_tweet["comment_length"] = len(doc)
+    # parsed_tweet["avg_token_length"] = round(
+    #     sum(len(token) for token in doc) / len(doc), 0) if len(doc) > 0 else 0
+    # parsed_tweet[
+    #     "uppercase_token_count"] = count_uppercase_tokens(doc)
 
     if usage == "analysis":
         parsed_tweet["bigrams"] = create_ngrams(
@@ -587,8 +589,8 @@ def prep_linguistic_features(parsed_tweet, hs_keywords, doc, usage=None):
         #     doc.text.split(), 5)
         parsed_tweet["hashtags"] = [
             token.text for token in doc if token.prefix_ == "#"]
-    if usage == "features":
-        parsed_tweet.pop("tokens", None)
+    # if usage == "features":
+    #     parsed_tweet.pop("tokens", None)
     return parsed_tweet
 
 
