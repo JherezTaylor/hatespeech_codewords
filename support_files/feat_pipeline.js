@@ -114,4 +114,22 @@ var sink_unfiltered = elasticsearch({
 // })).Save("sink", sink_unfiltered)
 
 
+var source_dstormer = mongodb({
+  "uri": "mongodb://runner:74TXc0WF3luv@127.0.0.1:27017/dailystormer_archive?authSource=admin",
+  "timeout": "30s",
+  "bulk": true
+})
+
+var sink_dstormer = elasticsearch({
+  "uri": "http://127.0.0.1:9200/dailystormer",
+  "timeout": "30s"
+})
+
+t.Source("source", source_dstormer, "/^d_stormer_documents$/").Transform(js({
+  "filename": "prep_data.js"
+})).Transform(pick({
+  "fields": field_list
+})).Save("sink", sink_dstormer)
+
+
 // t.Source("source", source, "/.*/").Save("sink", sink, "/.*/")

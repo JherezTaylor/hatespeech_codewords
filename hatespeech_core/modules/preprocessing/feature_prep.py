@@ -162,7 +162,7 @@ def feature_extraction_pipeline(connection_params, query, partition, usage=None)
     for object_id, doc in zip(object_ids, docs):
         # emotion_vector.append(doc.text)
         count += 1
-        # settings.logger.debug("Document %s out of %s", count, partition[1])
+        settings.logger.debug("Document %s out of %s", count, partition[1])
 
         # Construct a new tweet object to be appended
         parsed_tweet = {}
