@@ -419,3 +419,20 @@ def train_dep2vec_model(filename, filter_count, min_count, dimensions):
     time2 = notifiers.time()
     notifiers.send_job_completion(
         [time1, time2], ["dependency2vec", "dependency2vec " + filename])
+
+
+def get_els_wordprobabilities(vocab, total_doc_count):
+    """ Calculate word probabilites from the vocab results returned by
+    elasticsearch_base.aggregate()
+    Args:
+       vocab  (dict): Dictionary of token:doc_count values. doc_count is the number of
+                      documents where that token appears.
+       total_doc_count (int): Total number of documents in the corpus.
+    Returns:
+        dict: dictionary of token:probabiliy pairs.
+        P(wi) = count (wi) / count(total number of documents)
+    """
+    result = {}
+    for key, val in vocab.items():
+        result[key] = round(float(val) / float(total_doc_count), 5)
+    return result
