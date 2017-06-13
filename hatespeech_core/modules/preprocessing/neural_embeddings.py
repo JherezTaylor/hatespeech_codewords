@@ -15,6 +15,7 @@ from gensim.models import KeyedVectors, Word2Vec
 from ..db import mongo_base
 from ..utils import text_preprocessing
 from ..utils import model_helpers
+from ..utils import file_ops
 from ..utils import settings
 
 
@@ -162,8 +163,8 @@ def train_word_embeddings():
 def train_dep2vec_model():
     """ Start dependenc2vec classification"""
     dep_job_list = [
-       ["dailystormer_archive", "d_stormer_documents_conll",
-            "dstormer_conll"],
+        ["dailystormer_archive", "d_stormer_documents_conll",
+         "dstormer_conll"],
         ["twitter", "melvyn_hs_users_conll", "melvynhs_conll"],
         ["manchester_event", "tweets_conll", "manch_conll"],
         ["inauguration", "tweets_conll", "inaug_conll"],
@@ -200,3 +201,35 @@ def train_fasttext_classifier():
     for job in job_list:
         model_helpers.train_fasttext_classifier(
             settings.EMBEDDING_INPUT + job[2] + "_train.txt", settings.CLASSIFIER_MODELS + job[2], epoch=20, dim=200)
+
+
+def get_embeddings(load=False):
+    """ Helper function for loading embedding models
+    """
+    if load:
+        # ft_word_embeddings_ref = file_ops.get_model_names(
+        #     glob.glob(settings.EMBEDDING_MODELS + "*.vec"))
+        dep2vec_embeddings_ref = file_ops.get_model_names(
+            glob.glob(settings.EMBEDDING_MODELS + "dim*"))
+
+        for idx, ref in enumerate(dep2vec_embeddings_ref):
+            print(idx, ref)
+
+        dep2vec_hs_candidates_exp6 = load_embedding(
+            dep2vec_embeddings_ref[0], "kv")
+        dep2vec_twitter = load_embedding(dep2vec_embeddings_ref[1], "kv")
+        dep2vec_dstormer = load_embedding(dep2vec_embeddings_ref[2], "kv")
+        dep2vec_inaug = load_embedding(dep2vec_embeddings_ref[4], "kv")
+        dep2vec_ustream = load_embedding(dep2vec_embeddings_ref[6], "kv")
+        dep2vec_uselec = load_embedding(dep2vec_embeddings_ref[7], "kv")
+        dep2vec_melvyn_hs = load_embedding(dep2vec_embeddings_ref[8], "kv")
+        dep2vec_manchester = load_embedding(dep2vec_embeddings_ref[10], "kv")
+
+        dep2vec_hs_candidates_exp6_vocab = list(
+            dep2vec_hs_candidates_exp6.vocab.keys())
+        print("Hatespeech candidates model vocab length: " +
+              str(len(dep2vec_hs_candidates_exp6_vocab)))
+
+        return dep2vec_hs_candidates_exp6, dep2vec_twitter, dep2vec_dstormer, dep2vec_inaug, dep2vec_ustream, dep2vec_uselec, dep2vec_melvyn_hs, dep2vec_manchester
+    else:
+        print("Embedding models not loaded")
