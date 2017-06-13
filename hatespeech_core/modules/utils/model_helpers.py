@@ -445,4 +445,30 @@ def get_els_wordprobabilities(vocab, total_doc_count):
             hs_keyword_matches[key] = result[key]
     return hs_keyword_matches, result
 
-# def select_candidate_codewords(corpus_vocab, topn=5):
+
+def select_candidate_codewords(model, vocab, hs_keywords, topn=5):
+    """ Select words that share a similarity (functional) or relatedness with a known
+    hate speech word. Similarity and relatedness are depenedent on the model passed.
+    The idea is to trim the passed vocab.
+    Args:
+
+        model (gensim.models): Gensim word embedding model.
+        vocab  (dict): Dictionary of token:probability values. Probability is calculated
+        on the number of documents where that token appears.
+        topn (int): Number of words to check against in the embedding model.
+    Returns:
+         dict: dictionary of token:probabiliy pairs.
+    """
+    candidate_codewords = {}
+    for token in vocab:
+        if token in model.vocab:
+            top_results = model.similar_by_word(
+                token, topn=topn, restrict_vocab=None)
+            
+            check_intersection = set([entry[0] for entry in top_results])
+            diff = hs_keywords.intersection(check_intersection)
+            if diff:
+                # settings.logger.debug("Token: %s | Set: %s", token, diff)
+                candidate_codewords[token] = vocab[token]
+
+    return candidate_codewords
