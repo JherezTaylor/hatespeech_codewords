@@ -20,6 +20,7 @@ from sklearn.base import TransformerMixin, BaseEstimator
 import cufflinks as cf
 import plotly as py
 import plotly.graph_objs as go
+from . import file_ops
 from . import settings
 from . import notifiers
 from ..db import mongo_base
@@ -433,6 +434,13 @@ def get_els_wordprobabilities(vocab, total_doc_count):
         P(wi) = count (wi) / count(total number of documents)
     """
     result = {}
+    hs_keyword_matches = {}
+    hs_keywords = set(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
+                      file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
+                      file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
+
     for key, val in vocab.items():
         result[key] = round(float(val) / float(total_doc_count), 5)
-    return result
+        if key in hs_keywords:
+            hs_keyword_matches[key] = result[key]
+    return hs_keyword_matches, result
