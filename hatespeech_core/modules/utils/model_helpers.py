@@ -444,3 +444,5 @@ def get_els_wordprobabilities(vocab, total_doc_count):
         if key in hs_keywords:
             hs_keyword_matches[key] = result[key]
     return hs_keyword_matches, result
+
+# def select_candidate_codewords(corpus_vocab, topn=5):
