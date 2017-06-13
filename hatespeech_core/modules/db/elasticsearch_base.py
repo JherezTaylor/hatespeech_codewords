@@ -83,6 +83,89 @@ def match(_es, es_index, doc_type, field, lookup_list):
     return results
 
 
+def aggregate(_es, es_index, field, use_range, size=10, min_doc_count=10):
+    """Build and execute an aggregate query, matching on the passed field.
+    Returns
+      result (list): list of documents.
+    """
+    if use_range:
+        query = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "*",
+                                "analyze_wildcard": True
+                            }
+                        },
+                        {
+                            "range": {
+                                "created_at": {
+                                    "gte": 1339553696602,
+                                    "lte": 1497320096602,
+                                    "format": "epoch_millis"
+                                }
+                            }
+                        }
+                    ],
+                    "must_not": []
+                }
+            },
+            "size": 0,
+            "_source": {
+                "excludes": []
+            },
+            "aggs": {
+                "2": {
+                    "terms": {
+                        "field": field,
+                        "size": size,
+                        "order": {
+                            "_count": "desc"
+                        },
+                        "min_doc_count": min_doc_count
+                    }
+                }
+            }
+        }
+    else:
+        query = {
+            "query": {
+                "query_string": {
+                    "query": "*",
+                    "analyze_wildcard": True
+                }
+            },
+            "size": 0,
+            "_source": {
+                "excludes": []
+            },
+            "aggs": {
+                "2": {
+                    "terms": {
+                        "field": field,
+                        "size": size,
+                        "order": {
+                            "_count": "desc"
+                        },
+                        "min_doc_count": min_doc_count
+                    }
+                }
+            }
+        }
+    response = _es.search(index=es_index, body=query)
+    results = {}
+
+    for res in response["aggregations"]["2"]["buckets"]:
+        results[res["key"]] = res["doc_count"]
+
+    if not results:
+        return response
+    else:
+        return results, response["hits"]["total"]
+
+
 def migrate_es_tweets(connection_params, args):
     """ Scroll an elasticsearch instance and insert the tweets into MongoDB
     """
