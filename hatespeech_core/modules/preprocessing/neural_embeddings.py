@@ -203,34 +203,48 @@ def train_fasttext_classifier():
             settings.EMBEDDING_INPUT + job[2] + "_train.txt", settings.CLASSIFIER_MODELS + job[2], epoch=20, dim=200)
 
 
-def get_embeddings(model_ids=None, load=False):
+def get_embeddings(embedding_type, model_ids=None, load=False):
     """ Helper function for loading embedding models
     Args:
+        embedding_type (str): kv:keyedVectors w2v:word2vec
         model_ids (list): List of ints referencing the models.
     Model positions:
-        dep2vec_hs_candidates_exp6: 0
-        dep2vec_twitter: 1
-        dep2vec_dstormer: 2
-        dep2vec_inaug: 4
-        dep2vec_ustream: 6
-        dep2vec_uselec: 7
-        dep2vec_melvyn_hs: 8
-        dep2vec_manchester: 10
+        dep2vec_dstormer: 0
+        dep2vec_hs_candidates_exp6: 1
+        dep2vec_inaug: 2
+        dep2vec_manchester: 3
+        dep2vec_melvyn_hs: 4
+        dep2vec_twitter: 5
+        dep2vec_uselec: 6
+        dep2vec_ustream: 7
+
+        fasttext_dstormer: 3
+        fasttext_hs_candidates_exp6: 4
+        fasttext_inaug: 5
+        fasttext_manchester: 6
+        fasttext_melvyn_hs: 7
+        fasttext_twitter: 8
+        fasttext_ustream: 9
+        fasttext_uselec: 10
     """
 
-    if model_ids and load:
-        # ft_word_embeddings_ref = file_ops.get_model_names(
-        #     glob.glob(settings.EMBEDDING_MODELS + "*.vec"))
-        dep2vec_embeddings_ref = file_ops.get_model_names(
-            glob.glob(settings.EMBEDDING_MODELS + "dim*"))
+    model_format = "kv" if embedding_type == "kv" else "w2v"
 
-        for idx, ref in enumerate(dep2vec_embeddings_ref):
+    if model_ids and load:
+        if model_format == "kv":
+            embeddings_ref = sorted(file_ops.get_model_names(
+                glob.glob(settings.EMBEDDING_MODELS + "dim*")))
+        else:
+            embeddings_ref = file_ops.get_model_names(
+                glob.glob(settings.EMBEDDING_MODELS + "*.vec"))
+
+        for idx, ref in enumerate(embeddings_ref):
             print(idx, ref)
 
         loaded_models = []
         for idx in model_ids:
             loaded_models.append(load_embedding(
-                dep2vec_embeddings_ref[idx], "kv"))
+                embeddings_ref[idx], model_format))
         return loaded_models
     else:
         print("Embedding models not loaded")
