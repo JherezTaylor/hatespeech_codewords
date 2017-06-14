@@ -464,7 +464,7 @@ def select_candidate_codewords(model, vocab, hs_keywords, topn=5):
         if token in model.vocab:
             top_results = model.similar_by_word(
                 token, topn=topn, restrict_vocab=None)
-            
+
             check_intersection = set([entry[0] for entry in top_results])
             diff = hs_keywords.intersection(check_intersection)
             if diff:
