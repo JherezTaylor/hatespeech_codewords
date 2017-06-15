@@ -1,0 +1,15 @@
+mongodb:
+    host: mongodb://host:port
+    user: <user>
+    passwd: <password>
+    auth_src: <db that has the authentication settings>
+    source: <Short name for the machine in use>
+elasticsearch:
+    host: host
+pushbullet:
+    api_key: <api_key>
+twitter_api:
+    app_key: <app_key>
+    app_secret: <app_secret>
+    oauth: <oauth>
+    oauth_secret: <oauth_secret>

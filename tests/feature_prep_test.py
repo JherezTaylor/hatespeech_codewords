@@ -10,7 +10,7 @@ from nose.tools import *
 from context import hatespeech_core
 
 
-class TestFileOps(object):
+class TestFeaturePrep(object):
     """ init class """
 
     def __init__(self):
@@ -22,6 +22,7 @@ class TestFileOps(object):
     def teardown(self):
         """This method is run once after _each_ test method is executed"""
 
+    @nottest
     def test_extract_lexical_features(self):
         """This method tests the OR concatenation function"""
         nlp = hatespeech_core.feature_prep.init_nlp_pipeline(False)

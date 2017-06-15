@@ -25,3 +25,5 @@ A real word example takes the following format:
 The list of available filters can be found at the Hatebase API link mentioned above.  
 
 Unzip dependency2vec to `hatespeech_core/data/conll_data`
+
+Define the parameters in hatespeech_core/config.yaml

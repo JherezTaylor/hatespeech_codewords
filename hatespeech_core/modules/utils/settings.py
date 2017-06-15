@@ -6,6 +6,7 @@
 """
 import os
 import logging
+import yaml
 
 logging.basicConfig(
     format='%(asctime)s : %(levelname)s : %(filename)s %(module)s.%(funcName)s %(message)s', level=logging.DEBUG)
@@ -15,6 +16,25 @@ logger = logging.getLogger(__name__)
 DIR = os.path.dirname
 # Jump up three directories
 PATH = os.path.join(DIR(DIR(DIR(__file__))), os.path.join("data"))
+
+try:
+    with open("hatespeech_core/config.yaml", "r") as ymlfile:
+        cfg = yaml.load(ymlfile)
+except IOError as ex:
+    logger.error("I/O error %s: %s", ex.errno,
+                 ex.strerror, exc_info=True)
+
+DB_URL = cfg["mongodb"]["host"]
+MONGO_USER = cfg["mongodb"]["user"]
+MONGO_PW = cfg["mongodb"]["passwd"]
+DB_AUTH_SOURCE = cfg["mongodb"]["auth_src"]
+MONGO_SOURCE = cfg["mongodb"]["source"]
+ES_URL = cfg["elasticsearch"]["host"]
+TWITTER_APP_KEY = cfg["twitter_api"]["app_key"]
+TWITTER_APP_SECRET = cfg["twitter_api"]["app_secret"]
+TWITTER_OAUTH = cfg["twitter_api"]["oauth"]
+TWITTER_OAUTH_SECRET = cfg["twitter_api"]["oauth_secret"]
+PUSHBULLET_API_KEY = cfg["pushbullet"]["api_key"]
 
 JSON_PATH = PATH + "/hatebase_data/json/"
 CSV_PATH = PATH + "/hatebase_data/csv/"
@@ -28,26 +48,6 @@ EMBEDDING_MODELS = PATH + "/persistence/word_embeddings/"
 CLASSIFIER_MODELS = PATH + "/persistence/classifiers/"
 CONLL_PATH = PATH + "/conll_data/"
 PLOTLY_PATH = PATH + "/plotly_output/"
-DB_URL = os.environ[
-    "MONGODB_URL"] if "MONGODB_URL" in os.environ else "NOT SET"
-ES_URL = os.environ["ES_URL"] if "ES_URL" in os.environ else "NOT SET"
-MONGO_USER = os.environ[
-    "MONGO_USER"] if "MONGO_USER" in os.environ else "NOT SET"
-MONGO_PW = os.environ["MONGO_PW"] if "MONGO_PW" in os.environ else "NOT SET"
-TWITTER_APP_KEY = os.environ[
-    "TWITTER_APP_KEY"] if "TWITTER_APP_KEY" in os.environ else "NOT SET"
-TWITTER_APP_SECRET = os.environ[
-    "TWITTER_APP_SECRET"] if "TWITTER_APP_SECRET" in os.environ else "NOT SET"
-TWITTER_OAUTH = os.environ[
-    "TWITTER_OAUTH"] if "TWITTER_OAUTH" in os.environ else "NOT SET"
-TWITTER_OAUTH_SECRET = os.environ[
-    "TWITTER_OAUTH_SECRET"] if "TWITTER_OAUTH_SECRET" in os.environ else "NOT SET"
-PUSHBULLET_API_KEY = os.environ[
-    "PUSHBULLET_API_KEY"] if "PUSHBULLET_API_KEY" in os.environ else "NOT SET"
-MONGO_SOURCE = os.environ[
-    "MONGO_SOURCE"] if "MONGO_SOURCE" in os.environ else "NOT SET"
-DB_AUTH_SOURCE = "admin"
-# DB_URL = os.environ["LOCAL_MONGO"]
 HASHTAGS = "entities.hashtags"
 USER_MENTIONS = "entities.user_mentions"
 HASHTAG_LIMIT = 50
