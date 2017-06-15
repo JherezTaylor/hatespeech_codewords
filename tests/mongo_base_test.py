@@ -2,7 +2,7 @@
 # License: MIT
 # Python 3.5
 
-"""Test mongo_complex module
+"""Test mongo_base module
 """
 
 from nose.tools import *

@@ -11,7 +11,7 @@ from context import hatespeech_core
 from nltk.corpus import stopwords
 
 
-class TestFileOps(object):
+class TestTextPreprocessing(object):
     """ init class """
 
     def __init__(self):

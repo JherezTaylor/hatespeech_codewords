@@ -89,6 +89,9 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# Project Config
+hatespeech_core/config.yaml
+
 # Pickled objects
 hatespeech_core/data/persistence/df/*
 hatespeech_core/data/persistence/word_embeddings/*

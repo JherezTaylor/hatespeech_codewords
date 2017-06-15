@@ -1,5 +1,6 @@
 pymongo
 langid
+pyaml
 elasticsearch
 nltk
 textblob
@@ -14,7 +15,7 @@ pylint
 line_profiler
 jupyter
 scipy
-cufflinks
+cufflinks==0.8.2
 spacy
 scikit-learn
 regex

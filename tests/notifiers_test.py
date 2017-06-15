@@ -8,7 +8,7 @@
 from nose.tools import *
 from context import hatespeech_core
 
-class TestFileOps(object):
+class TestNotifiers(object):
     """ init class """
 
     def __init__(self):
