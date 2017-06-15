@@ -15,10 +15,11 @@ logger = logging.getLogger(__name__)
 
 DIR = os.path.dirname
 # Jump up three directories
+DIR_PATH = os.path.join(DIR(DIR(DIR(__file__))))
 PATH = os.path.join(DIR(DIR(DIR(__file__))), os.path.join("data"))
 
 try:
-    with open("hatespeech_core/config.yaml", "r") as ymlfile:
+    with open(DIR_PATH + "/config.yaml", "r") as ymlfile:
         cfg = yaml.load(ymlfile)
 except IOError as ex:
     logger.error("I/O error %s: %s", ex.errno,
