@@ -259,3 +259,44 @@ def get_els_word_probabilities(vocab, total_doc_count):
         if key in hs_keywords:
             hs_vocab_probabilities[key] = vocab_probabilities[key]
     return hs_vocab_probabilities, vocab_probabilities
+
+
+def get_overlapping_probabilities(vocab, comparison_vocab):
+    """ Accepts a pair of dictionary that stores token:probabilitiy and gets
+    the values for tokens that are in both vocabularies.
+    Args:
+        vocab (dict): token:probability pairs extracted from a corpus.
+        comparison_vocab (dict): The vocabulary to be checked.
+    Returns:
+        token_list_1, token_probs_1, token_list_2, token_probs_2 (list): List of tokens and
+        probabilities resepctively.
+    """
+
+    vocab_tokens = set(vocab.keys())
+    comparison_tokens = set(comparison_vocab.keys())
+    token_intersection = vocab_tokens.intersection(comparison_tokens)
+
+    vocab_list = {}
+    comparison_vocab_list = {}
+
+    for token in token_intersection:
+        vocab_list[token] = vocab[token]
+        comparison_vocab_list[token] = comparison_vocab[token]
+
+    return list(vocab_list.keys()), list(vocab_list.values()), list(comparison_vocab_list.keys()), list(comparison_vocab_list.values())
+
+
+def get_model_vocabulary(model):
+    """ Return the stored vocabulary for an embedding model
+    Args:
+        model (gensim.models) KeyedVectors or Word2Vec model.
+    """
+    return set(model.vocab.keys())
+
+
+def get_model_word_count(model, word):
+    """ Return the count for a given word in an embedding model
+    Args:
+        model (gensim.models) KeyedVectors or Word2Vec model
+    """
+    return model.vocab[word].count
