@@ -478,7 +478,8 @@ def select_candidate_codewords(model, vocab, hs_keywords, topn=5, hs_threshold=1
                 other_similarity_results = [
                     word for word in top_results if word[0] not in hs_keywords]
                 settings.logger.debug("Token: %s | Set: %s", token, diff)
-                candidate_codewords[token] = {"probability": vocab[token], "hs_support": compute_avg_cosine(hs_similarity_results), "hs_related_words": [word[0] for word in hs_similarity_results], "other_related_words": [word[0] for word in other_similarity_results]}
+                candidate_codewords[token] = {"probability": vocab[token], "hs_support": compute_avg_cosine(hs_similarity_results), "hs_related_words": [
+                    word[0] for word in hs_similarity_results], "other_related_words": [word[0] for word in other_similarity_results]}
 
     return candidate_codewords
 
