@@ -17,6 +17,7 @@ def init_plotly():
     py.offline.init_notebook_mode(connected=True)
     cf.set_config_file(offline=True)
 
+
 def plot_confusion_matrix(_cm, labels, chart_title, filename):
     """ Accept and plot a confusion matrix
     Args:
@@ -38,17 +39,17 @@ def plot_confusion_matrix(_cm, labels, chart_title, filename):
                             )
     })
 
-def plot_scatter_chart(values, chart_title):
+
+def plot_scatter_chart(y_values, chart_title):
     """ Accept and plot values on a scatter chart
     Args:
-        value_list  (list): Numerical values to plot.
+        y_values  (list): Numerical values to plot.
         chart_title (str)
-        filename (str)
     """
 
     trace = go.Scatter(
-        x=list(range(1, len(values) + 1)),
-        y=values
+        x=list(range(1, len(y_values) + 1)),
+        y=y_values
     )
     data = [trace]
     py.offline.iplot({
@@ -57,16 +58,81 @@ def plot_scatter_chart(values, chart_title):
     })
 
 
-def plot_histogram(values):
+def plot_histogram(x_values):
     """ Accept and plot values on a histogram
     Args:
-       value_list  (list): Numerical values to plot.
+       x_values  (list): Numerical values to plot.
        chart_title (str)
        filename (str)
     """
-    data = [go.Histogram(x=values)]
+
+    data = [go.Histogram(x=x_values)]
     py.offline.iplot({
         "data": data
+    })
+
+
+def plot_basic_bar_chart(x_values, y_values, chart_title, orientation="v"):
+    """ Accept and plot values on a bar chart
+    Args:
+       x_values (list): Labels.
+       y_values  (list): Numerical values to plot.
+       chart_title (str)
+       orientation (str): h or v for horizontal or vertical
+    """
+
+    if orientation == "h":
+        data = [go.Bar(x=y_values, y=x_values, orientation=orientation)]
+    else:
+        data = [go.Bar(x=x_values, y=y_values, orientation=orientation)]
+    py.offline.iplot({
+        "data": data,
+        "layout": go.Layout(title=chart_title)
+    })
+
+
+def plot_bar_chart(x_values, y1_values, y2_values, series1, series2, chart_title, barmode="stack", orientation="v"):
+    """ Accept and plot values on a bar chart in either grouped or stacked format.
+    Args:
+       x_values (list): Labels.
+       y1_values  (list): Numerical values to plot.
+       y2_values  (list): Numerical values to plot.
+       series (str): Name of data series.
+       chart_title (str)
+       barmode (str): Accepts either stack or group.
+    """
+
+    if orientation == "h":
+        trace1 = go.Bar(
+            x=y1_values,
+            y=x_values,
+            name=series1,
+            orientation=orientation
+        )
+        trace2 = go.Bar(
+            x=y1_values,
+            y=x_values,
+            name=series2,
+            orientation=orientation
+        )
+    else:
+        trace1 = go.Bar(
+            x=x_values,
+            y=y1_values,
+            name=series1,
+            orientation=orientation
+        )
+        trace2 = go.Bar(
+            x=x_values,
+            y=y2_values,
+            name=series2,
+            orientation=orientation
+        )
+
+    data = [trace1, trace2]
+    py.offline.iplot({
+        "data": data,
+        "layout": go.Layout(title=chart_title, barmode=barmode)
     })
 
 
