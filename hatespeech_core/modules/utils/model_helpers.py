@@ -422,7 +422,7 @@ def train_dep2vec_model(filename, filter_count, min_count, dimensions):
         [time1, time2], ["dependency2vec", "dependency2vec " + filename])
 
 
-def get_els_wordprobabilities(vocab, total_doc_count):
+def get_els_word_probabilities(vocab, total_doc_count):
     """ Calculate word probabilites from the vocab results returned by
     elasticsearch_base.aggregate()
     Args:
@@ -430,23 +430,25 @@ def get_els_wordprobabilities(vocab, total_doc_count):
                       documents where that token appears.
        total_doc_count (int): Total number of documents in the corpus.
     Returns:
-        dict: dictionary of token:probabiliy pairs.
+        hs_vocab_probabilities (dict): subset of token:probabilty pairs for tokens in the HS keywords corpus.
+        vocab_probabilities (dict): subset of token:probability pairs for the entire vocab.
         P(wi) = count (wi) / count(total number of documents)
     """
-    result = {}
-    hs_keyword_matches = {}
+    vocab_probabilities = {}
+    hs_vocab_probabilities = {}
     hs_keywords = set(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
                       file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
                       file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
 
     for key, val in vocab.items():
-        result[key] = round(float(val) / float(total_doc_count), 5)
+        vocab_probabilities[key] = round(
+            float(val) / float(total_doc_count), 5)
         if key in hs_keywords:
-            hs_keyword_matches[key] = result[key]
-    return hs_keyword_matches, result
+            hs_vocab_probabilities[key] = vocab_probabilities[key]
+    return hs_vocab_probabilities, vocab_probabilities
 
 
-def select_candidate_codewords(model, vocab, hs_keywords, topn=5):
+def select_candidate_codewords(model, vocab, hs_keywords, topn=5, hs_threshold=1):
     """ Select words that share a similarity (functional) or relatedness with a known
     hate speech word. Similarity and relatedness are depenedent on the model passed.
     The idea is to trim the passed vocab.
@@ -456,9 +458,11 @@ def select_candidate_codewords(model, vocab, hs_keywords, topn=5):
         vocab  (dict): Dictionary of token:probability values. Probability is calculated
         on the number of documents where that token appears.
         topn (int): Number of words to check against in the embedding model.
+        hs_threshold (int): Number of HS keyword matches that need to appear in the topn results.
     Returns:
          dict: dictionary of token:probabiliy pairs.
     """
+
     candidate_codewords = {}
     for token in vocab:
         if token in model.vocab:
@@ -467,8 +471,25 @@ def select_candidate_codewords(model, vocab, hs_keywords, topn=5):
 
             check_intersection = set([entry[0] for entry in top_results])
             diff = hs_keywords.intersection(check_intersection)
-            if diff:
-                # settings.logger.debug("Token: %s | Set: %s", token, diff)
-                candidate_codewords[token] = vocab[token]
+            if len(diff) >= hs_threshold:
+
+                hs_similarity_results = [
+                    word for word in top_results if word[0] in hs_keywords]
+                other_similarity_results = [
+                    word for word in top_results if word[0] not in hs_keywords]
+                settings.logger.debug("Token: %s | Set: %s", token, diff)
+                candidate_codewords[token] = {"probability": vocab[token], "hs_support": compute_avg_cosine(hs_similarity_results), "hs_related_words": [word[0] for word in hs_similarity_results], "other_related_words": [word[0] for word in other_similarity_results]}
 
     return candidate_codewords
+
+
+def compute_avg_cosine(similarity_result):
+    """ Compute and return the average cosine similarities.
+    Args:
+        similarity_result (list): List of word:cosine similarity dict pairs.
+    Return:
+        avg_cosine (float): Computed average cosine similarity
+    """
+    cosine_vals = [cos[1] for cos in similarity_result]
+    avg_cosine = sum(cosine_vals) / len(cosine_vals)
+    return avg_cosine
