@@ -125,7 +125,7 @@ def plot_word_embedding(X_tsne, vocab, chart_title, show_labels):
         display_mode = 'markers'
         display_text = None
 
-    trace = go.Scatter(
+    trace = go.Scattergl(
         x=X_tsne[:, 0],
         y=X_tsne[:, 1],
         mode=display_mode,
