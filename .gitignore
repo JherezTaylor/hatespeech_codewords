@@ -91,7 +91,7 @@ ENV/
 
 # Project Config
 hatespeech_core/config.yaml
-./vscode
+.vscode/
 
 # Pickled objects
 hatespeech_core/data/persistence/df/*
