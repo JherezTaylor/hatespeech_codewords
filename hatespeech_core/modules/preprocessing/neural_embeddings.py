@@ -82,20 +82,7 @@ def get_embeddings(embedding_type, model_ids=None, load=False):
         print("Embedding models not loaded")
 
 
-def get_model_vocabulary(model):
-    """ Return the stored vocabulary for an embedding model
-    Args:
-        model (gensim.models) KeyedVectors or Word2Vec model.
-    """
-    return set(model.vocab.keys())
 
-
-def get_model_word_count(model, word):
-    """ Return the count for a given word in an embedding model
-    Args:
-        model (gensim.models) KeyedVectors or Word2Vec model
-    """
-    return model.vocab[word].count
 
 
 def create_dep_embedding_input(connection_params, filename):
