@@ -15,6 +15,7 @@ from gensim.models import KeyedVectors, Word2Vec
 from ..db import mongo_base
 from ..utils import text_preprocessing
 from ..utils import model_helpers
+from ..utils import train_embeddings
 from ..utils import file_ops
 from ..utils import settings
 
@@ -32,6 +33,53 @@ def load_embedding(filename, embedding_type):
         word_vectors = model.wv
         del model
         return word_vectors
+
+
+def get_embeddings(embedding_type, model_ids=None, load=False):
+    """ Helper function for loading embedding models
+    Args:
+        embedding_type (str): kv:keyedVectors w2v:word2vec
+        model_ids (list): List of ints referencing the models.
+    Model positions:
+        dep2vec_dstormer: 0
+        dep2vec_hs_candidates_exp6: 1
+        dep2vec_inaug: 2
+        dep2vec_manchester: 3
+        dep2vec_melvyn_hs: 4
+        dep2vec_twitter: 5
+        dep2vec_uselec: 6
+        dep2vec_ustream: 7
+
+        fasttext_dstormer: 3
+        fasttext_hs_candidates_exp6: 4
+        fasttext_inaug: 5
+        fasttext_manchester: 6
+        fasttext_melvyn_hs: 7
+        fasttext_twitter: 8
+        fasttext_ustream: 9
+        fasttext_uselec: 10
+    """
+
+    model_format = "kv" if embedding_type == "kv" else "w2v"
+
+    if model_ids and load:
+        if model_format == "kv":
+            embeddings_ref = sorted(file_ops.get_model_names(
+                glob.glob(settings.EMBEDDING_MODELS + "dim*")))
+        else:
+            embeddings_ref = file_ops.get_model_names(
+                glob.glob(settings.EMBEDDING_MODELS + "*.vec"))
+
+        for idx, ref in enumerate(embeddings_ref):
+            print(idx, ref)
+
+        loaded_models = []
+        for idx in model_ids:
+            loaded_models.append(load_embedding(
+                embeddings_ref[idx], model_format))
+        return loaded_models
+    else:
+        print("Embedding models not loaded")
 
 
 def get_model_vocabulary(model):
@@ -153,9 +201,9 @@ def train_word_embeddings():
 
     # Train fasttext and w2v model
     for job in job_list:
-        model_helpers.train_fasttext_model(
+        train_embeddings.fasttext_model(
             settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS + "fasttext_" + job[2])
-        model_helpers.train_word2vec_model(
+        train_embeddings.word2vec_model(
             settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS +
             "word2vec_" + job[2])
 
@@ -181,7 +229,7 @@ def train_dep2vec_model():
     #     create_dep_embedding_input(job[0:2], job[2])
 
     for job in dep_job_list:
-        model_helpers.train_dep2vec_model(job[2], 50, 100, 200)
+        train_embeddings.dep2vec_model(job[2], 50, 100, 200)
 
 
 def train_fasttext_classifier():
@@ -199,52 +247,5 @@ def train_fasttext_classifier():
         create_fasttext_clf_input(job, job[2], "text", 0.8)
 
     for job in job_list:
-        model_helpers.train_fasttext_classifier(
+        train_embeddings.fasttext_classifier(
             settings.EMBEDDING_INPUT + job[2] + "_train.txt", settings.CLASSIFIER_MODELS + job[2], epoch=20, dim=200)
-
-
-def get_embeddings(embedding_type, model_ids=None, load=False):
-    """ Helper function for loading embedding models
-    Args:
-        embedding_type (str): kv:keyedVectors w2v:word2vec
-        model_ids (list): List of ints referencing the models.
-    Model positions:
-        dep2vec_dstormer: 0
-        dep2vec_hs_candidates_exp6: 1
-        dep2vec_inaug: 2
-        dep2vec_manchester: 3
-        dep2vec_melvyn_hs: 4
-        dep2vec_twitter: 5
-        dep2vec_uselec: 6
-        dep2vec_ustream: 7
-
-        fasttext_dstormer: 3
-        fasttext_hs_candidates_exp6: 4
-        fasttext_inaug: 5
-        fasttext_manchester: 6
-        fasttext_melvyn_hs: 7
-        fasttext_twitter: 8
-        fasttext_ustream: 9
-        fasttext_uselec: 10
-    """
-
-    model_format = "kv" if embedding_type == "kv" else "w2v"
-
-    if model_ids and load:
-        if model_format == "kv":
-            embeddings_ref = sorted(file_ops.get_model_names(
-                glob.glob(settings.EMBEDDING_MODELS + "dim*")))
-        else:
-            embeddings_ref = file_ops.get_model_names(
-                glob.glob(settings.EMBEDDING_MODELS + "*.vec"))
-
-        for idx, ref in enumerate(embeddings_ref):
-            print(idx, ref)
-
-        loaded_models = []
-        for idx in model_ids:
-            loaded_models.append(load_embedding(
-                embeddings_ref[idx], model_format))
-        return loaded_models
-    else:
-        print("Embedding models not loaded")
