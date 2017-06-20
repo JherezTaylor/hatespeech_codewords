@@ -151,8 +151,11 @@ def compute_avg_cosine(similarity_result):
     Return:
         avg_cosine (float): Computed average cosine similarity
     """
-    cosine_vals = [cos[1] for cos in similarity_result]
-    avg_cosine = sum(cosine_vals) / len(cosine_vals)
+    if len(similarity_result >=1 ):
+        cosine_vals = [cos[1] for cos in similarity_result]
+        avg_cosine = sum(cosine_vals) / len(cosine_vals)
+    else:
+        return 0
     return avg_cosine
 
 
