@@ -106,41 +106,41 @@ def prep_code_word_representation(token, contextual_representation, biased_vocab
     other_similar_words = [
         word for word in contextual_representation["similar_words"] if word[0] not in hs_keywords]
 
-    hs_related_words = [
-        word for word in contextual_representation["related_words"] if word[0] in hs_keywords]
+    hs_related_words = [word for word in contextual_representation["related_words"] if word[
+        0] in hs_keywords] if contextual_representation["related_words"] else None
 
-    other_related_words = [
-        word for word in contextual_representation["related_words"] if word[0] not in hs_keywords]
+    other_related_words = [word for word in contextual_representation["related_words"] if word[
+        0] not in hs_keywords] if contextual_representation["related_words"] else None
 
-    hs_similar_words_unbiased = [
-        word for word in contextual_representation["similar_words_unbiased"] if word[0] in hs_keywords]
+    hs_similar_words_unbiased = [word for word in contextual_representation["similar_words_unbiased"] if word[
+        0] in hs_keywords] if contextual_representation["similar_words_unbiased"] else None
 
-    other_similar_words_unbiased = [
-        word for word in contextual_representation["similar_words_unbiased"] if word[0] not in hs_keywords]
+    other_similar_words_unbiased = [word for word in contextual_representation["similar_words_unbiased"] if word[
+        0] not in hs_keywords] if contextual_representation["similar_words_unbiased"] else None
 
-    hs_related_words_unbiased = [
-        word for word in contextual_representation["related_words_unbiased"] if word[0] in hs_keywords]
+    hs_related_words_unbiased = [word for word in contextual_representation["related_words_unbiased"] if word[
+        0] in hs_keywords] if contextual_representation["related_words_unbiased"] else None
 
-    other_related_words_unbiased = [
-        word for word in contextual_representation["related_words_unbiased"] if word[0] not in hs_keywords]
+    other_related_words_unbiased = [word for word in contextual_representation["related_words_unbiased"] if word[
+        0] not in hs_keywords] if contextual_representation["related_words_unbiased"] else None
 
-    data = {"biased_probability": biased_vocab[token],
-            "unbiased_probability": unbiased_vocab[token],
+    data = {"biased_probability": biased_vocab[token] if token in biased_vocab else 0,
+            "unbiased_probability": unbiased_vocab[token] if token in unbiased_vocab else 0,
 
             "similar_hs_support": compute_avg_cosine(hs_similar_words),
-            "related_hs_support": compute_avg_cosine(hs_related_words),
+            "related_hs_support": compute_avg_cosine(hs_related_words) if hs_related_words else 0,
 
-            "hs_similar_words": [word[0] for word in hs_similar_words],
-            "other_similar_words": [word[0] for word in other_similar_words],
+            "hs_similar_words": [word[0] for word in hs_similar_words] if hs_similar_words else None,
+            "other_similar_words": [word[0] for word in other_similar_words] if other_similar_words else None,
 
-            "hs_related_words": [word[0] for word in hs_related_words],
-            "other_related_words": [word[0] for word in other_related_words],
+            "hs_related_words": [word[0] for word in hs_related_words] if hs_related_words else None,
+            "other_related_words": [word[0] for word in other_related_words] if other_related_words else None,
 
-            "hs_similar_words_unbiased": [word[0] for word in hs_similar_words_unbiased],
-            "other_similar_words_unbiased": [word[0] for word in other_similar_words_unbiased],
+            "hs_similar_words_unbiased": [word[0] for word in hs_similar_words_unbiased] if hs_similar_words_unbiased else None,
+            "other_similar_words_unbiased": [word[0] for word in other_similar_words_unbiased] if other_similar_words_unbiased else None,
 
-            "hs_related_words_unbiased": [word[0] for word in hs_related_words_unbiased],
-            "other_related_words_unbiased": [word[0] for word in other_related_words_unbiased]}
+            "hs_related_words_unbiased": [word[0] for word in hs_related_words_unbiased] if hs_related_words_unbiased else None,
+            "other_related_words_unbiased": [word[0] for word in other_related_words_unbiased] if other_related_words_unbiased else None}
     return data
 
 
@@ -151,7 +151,7 @@ def compute_avg_cosine(similarity_result):
     Return:
         avg_cosine (float): Computed average cosine similarity
     """
-    if len(similarity_result >=1 ):
+    if len(similarity_result) >= 1:
         cosine_vals = [cos[1] for cos in similarity_result]
         avg_cosine = sum(cosine_vals) / len(cosine_vals)
     else:
@@ -186,12 +186,15 @@ def get_contextual_representation(word, biased_embeddings, unbiased_embeddings, 
     contextual_representation = {}
     contextual_representation["similar_words"] = dep2vec_embedding.similar_by_word(
         word, topn=topn, restrict_vocab=None)
+
     contextual_representation["related_words"] = word_embedding.similar_by_word(
-        word, topn=topn, restrict_vocab=None)
+        word, topn=topn, restrict_vocab=None) if word in word_embedding.index2word else None
+
     contextual_representation["similar_words_unbiased"] = base_dep2vec_embedding.similar_by_word(
-        word, topn=topn, restrict_vocab=None)
+        word, topn=topn, restrict_vocab=None) if word in base_dep2vec_embedding.index2word else None
+
     contextual_representation["related_words_unbiased"] = base_word_embedding.similar_by_word(
-        word, topn=topn, restrict_vocab=None)
+        word, topn=topn, restrict_vocab=None) if word in base_word_embedding.index2word else None
 
     return contextual_representation
 
