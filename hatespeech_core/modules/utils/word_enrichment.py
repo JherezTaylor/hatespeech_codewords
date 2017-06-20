@@ -44,56 +44,104 @@ def spacy_top_k_similar(word, k):
     return by_similarity[:k], cosine_score[:k]
 
 
-def select_candidate_codewords(dep2vec_model, word_embedding_model, vocab, hs_keywords, topn=5, hs_threshold=1):
+def select_candidate_codewords(biased_embeddings, unbiased_embeddings, vocab_pair, hs_keywords, topn=5, hs_threshold=1):
     """ Select words that share a similarity (functional) or relatedness with a known
     hate speech word. Similarity and relatedness are depenedent on the model passed.
     The idea is to trim the passed vocab.
     Args:
 
-        model (gensim.models): Gensim word embedding model.
-        vocab  (dict): Dictionary of token:probability values. Probability is calculated
-        on the number of documents where that token appears.
+        biased_embeddings (list): Stores (gensim.models): Gensim word embedding model
+            0: dep2vec_embedding
+            1: word_embedding (either fasttext or w2v)
+        unbiased_embeddings (list): Stores (gensim.models): Gensim word embedding model
+            0: base_dep2vec_embedding
+            1: base_word_embedding (either fasttext or w2v)
+        vocab_pair (list):
+            0: biased_vocab (dict): Dictionary of token:probability values. Calculated
+                             on the number of documents where that token appears.
+            1: unbiased_vocab (dict)
         topn (int): Number of words to check against in the embedding model.
         hs_threshold (int): Number of HS keyword matches that need to appear in the topn results.
+
     Returns:
          dict: dictionary of token:probabiliy pairs.
     """
 
+    dep2vec_embedding = biased_embeddings[0]
+    word_embedding = biased_embeddings[1]
+
+    base_dep2vec_embedding = unbiased_embeddings[0]
+    base_word_embedding = biased_embeddings[1]
+
+    biased_vocab = vocab_pair[0]
+    unbiase_vocab = vocab_pair[1]
+
     candidate_codewords = {}
-    dep2vec_model_vocab = set(dep2vec_model.index2word)
-    for token in vocab:
-        if token in dep2vec_model_vocab:
+    dep2vec_embedding_vocab = set(dep2vec_embedding.index2word)
+    for token in biased_vocab:
+        if token in dep2vec_embedding_vocab:
             contextual_representation = get_contextual_representation(
-                token, dep2vec_model_vocab, word_embedding_model, topn=5)
+                token, [dep2vec_embedding, word_embedding], [base_dep2vec_embedding, base_word_embedding], topn=topn)
 
             check_intersection = set(
                 [entry[0] for entry in contextual_representation["similar_words"]])
 
             diff = hs_keywords.intersection(check_intersection)
             if len(diff) >= hs_threshold:
-                hs_similar_words = [
-                    word for word in contextual_representation["similar_words"] if word[0] in hs_keywords]
-
-                other_similar_words = [
-                    word for word in contextual_representation["similar_words"] if word[0] not in hs_keywords]
-
-                hs_related_words = [
-                    word for word in contextual_representation["related_words"] if word[0] in hs_keywords]
-
-                other_related_words = [
-                    word for word in contextual_representation["related_words"] if word[0] not in hs_keywords]
-
                 settings.logger.debug("Token: %s | Set: %s", token, diff)
 
-                candidate_codewords[token] = {"probability": vocab[token],
-                                              "similar_hs_support": compute_avg_cosine(hs_similar_words),
-                                              "hs_similar_words": [word[0] for word in hs_similar_words],
-                                              "other_similar_words": [word[0] for word in other_similar_words],
-                                              "related_hs_support": compute_avg_cosine(hs_related_words),
-                                              "hs_related_words": [word[0] for word in hs_related_words],
-                                              "other_related_words": [word[0] for word in other_related_words]}
+                candidate_codewords[token] = prep_code_word_representation(
+                    token, contextual_representation, biased_vocab, unbiase_vocab, hs_keywords)
 
     return candidate_codewords
+
+
+def prep_code_word_representation(token, contextual_representation, biased_vocab, unbiased_vocab, hs_keywords):
+    """ Helper function for preparing the dictionary fields.
+    """
+
+    hs_similar_words = [
+        word for word in contextual_representation["similar_words"] if word[0] in hs_keywords]
+
+    other_similar_words = [
+        word for word in contextual_representation["similar_words"] if word[0] not in hs_keywords]
+
+    hs_related_words = [
+        word for word in contextual_representation["related_words"] if word[0] in hs_keywords]
+
+    other_related_words = [
+        word for word in contextual_representation["related_words"] if word[0] not in hs_keywords]
+
+    hs_similar_words_unbiased = [
+        word for word in contextual_representation["similar_words_unbiased"] if word[0] in hs_keywords]
+
+    other_similar_words_unbiased = [
+        word for word in contextual_representation["similar_words_unbiased"] if word[0] not in hs_keywords]
+
+    hs_related_words_unbiased = [
+        word for word in contextual_representation["related_words_unbiased"] if word[0] in hs_keywords]
+
+    other_related_words_unbiased = [
+        word for word in contextual_representation["related_words_unbiased"] if word[0] not in hs_keywords]
+
+    data = {"biased_probability": biased_vocab[token],
+            "unbiased_probability": unbiased_vocab[token],
+
+            "similar_hs_support": compute_avg_cosine(hs_similar_words),
+            "related_hs_support": compute_avg_cosine(hs_related_words),
+
+            "hs_similar_words": [word[0] for word in hs_similar_words],
+            "other_similar_words": [word[0] for word in other_similar_words],
+
+            "hs_related_words": [word[0] for word in hs_related_words],
+            "other_related_words": [word[0] for word in other_related_words],
+
+            "hs_similar_words_unbiased": [word[0] for word in hs_similar_words_unbiased],
+            "other_similar_words_unbiased": [word[0] for word in other_similar_words_unbiased],
+
+            "hs_related_words_unbiased": [word[0] for word in hs_related_words_unbiased],
+            "other_related_words_unbiased": [word[0] for word in other_related_words_unbiased]}
+    return data
 
 
 def compute_avg_cosine(similarity_result):
@@ -108,20 +156,38 @@ def compute_avg_cosine(similarity_result):
     return avg_cosine
 
 
-def get_contextual_representation(word, dep2vec_model, word_embedding_model, topn=5):
+def get_contextual_representation(word, biased_embeddings, unbiased_embeddings, topn=5):
     """ Given a word we attempt to create a contextual representation that consists of
     semantically related words, semantically similar words and the avg word vector.
+    We compute this from both a biased an unbiased embedding. By bias we refer to the
+    method in which the data was originally collected, unbiased means that we streamed from
+    Twitter with no keyword arguments.
+
     Args:
         word (string): Target word.
-        dep2vec_model (gensim.models): Gensim word embedding model trained with dep2vec.
-        word_embedding_model (gensim.models): Gensim word embedding model trained with
-        either fasttext or w2v.
+        biased_embeddings (list): Stores (gensim.models): Gensim word embedding model
+            0: dep2vec_embedding
+            1: word_embedding (either fasttext or w2v)
+        unbiased_embeddings (list): Stores (gensim.models): Gensim word embedding model
+            0: base_dep2vec_embedding
+            1: base_word_embedding (either fasttext or w2v)
         topn (int): Number of words to check against in the embedding model.
     """
+
+    dep2vec_embedding = biased_embeddings[0]
+    word_embedding = biased_embeddings[1]
+
+    base_dep2vec_embedding = unbiased_embeddings[0]
+    base_word_embedding = biased_embeddings[1]
+
     contextual_representation = {}
-    contextual_representation["similar_words"] = dep2vec_model.similar_by_word(
+    contextual_representation["similar_words"] = dep2vec_embedding.similar_by_word(
         word, topn=topn, restrict_vocab=None)
-    contextual_representation["related_words"] = word_embedding_model.similar_by_word(
+    contextual_representation["related_words"] = word_embedding.similar_by_word(
+        word, topn=topn, restrict_vocab=None)
+    contextual_representation["similar_words_unbiased"] = base_dep2vec_embedding.similar_by_word(
+        word, topn=topn, restrict_vocab=None)
+    contextual_representation["related_words_unbiased"] = base_word_embedding.similar_by_word(
         word, topn=topn, restrict_vocab=None)
 
     return contextual_representation
