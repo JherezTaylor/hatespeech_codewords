@@ -171,10 +171,10 @@ def train_word_embeddings():
 
     job_list = [
         ["twitter_annotated_datasets",
-            "NAACL_SRW_2016_features", "embedding_NACCL"],
+            "NAACL_SRW_2016", "embedding_NACCL"],
         ["twitter_annotated_datasets",
-         "NLP_CSS_2016_expert_features", "embedding_NLP_CSS"],
-        ["twitter_annotated_datasets", "crowdflower_features", "embedding_crwdflr"],
+         "NLP_CSS_2016_expert", "embedding_NLP_CSS"],
+        ["twitter_annotated_datasets", "crowdflower", "embedding_crwdflr"],
         ["dailystormer_archive", "d_stormer_documents",
             "embedding_daily_stormer"],
         ["twitter", "melvyn_hs_users", "embedding_melvyn_hs"],
