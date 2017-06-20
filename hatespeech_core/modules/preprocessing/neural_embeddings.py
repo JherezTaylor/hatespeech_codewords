@@ -38,7 +38,7 @@ def load_embedding(filename, embedding_type):
 def get_embeddings(embedding_type, model_ids=None, load=False):
     """ Helper function for loading embedding models
     Args:
-        embedding_type (str): kv:keyedVectors w2v:word2vec
+        embedding_type (str): dep2vec,ft:keyedVectors w2v:word2vec
         model_ids (list): List of ints referencing the models.
     Model positions:
         dep2vec_dstormer: 0
@@ -60,15 +60,18 @@ def get_embeddings(embedding_type, model_ids=None, load=False):
         fasttext_uselec: 10
     """
 
-    model_format = "kv" if embedding_type == "kv" else "w2v"
+    model_format = "kv" if embedding_type == "dep2vec" or embedding_type == "ft" else "w2v"
 
     if model_ids and load:
-        if model_format == "kv":
+        if embedding_type == "dep2vec":
             embeddings_ref = sorted(file_ops.get_model_names(
                 glob.glob(settings.EMBEDDING_MODELS + "dim*")))
-        else:
-            embeddings_ref = file_ops.get_model_names(
-                glob.glob(settings.EMBEDDING_MODELS + "*.vec"))
+        elif embedding_type == "ft":
+            embeddings_ref = sorted(file_ops.get_model_names(
+                glob.glob(settings.EMBEDDING_MODELS + "*.vec")))
+        elif embedding_type == "w2v":
+            embeddings_ref = sorted(file_ops.get_model_names(
+                glob.glob(settings.EMBEDDING_MODELS + "word2vec_*")))
 
         for idx, ref in enumerate(embeddings_ref):
             print(idx, ref)
@@ -80,9 +83,6 @@ def get_embeddings(embedding_type, model_ids=None, load=False):
         return loaded_models
     else:
         print("Embedding models not loaded")
-
-
-
 
 
 def create_dep_embedding_input(connection_params, filename):
