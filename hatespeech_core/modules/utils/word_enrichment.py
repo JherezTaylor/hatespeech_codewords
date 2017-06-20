@@ -9,6 +9,7 @@ contextual representation of words.
 
 import numpy as np
 from . import settings
+from . import notifiers
 
 
 def gensim_top_k_similar(model, row, field_name, k):
@@ -44,7 +45,7 @@ def spacy_top_k_similar(word, k):
     return by_similarity[:k], cosine_score[:k]
 
 
-def select_candidate_codewords(biased_embeddings, unbiased_embeddings, vocab_pair, hs_keywords, topn=5, hs_threshold=1):
+def select_candidate_codewords(biased_embeddings, unbiased_embeddings, vocab_pair, hs_keywords, hs_check=True, topn=5, hs_threshold=1):
     """ Select words that share a similarity (functional) or relatedness with a known
     hate speech word. Similarity and relatedness are depenedent on the model passed.
     The idea is to trim the passed vocab.
@@ -71,10 +72,10 @@ def select_candidate_codewords(biased_embeddings, unbiased_embeddings, vocab_pai
     word_embedding = biased_embeddings[1]
 
     base_dep2vec_embedding = unbiased_embeddings[0]
-    base_word_embedding = biased_embeddings[1]
+    base_word_embedding = unbiased_embeddings[1]
 
     biased_vocab = vocab_pair[0]
-    unbiase_vocab = vocab_pair[1]
+    unbiased_vocab = vocab_pair[1]
 
     candidate_codewords = {}
     dep2vec_embedding_vocab = set(dep2vec_embedding.index2word)
@@ -83,15 +84,24 @@ def select_candidate_codewords(biased_embeddings, unbiased_embeddings, vocab_pai
             contextual_representation = get_contextual_representation(
                 token, [dep2vec_embedding, word_embedding], [base_dep2vec_embedding, base_word_embedding], topn=topn)
 
-            check_intersection = set(
-                [entry[0] for entry in contextual_representation["similar_words"]])
+            if hs_check:
+                check_intersection = set(
+                    [entry[0] for entry in contextual_representation["similar_words"]])
 
-            diff = hs_keywords.intersection(check_intersection)
-            if len(diff) >= hs_threshold:
-                settings.logger.debug("Token: %s | Set: %s", token, diff)
+                diff = hs_keywords.intersection(check_intersection)
+                if len(diff) >= hs_threshold:
+                    settings.logger.debug("Token: %s | Set: %s", token, diff)
 
-                candidate_codewords[token] = prep_code_word_representation(
-                    token, contextual_representation, biased_vocab, unbiase_vocab, hs_keywords)
+                    candidate_codewords[token] = prep_code_word_representation(
+                        token, contextual_representation, biased_vocab, unbiased_vocab, hs_keywords)
+            else:
+                check_intersection = set(
+                    [entry[0] for entry in contextual_representation["similar_words"]])
+
+                diff = hs_keywords.intersection(check_intersection)
+                if not diff:
+                    candidate_codewords[token] = prep_code_word_representation(
+                        token, contextual_representation, biased_vocab, unbiased_vocab, hs_keywords)
 
     return candidate_codewords
 
@@ -124,23 +134,23 @@ def prep_code_word_representation(token, contextual_representation, biased_vocab
     other_related_words_unbiased = [word for word in contextual_representation["related_words_unbiased"] if word[
         0] not in hs_keywords] if contextual_representation["related_words_unbiased"] else None
 
-    data = {"biased_probability": biased_vocab[token] if token in biased_vocab else 0,
-            "unbiased_probability": unbiased_vocab[token] if token in unbiased_vocab else 0,
+    data = {"biased_freq": [biased_vocab[token]] if token in biased_vocab else [0],
+            "unbiased_freq": [unbiased_vocab[token]] if token in unbiased_vocab else [0],
 
-            "similar_hs_support": compute_avg_cosine(hs_similar_words),
-            "related_hs_support": compute_avg_cosine(hs_related_words) if hs_related_words else 0,
+            "sim_hs_supp": compute_avg_cosine(hs_similar_words),
+            "rel_hs_supp": compute_avg_cosine(hs_related_words) if hs_related_words else [],
 
-            "hs_similar_words": [word[0] for word in hs_similar_words] if hs_similar_words else None,
-            "other_similar_words": [word[0] for word in other_similar_words] if other_similar_words else None,
+            "hs_sim_words": [word[0] for word in hs_similar_words] if hs_similar_words else [],
+            "alt_sim_words": [word[0] for word in other_similar_words] if other_similar_words else [],
 
-            "hs_related_words": [word[0] for word in hs_related_words] if hs_related_words else None,
-            "other_related_words": [word[0] for word in other_related_words] if other_related_words else None,
+            "hs_rel_words": [word[0] for word in hs_related_words] if hs_related_words else [],
+            "alt_rel_words": [word[0] for word in other_related_words] if other_related_words else [],
 
-            "hs_similar_words_unbiased": [word[0] for word in hs_similar_words_unbiased] if hs_similar_words_unbiased else None,
-            "other_similar_words_unbiased": [word[0] for word in other_similar_words_unbiased] if other_similar_words_unbiased else None,
+            "hs_sim_words_unbiased": [word[0] for word in hs_similar_words_unbiased] if hs_similar_words_unbiased else [],
+            "alt_sim_words_unbiased": [word[0] for word in other_similar_words_unbiased] if other_similar_words_unbiased else [],
 
-            "hs_related_words_unbiased": [word[0] for word in hs_related_words_unbiased] if hs_related_words_unbiased else None,
-            "other_related_words_unbiased": [word[0] for word in other_related_words_unbiased] if other_related_words_unbiased else None}
+            "hs_rel_words_unbiased": [word[0] for word in hs_related_words_unbiased] if hs_related_words_unbiased else [],
+            "alt_rel_words_unbiased": [word[0] for word in other_related_words_unbiased] if other_related_words_unbiased else []}
     return data
 
 
@@ -155,8 +165,8 @@ def compute_avg_cosine(similarity_result):
         cosine_vals = [cos[1] for cos in similarity_result]
         avg_cosine = sum(cosine_vals) / len(cosine_vals)
     else:
-        return 0
-    return avg_cosine
+        return [0]
+    return [avg_cosine]
 
 
 def get_contextual_representation(word, biased_embeddings, unbiased_embeddings, topn=5):
@@ -181,7 +191,7 @@ def get_contextual_representation(word, biased_embeddings, unbiased_embeddings, 
     word_embedding = biased_embeddings[1]
 
     base_dep2vec_embedding = unbiased_embeddings[0]
-    base_word_embedding = biased_embeddings[1]
+    base_word_embedding = unbiased_embeddings[1]
 
     contextual_representation = {}
     contextual_representation["similar_words"] = dep2vec_embedding.similar_by_word(
