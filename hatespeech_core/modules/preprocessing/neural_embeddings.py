@@ -186,13 +186,17 @@ def train_word_embeddings():
         ["twitter", "tweets", "embedding_twitter"]
     ]
 
+    # Prep data
+    for job in job_list:
+        create_word_embedding_input(job, job[2])
+
     # Train fasttext and w2v model
     for job in job_list:
         train_embeddings.fasttext_model(
             settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS + "fasttext_" + job[2])
-        train_embeddings.word2vec_model(
-            settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS +
-            "word2vec_" + job[2])
+        # train_embeddings.word2vec_model(
+        #     settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS +
+        #     "word2vec_" + job[2])
 
 
 def train_dep2vec_model():
@@ -207,10 +211,6 @@ def train_dep2vec_model():
         ["unfiltered_stream_May17", "tweets_conll", "ustream_conll"],
         ["twitter", "tweets_conll", "twitter_conll"]
     ]
-
-    # Prep data
-    # for job in job_list:
-    #     create_word_embedding_input(job, job[2])
 
     # for job in dep_job_list:
     #     create_dep_embedding_input(job[0:2], job[2])
