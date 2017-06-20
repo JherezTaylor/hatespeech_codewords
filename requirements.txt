@@ -19,6 +19,7 @@ cufflinks==0.8.2
 spacy
 scikit-learn
 regex
+tabulate
 tqdm
 gensim
 Cython
