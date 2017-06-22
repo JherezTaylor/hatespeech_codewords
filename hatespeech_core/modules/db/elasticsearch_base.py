@@ -83,11 +83,17 @@ def match(_es, es_index, doc_type, field, lookup_list):
     return results
 
 
-def aggregate(_es, es_index, field, use_range, size=10, min_doc_count=10):
+def aggregate(_es, es_index, field, use_range, query_filter, size=10, min_doc_count=10):
     """Build and execute an aggregate query, matching on the passed field.
+    Args:
+        use_range (bool): Apply time range to query.
+        query_filter (str): Documents must match the requirements in this
+                query, formatted with ELS Query DSL. example: "_exists_:hs_keyword_matches"
+                Pass "*" to match all documents.
     Returns
-      result (list): list of documents.
+        result (list): list of documents.
     """
+
     if use_range:
         query = {
             "query": {
@@ -95,7 +101,7 @@ def aggregate(_es, es_index, field, use_range, size=10, min_doc_count=10):
                     "must": [
                         {
                             "query_string": {
-                                "query": "*",
+                                "query": query_filter,
                                 "analyze_wildcard": True
                             }
                         },
@@ -133,7 +139,7 @@ def aggregate(_es, es_index, field, use_range, size=10, min_doc_count=10):
         query = {
             "query": {
                 "query_string": {
-                    "query": "*",
+                    "query": query_filter,
                     "analyze_wildcard": True
                 }
             },
@@ -164,6 +170,48 @@ def aggregate(_es, es_index, field, use_range, size=10, min_doc_count=10):
         return response
     else:
         return results, response["hits"]["total"]
+
+
+def count(_es, es_index, query):
+    """Execute a query and get the number of matches for that query.
+
+    Returns
+      result (int): Query count result.
+    """
+    response = _es.count(index=es_index, body=query)
+    return response["count"]
+
+
+def get_els_subset_size(_es, es_index, field):
+    """ Return both the number of documents that have the given field and the inverse.
+    """
+    positive_query = {
+        "query": {
+            "exists": {
+                "field": field
+            }
+        }
+    }
+
+    negative_query = {
+        "query": {
+            "bool": {
+                "must_not": {
+                    "exists": {
+                        "field": field
+                    }
+                }
+            }
+        }
+    }
+
+    positive_count = count(_es, es_index, positive_query)
+    negative_count = count(_es, es_index, negative_query)
+
+    result = {}
+    result["positive_count"] = positive_count
+    result["negative_count"] = negative_count
+    return result
 
 
 def migrate_es_tweets(connection_params, args):
