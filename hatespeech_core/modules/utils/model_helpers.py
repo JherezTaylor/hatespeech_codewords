@@ -262,11 +262,11 @@ def get_els_word_weights(vocab, total_doc_count):
 
     for key, val in vocab.items():
         vocab_frequencies[key] = round(float(val) / float(total_doc_count), 5)
-        vocab_idf = round(log10(float(total_doc_count) / float(val)), 5)
+        vocab_idf[key] = round(log10(float(total_doc_count) / float(val)), 5)
 
         if key in hs_keywords:
             hs_vocab_frequencies[key] = vocab_frequencies[key]
-            hs_vocab_idf = vocab_idf[key]
+            hs_vocab_idf[key] = vocab_idf[key]
     return hs_vocab_frequencies, vocab_frequencies, hs_vocab_idf, vocab_idf
 
 
