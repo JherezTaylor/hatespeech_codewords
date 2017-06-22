@@ -6,6 +6,7 @@
 This module houses various helper functions for use with the various models
 """
 
+from math import log10
 import joblib
 import pandas as pd
 import numpy as np
@@ -235,41 +236,49 @@ class BooleanExtractor(BaseEstimator, TransformerMixin):
         return self
 
 
-def get_els_word_probabilities(vocab, total_doc_count):
-    """ Calculate word probabilites from the vocab results returned by
+def get_els_word_weights(vocab, total_doc_count):
+    """ Calculate word frequencies and IDF weights from the vocab results returned by
     elasticsearch_base.aggregate()
     Args:
        vocab  (dict): Dictionary of token:doc_count values. doc_count is the number of
                       documents where that token appears.
        total_doc_count (int): Total number of documents in the corpus.
     Returns:
-        hs_vocab_probabilities (dict): subset of token:probabilty pairs for tokens in the HS keywords corpus.
-        vocab_probabilities (dict): subset of token:probability pairs for the entire vocab.
-        P(wi) = count (wi) / count(total number of documents)
+        hs_vocab_freqs (dict): subset of token:frequency pairs for tokens in the HS keywords corpus.
+        vocab_freqs (dict): subset of token:frequency pairs for the entire vocab.
+        *_idf (dict): token:idf pairs.
+        P(wi) = number of docs with (wi) / count(total number of documents)
+        IDF = log(total number of documents / number of docs with (wi))
     """
-    vocab_probabilities = {}
-    hs_vocab_probabilities = {}
+
+    vocab_frequencies = {}
+    hs_vocab_frequencies = {}
+    vocab_idf = {}
+    hs_vocab_idf = {}
+
     hs_keywords = set(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
                       file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
                       file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
 
     for key, val in vocab.items():
-        vocab_probabilities[key] = round(
-            float(val) / float(total_doc_count), 5)
+        vocab_frequencies[key] = round(float(val) / float(total_doc_count), 5)
+        vocab_idf = round(log10(float(total_doc_count) / float(val)), 5)
+
         if key in hs_keywords:
-            hs_vocab_probabilities[key] = vocab_probabilities[key]
-    return hs_vocab_probabilities, vocab_probabilities
+            hs_vocab_frequencies[key] = vocab_frequencies[key]
+            hs_vocab_idf = vocab_idf[key]
+    return hs_vocab_frequencies, vocab_frequencies, hs_vocab_idf, vocab_idf
 
 
-def get_overlapping_probabilities(vocab, comparison_vocab):
-    """ Accepts a pair of dictionary that stores token:probabilitiy and gets
+def get_overlapping_weights(vocab, comparison_vocab):
+    """ Accepts a pair of dictionary that stores token:weight and gets
     the values for tokens that are in both vocabularies.
     Args:
-        vocab (dict): token:probability pairs extracted from a corpus.
+        vocab (dict): token:weight pairs extracted from a corpus.
         comparison_vocab (dict): The vocabulary to be checked.
     Returns:
-        token_list_1, token_probs_1, token_list_2, token_probs_2 (list): List of tokens and
-        probabilities resepctively.
+        token_list_1, token_weight_1, token_list_2, token_weight_2 (list): List of tokens and
+        weights resepctively.
     """
 
     vocab_tokens = set(vocab.keys())
