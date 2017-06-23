@@ -80,6 +80,9 @@ def select_candidate_codewords(**kwargs):
                              on the number of documents where that token appears.
             1: unbiased_vocab_idf (dict)
 
+        hs_keywords (set)
+        hs_check (bool) : Check for hs keywords or not.
+
         topn (int): Number of words to check against in the embedding model. default=5.
 
         p_at_k_threshold (float): Threshold for P@k calculation on the number of
@@ -110,18 +113,37 @@ def select_candidate_codewords(**kwargs):
                 similar_word_set = set(
                     [entry[0] for entry in contextual_representation["similar_words"]])
 
-                intersection = kwargs[
+                if contextual_representation["similar_words_unbiased"]:
+                    similar_word_set = similar_word_set.union(
+                        set([entry[0] for entry in contextual_representation["similar_words_unbiased"]]))
+
+                if contextual_representation["related_words"]:
+                    related_word_set = set(
+                        [entry[0] for entry in contextual_representation["related_words"]])
+
+                    if contextual_representation["related_words_unbiased"]:
+                        related_word_set = related_word_set.union(
+                            set([entry[0] for entry in contextual_representation["related_words_unbiased"]]))
+
+                sim_intersection = kwargs[
                     "hs_keywords"].intersection(similar_word_set)
-                p_at_k = round(float(len(intersection)) /
-                               float(kwargs["topn"]), 3)
+
+                rel_intersection = kwargs[
+                    "hs_keywords"].intersection(related_word_set)
+
+                p_at_k_sim = round(float(len(sim_intersection)) /
+                                   float(kwargs["topn"]), 3)
+
+                p_at_k_rel = round(float(len(rel_intersection)) /
+                                   float(kwargs["topn"]), 3)
 
                 freq_compare = unbiased_vocab_freq[
                     token] if token in unbiased_vocab_freq else 0
-                if p_at_k >= kwargs["p_at_k_threshold"] and \
-                        biased_vocab_freq[token] > freq_compare:
+                
+                #TODO Need to refine this
+                if (p_at_k_sim >= kwargs["p_at_k_threshold"] or p_at_k_rel >=
+                        kwargs["p_at_k_threshold"]) and biased_vocab_freq[token] > freq_compare:
 
-                    # TODO check to see if we can do an AND / OR operation with
-                    # p@k for related words
                     settings.logger.debug(
                         "Token: %s | Set: %s", token, similar_word_set)
 
@@ -152,10 +174,15 @@ def prep_code_word_representation(**kwargs):
     Args
     ----
     token
+
     contextual_representation
+
     freq_vocab_pair
+
     idf_vocab_pair
+
     hs_keywords
+
     topn
     """
 
@@ -204,16 +231,20 @@ def prep_code_word_representation(**kwargs):
             "unbiased_freq": [unbiased_vocab_freq[token]] if token in unbiased_vocab_freq else [0],
 
             "biased_idf": [biased_vocab_idf[token]] if token in biased_vocab_idf else [0],
-            "unbiased_idf": [biased_vocab_idf[token]] if token in unbiased_vocab_idf else [0],
+            "unbiased_idf": [unbiased_vocab_idf[token]] if token in unbiased_vocab_idf else [0],
 
             "sim_hs_supp": compute_avg_cosine(hs_similar_words),
-            "rel_hs_supp": compute_avg_cosine(hs_related_words) if hs_related_words else [],
+            "rel_hs_supp": compute_avg_cosine(hs_related_words) if hs_related_words else [0],
 
-            "biased_sim_p@k": round(float(len(hs_similar_words)) / float(topn), 3),
-            "biased_rel_p@k": round(float(len(hs_related_words)) / float(topn), 3),
+            "biased_sim_p@k": round(float(len(hs_similar_words)) /
+                                    float(topn), 3) if hs_similar_words else [0],
+            "biased_rel_p@k": round(float(len(hs_related_words)) /
+                                    float(topn), 3) if hs_related_words else [0],
 
-            "ubiased_sim_p@k": round(float(len(hs_similar_words_unbiased)) / float(topn), 3),
-            "ubiased_rel_p@k": round(float(len(hs_related_words_unbiased)) / float(topn), 3),
+            "ubiased_sim_p@k": round(float(len(hs_similar_words_unbiased)) /
+                                     float(topn), 3) if hs_similar_words_unbiased else [0],
+            "ubiased_rel_p@k": round(float(len(hs_related_words_unbiased)) /
+                                     float(topn), 3) if hs_related_words_unbiased else [0],
 
             "hs_sim_words": [word[0] for word in hs_similar_words
                              ] if hs_similar_words else [],
