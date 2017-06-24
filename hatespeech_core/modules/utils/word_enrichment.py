@@ -9,6 +9,7 @@ contextual representation of words.
 
 import numpy as np
 from . import settings
+from . import notifiers
 
 
 def gensim_top_k_similar(model, row, field_name, k):
@@ -139,8 +140,8 @@ def select_candidate_codewords(**kwargs):
 
                 freq_compare = unbiased_vocab_freq[
                     token] if token in unbiased_vocab_freq else 0
-                
-                #TODO Need to refine this
+
+                # TODO Need to refine this
                 if (p_at_k_sim >= kwargs["p_at_k_threshold"] or p_at_k_rel >=
                         kwargs["p_at_k_threshold"]) and biased_vocab_freq[token] > freq_compare:
 
