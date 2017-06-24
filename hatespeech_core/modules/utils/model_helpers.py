@@ -236,7 +236,7 @@ class BooleanExtractor(BaseEstimator, TransformerMixin):
         return self
 
 
-def get_els_word_weights(vocab, total_doc_count):
+def get_els_word_weights(vocab, total_doc_count, hs_keywords):
     """ Calculate word frequencies and IDF weights from the vocab results returned by
     elasticsearch_base.aggregate()
     Args:
@@ -256,17 +256,16 @@ def get_els_word_weights(vocab, total_doc_count):
     vocab_idf = {}
     hs_vocab_idf = {}
 
-    hs_keywords = set(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
-                      file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
-                      file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
+    vocab_frequencies = {token: round(
+        float(val) / float(total_doc_count), 5) for token, val in vocab.items()}
+    vocab_idf = {token: round(log10(float(total_doc_count) / float(val)), 5)
+                 for token, val in vocab.items()}
 
-    for key, val in vocab.items():
-        vocab_frequencies[key] = round(float(val) / float(total_doc_count), 5)
-        vocab_idf[key] = round(log10(float(total_doc_count) / float(val)), 5)
+    hs_vocab_frequencies = {token: vocab_frequencies[
+        token] for token in vocab_frequencies if token in hs_keywords}
+    hs_vocab_idf = {token: vocab_idf[token]
+                    for token in vocab_idf if token in hs_keywords}
 
-        if key in hs_keywords:
-            hs_vocab_frequencies[key] = vocab_frequencies[key]
-            hs_vocab_idf[key] = vocab_idf[key]
     return hs_vocab_frequencies, vocab_frequencies, hs_vocab_idf, vocab_idf
 
 
@@ -288,11 +287,13 @@ def get_overlapping_weights(vocab, comparison_vocab):
     vocab_list = {}
     comparison_vocab_list = {}
 
-    for token in token_intersection:
-        vocab_list[token] = vocab[token]
-        comparison_vocab_list[token] = comparison_vocab[token]
+    vocab_list = {token: vocab[token] for token in token_intersection}
+    comparison_vocab_list = {token: comparison_vocab[
+        token] for token in token_intersection}
 
-    return list(vocab_list.keys()), list(vocab_list.values()), list(comparison_vocab_list.keys()), list(comparison_vocab_list.values())
+    return list(vocab_list.keys()), list(vocab_list.values()), \
+        list(comparison_vocab_list.keys()), list(
+            comparison_vocab_list.values())
 
 
 def get_model_vocabulary(model):

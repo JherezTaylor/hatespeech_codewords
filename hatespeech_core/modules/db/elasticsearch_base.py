@@ -65,7 +65,7 @@ def match(_es, es_index, doc_type, field, lookup_list):
     values in the lookup_list.
 
     Returns
-      result (list): list of documents.
+        result (list): list of documents.
     """
     query = {
         "query": {
@@ -161,11 +161,9 @@ def aggregate(_es, es_index, field, use_range, query_filter, size=10, min_doc_co
             }
         }
     response = _es.search(index=es_index, body=query)
-    results = {}
 
-    for res in response["aggregations"]["2"]["buckets"]:
-        results[res["key"]] = res["doc_count"]
-
+    results = {item["key"]: item["doc_count"]
+               for item in response["aggregations"]["2"]["buckets"]}
     if not results:
         return response
     else:

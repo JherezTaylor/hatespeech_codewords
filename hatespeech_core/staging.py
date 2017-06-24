@@ -7,11 +7,15 @@
 import string
 from pprint import pprint
 from itertools import chain
+from modules.utils import model_helpers
+from modules.utils import word_enrichment
 from modules.utils import file_ops
 from modules.utils import settings
 from modules.utils import text_preprocessing
 from modules.db import mongo_base
 from modules.db import mongo_search_pipelines
+from modules.db import elasticsearch_base
+from modules.preprocessing import neural_embeddings
 from nltk.corpus import words
 from nltk.corpus import stopwords
 from joblib import Parallel, delayed
@@ -109,18 +113,76 @@ def parallel_test(num_cores, connection_params, sample_size):
     print(len(results))
 
 
+def profile_codeword_selection():
+    _es = elasticsearch_base.connect(settings.ES_URL)
+    positive_hs_filter = "_exists_:hs_keyword_matches"
+    negative_hs_filter = "!_exists_:hs_keyword_matches"
+    hs_keywords = set(file_ops.read_csv_file(
+        "refined_hs_keywords", settings.TWITTER_SEARCH_PATH))
+
+    test_size = 100000
+    min_doc_count = 5
+
+    subset_sizes = elasticsearch_base.get_els_subset_size(
+        _es, "manchester_event", "hs_keyword_matches")
+    doc_count = subset_sizes["positive_count"] + subset_sizes["negative_count"]
+
+    subset_sizes = elasticsearch_base.get_els_subset_size(
+        _es, "dailystormer", "hs_keyword_matches")
+    doc_count = subset_sizes["positive_count"] + subset_sizes["negative_count"]
+
+    dailystormer_pos_subset = elasticsearch_base.aggregate(
+        _es, "dailystormer", "tokens.keyword", False, positive_hs_filter, size=test_size, min_doc_count=min_doc_count)
+    dailystormer_neg_subset = elasticsearch_base.aggregate(
+        _es, "dailystormer", "tokens.keyword", False, negative_hs_filter, size=test_size, min_doc_count=min_doc_count)
+
+    dailystormer_pos_hs_freqs, dailystormer_pos_vocab_freqs, dailystormer_pos_hs_idfs, dailystormer_pos_vocab_idfs = model_helpers.get_els_word_weights(
+        dailystormer_pos_subset[0], doc_count, hs_keywords)
+    _, dailystormer_neg_vocab_freqs, _, dailystormer_neg_vocab_idfs = model_helpers.get_els_word_weights(
+        dailystormer_neg_subset[0], doc_count, hs_keywords)
+
+    test_size = 150000
+    min_doc_count = 10
+
+    subset_sizes = elasticsearch_base.get_els_subset_size(
+        _es, "unfiltered_stream", "hs_keyword_matches")
+    doc_count = subset_sizes["positive_count"] + subset_sizes["negative_count"]
+
+    unfiltered_stream_pos_subset = elasticsearch_base.aggregate(
+        _es, "unfiltered_stream", "tokens.keyword", False, positive_hs_filter, size=test_size, min_doc_count=min_doc_count)
+    unfiltered_stream_neg_subset = elasticsearch_base.aggregate(
+        _es, "unfiltered_stream", "tokens.keyword", False, negative_hs_filter, size=test_size, min_doc_count=min_doc_count)
+
+    unfiltered_stream_pos_hs_freqs, unfiltered_stream_pos_vocab_freqs, unfiltered_stream_pos_hs_idfs, unfiltered_stream_pos_vocab_idfs = model_helpers.get_els_word_weights(
+        unfiltered_stream_pos_subset[0], doc_count, hs_keywords)
+    _, unfiltered_stream_neg_vocab_freqs, _, unfiltered_stream_neg_vocab_idfs = model_helpers.get_els_word_weights(
+        unfiltered_stream_neg_subset[0], doc_count, hs_keywords)
+
+    dep_model_ids = [0, 7]
+    dep_embeddings = neural_embeddings.get_embeddings(
+        "dep2vec", model_ids=dep_model_ids, load=True)
+    if dep_embeddings:
+        dep2vec_dstormer = dep_embeddings[0] if dep_embeddings[0] else None
+        dep2vec_ustream = dep_embeddings[1] if dep_embeddings[1] else None
+
+    word_model_ids = [3, 9]
+    word_embeddings = neural_embeddings.get_embeddings(
+        "ft", model_ids=word_model_ids, load=True)
+    if word_embeddings:
+        ft_dstormer = word_embeddings[0] if word_embeddings[0] else None
+        ft_ustream = word_embeddings[1] if word_embeddings[1] else None
+
+    candidate_codewords = word_enrichment.select_candidate_codewords(biased_embeddings=[dep2vec_dstormer, ft_dstormer],
+                                                                     unbiased_embeddings=[dep2vec_ustream, ft_ustream], freq_vocab_pair=[
+                                                                         dailystormer_neg_vocab_freqs, unfiltered_stream_neg_vocab_freqs],
+                                                                     idf_vocab_pair=[dailystormer_neg_vocab_idfs, unfiltered_stream_neg_vocab_idfs], topn=5, p_at_k_threshold=0.2, hs_keywords=hs_keywords, hs_check=True)
+
+    # pprint(candidate_codewords)
+
+
 def main():
     """Run operations"""
-    # porn_black_list = dict.fromkeys(file_ops.read_csv_file(
-    #     "porn_blacklist", settings.WORDLIST_PATH))
-
-    # check_token_lengths(porn_black_list)
-    # ngram_stopword_check("is to hello world boss hi is")
-    # connection_params = [mongo_base.connect(), "twitter", "test_suite"]
-    # sample_size = 10**6
-    # connection_params = ["twitter", "tweets"]
-    # # test_linear_scan(connection_params, sample_size)
-    # parallel_test(2, connection_params, sample_size)
+    profile_codeword_selection()
 
 if __name__ == "__main__":
     main()
