@@ -143,9 +143,8 @@ def feature_extraction_pipeline(connection_params, query, partition, usage=None)
 
     cursor = mongo_base.finder(connection_params, query, False)
 
-    hs_keywords = set(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
-                      file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
-                      file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
+    hs_keywords = set(file_ops.read_csv_file(
+        "refined_hs_keywords", settings.TWITTER_SEARCH_PATH))
 
     # Makes a copy of the MongoDB cursor, to the best of my
     # knowledge this does not attempt to exhaust the cursor
@@ -425,7 +424,8 @@ def start_feature_extraction():
         # ["inauguration", "tweets",  "preprocessed_txt", "features"],
         # ["unfiltered_stream_May17", "tweets", "preprocessed_txt", "features"],
         # ["twitter", "tweets", "preprocessed_txt", "features"],
-        ["inauguration_no_filter", "tweets", "preprocessed_txt", "features"]
+        ["inauguration_no_filter", "tweets", "preprocessed_txt", "features"],
+        ["uselections", "tweets", "preprocessed_txt", "features"]
     ]
 
     for job in job_list:
