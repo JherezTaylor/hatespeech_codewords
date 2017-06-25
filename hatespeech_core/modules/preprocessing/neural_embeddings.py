@@ -101,8 +101,9 @@ def create_dep_embedding_input(connection_params, filename):
     text_preprocessing.prep_conll_file(cursor, filename)
 
 
-def create_word_embedding_input(connection_params, filename):
+def create_word_embedding_input(connection_params, filter, filename):
     """ Call a collection and write it to disk """
+
     client = mongo_base.connect()
 
     query = {}
@@ -183,17 +184,27 @@ def train_word_embeddings():
         ["uselections", "tweets", "embedding_uselections"],
         ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "embedding_hs_exp6"],
         ["unfiltered_stream_May17", "tweets", "embedding_unfiltered_stream"],
-        ["twitter", "tweets", "embedding_twitter"]
+        ["twitter", "tweets", "embedding_twitter"],
+        ["inauguration_no_filter", "tweets", "embedding_inauguration_unfiltered"]
     ]
 
+    clean_collection = [
+        ["twitter_annotated_datasets",
+            "NAACL_SRW_2016"],
+        ["twitter_annotated_datasets",
+         "NLP_CSS_2016_expert"]
+    ]
+
+    # create_word_embedding_input(clean_collection, "clean_test")
+
     # Prep data
-    for job in job_list:
-        create_word_embedding_input(job, job[2])
+    # for job in job_list:
+    #     create_word_embedding_input(job, job[2])
 
     # Train fasttext and w2v model
-    for job in job_list:
-        train_embeddings.fasttext_model(
-            settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS + "fasttext_" + job[2])
+    # for job in job_list:
+    #     train_embeddings.fasttext_model(
+    #         settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS + "fasttext_" + job[2])
         # train_embeddings.word2vec_model(
         #     settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS +
         #     "word2vec_" + job[2])

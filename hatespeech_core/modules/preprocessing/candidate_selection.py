@@ -48,9 +48,8 @@ def run_select_porn_candidates(connection_params):
     porn_black_list = set(file_ops.read_csv_file(
         "porn_blacklist", settings.WORDLIST_PATH))
 
-    hs_keywords = set(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
-                      file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
-                      file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
+    hs_keywords = set(file_ops.read_csv_file(
+        "refined_hs_keywords", settings.TWITTER_SEARCH_PATH))
 
     args = [query, "placeholder", False,
             False, porn_black_list, hs_keywords]
@@ -95,9 +94,9 @@ def run_select_hs_candidates(connection_params):
     porn_black_list = set(file_ops.read_csv_file(
         "porn_trigrams_top_k_users", settings.WORDLIST_PATH))
 
-    hs_keywords = set(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
-                      file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
-                      file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
+    hs_keywords = set(file_ops.read_csv_file(
+        "refined_hs_keywords", settings.TWITTER_SEARCH_PATH))
+
     black_list = set(file_ops.read_csv_file(
         "blacklist", settings.WORDLIST_PATH))
     account_list = set(file_ops.read_csv_file(
