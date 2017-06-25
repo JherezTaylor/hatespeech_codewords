@@ -761,7 +761,7 @@ def prep_conll_file(collection, filename):
     """
 
     count = 0
-    with open(settings.CONLL_PATH + filename, "w+") as _f:
+    with open(settings.CONLL_PATH + filename, "a+") as _f:
         for doc in collection:
             count += 1
             for entry in doc["conllFormat"]:

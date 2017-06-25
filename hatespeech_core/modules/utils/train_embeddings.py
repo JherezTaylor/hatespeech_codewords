@@ -42,33 +42,33 @@ def fasttext_classifier(input_data, filename, lr=0.1, dim=100, ws=5, epoch=5, mi
         input_data, filename, thread=cpu_count, lr=lr, dim=dim, ws=5, epoch=epoch, min_count=1, word_ngrams=1)
 
 
-def dep2vec_model(filename, filter_count, min_count, dimensions):
+def dep2vec_model(input_data, filename, filter_count, min_count, dimensions):
     """ Train a dependency2vec model.
     Follows the same steps outlined in the dependency2vec readme
     """
     time1 = notifiers.time()
     # Step 1
-    output = subprocess.run("cut -f 2 hatespeech_core/data/conll_data/" + filename + " | python hatespeech_core/data/conll_data/dependency2vec/scripts/vocab.py " + str(
-        filter_count) + " > " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/counted_vocabulary_" + filename, shell=True, check=True, stdout=subprocess.PIPE)
+    output = subprocess.run("cut -f 2 hatespeech_core/data/conll_data/" + input_data + " | python hatespeech_core/data/conll_data/dependency2vec/scripts/vocab.py " + str(
+        filter_count) + " > " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/counted_vocabulary_" + input_data, shell=True, check=True, stdout=subprocess.PIPE)
     for line in output.stdout.splitlines():
         print(line)
     print(output)
 
     # Step 2
-    output = subprocess.run("cat hatespeech_core/data/conll_data/" + filename + " | python hatespeech_core/data/conll_data/dependency2vec/scripts/extract_deps.py hatespeech_core/data/conll_data/dependency2vec/vocab_data/counted_vocabulary_" +
-                            filename + " " + str(filter_count) + " > " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/dep.contexts_" + filename, shell=True, check=True, stdout=subprocess.PIPE)
+    output = subprocess.run("cat hatespeech_core/data/conll_data/" + input_data + " | python hatespeech_core/data/conll_data/dependency2vec/scripts/extract_deps.py hatespeech_core/data/conll_data/dependency2vec/vocab_data/counted_vocabulary_" +
+                            input_data + " " + str(filter_count) + " > " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/dep.contexts_" + input_data, shell=True, check=True, stdout=subprocess.PIPE)
     for line in output.stdout.splitlines():
         print(line)
 
     # Step 3
-    output = subprocess.run("hatespeech_core/data/conll_data/dependency2vec/" + "./count_and_filter -train " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/dep.contexts_" + filename + " -cvocab " +
-                            "hatespeech_core/data/conll_data/dependency2vec/vocab_data/cv_" + filename + " -wvocab " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/wv_" + filename + " -min-count " + str(min_count), shell=True, check=True, stdout=subprocess.PIPE)
+    output = subprocess.run("hatespeech_core/data/conll_data/dependency2vec/" + "./count_and_filter -train " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/dep.contexts_" + input_data + " -cvocab " +
+                            "hatespeech_core/data/conll_data/dependency2vec/vocab_data/cv_" + input_data + " -wvocab " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/wv_" + input_data + " -min-count " + str(min_count), shell=True, check=True, stdout=subprocess.PIPE)
     for line in output.stdout.splitlines():
         print(line)
 
     # Step 4
-    output = subprocess.run("hatespeech_core/data/conll_data/dependency2vec/" + "./word2vecf -train " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/dep.contexts_" + filename + " -cvocab " +
-                            "hatespeech_core/data/conll_data/dependency2vec/vocab_data/cv_" + filename + " -wvocab " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/wv_" + filename + " -size " + str(dimensions) + " -negative 15 -threads 10 -output hatespeech_core/data/persistence/word_embeddings/dim" + str(dimensions) + "vecs_" + filename, shell=True, check=True, stdout=subprocess.PIPE)
+    output = subprocess.run("hatespeech_core/data/conll_data/dependency2vec/" + "./word2vecf -train " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/dep.contexts_" + input_data + " -cvocab " +
+                            "hatespeech_core/data/conll_data/dependency2vec/vocab_data/cv_" + input_data + " -wvocab " + "hatespeech_core/data/conll_data/dependency2vec/vocab_data/wv_" + input_data + " -size " + str(dimensions) + " -negative 15 -threads 10 -output hatespeech_core/data/persistence/word_embeddings/dim" + str(dimensions) + "vecs_" + filename, shell=True, check=True, stdout=subprocess.PIPE)
     for line in output.stdout.splitlines():
         print(line)
 

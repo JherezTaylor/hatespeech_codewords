@@ -424,10 +424,25 @@ def start_feature_extraction():
         # ["inauguration", "tweets",  "preprocessed_txt", "features"],
         # ["unfiltered_stream_May17", "tweets", "preprocessed_txt", "features"],
         # ["twitter", "tweets", "preprocessed_txt", "features"],
-        ["inauguration_no_filter", "tweets", "preprocessed_txt", "features"],
+        # ["inauguration_no_filter", "tweets", "preprocessed_txt", "features"],
         ["uselections", "tweets", "preprocessed_txt", "features"]
+    ]
+
+    conll_list = [
+        ["dailystormer_archive", "d_stormer_documents", "preprocessed_txt", "conll"],
+        ["twitter", "melvyn_hs_users", "preprocessed_txt", "conll"],
+        ["manchester_event", "tweets", "preprocessed_txt", "conll"],
+        ["inauguration", "tweets", "preprocessed_txt", "conll"],
+        ["unfiltered_stream_May17", "tweets", "preprocessed_txt", "conll"],
+        ["twitter", "tweets", "preprocessed_txt", "conll"],
+        ["inauguration_no_filter", "tweets", "preprocessed_txt", "conll"],
+        ["uselections", "tweets", "preprocessed_txt", "conll"]
     ]
 
     for job in job_list:
         run_parallel_pipeline(
-            job[0:4], feature_extraction_pipeline, [job[0] + "_" + job[2], "Extract features"])
+            job[0:4], feature_extraction_pipeline, [job[0] + "_" + job[2], "Extract Features"])
+
+    for job in conll_list:
+        run_parallel_pipeline(
+            job[0:4], feature_extraction_pipeline, [job[0] + "_" + job[2], "Extract Conll Features"])
