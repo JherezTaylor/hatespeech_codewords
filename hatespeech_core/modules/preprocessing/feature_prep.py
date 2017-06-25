@@ -236,20 +236,20 @@ def unpack_emotions(staging, emotion_vector, _pv, _cls):
     Returns:
         list of MongoDB InsertOne operations.
     """
-
-    # emotion_vector = pd.Series(
-    #     emotion_vector, index=range(0, len(emotion_vector)))
-    # emotion_vector = _pv.transform(emotion_vector)
-    # emotion_coverage = _cls.get_top_classes(
-    #     emotion_vector, ascending=True, n=2)
-    # emotion_min_score = _cls.get_max_score_class(emotion_vector)
+    import pandas as pd
+    emotion_vector = pd.Series(
+        emotion_vector, index=range(0, len(emotion_vector)))
+    emotion_vector = _pv.transform(emotion_vector)
+    emotion_coverage = _cls.get_top_classes(
+        emotion_vector, ascending=True, n=2)
+    emotion_min_score = _cls.get_max_score_class(emotion_vector)
 
     operations = []
     for idx, parsed_tweet in enumerate(staging):
-        # parsed_tweet["emotions"] = {}
-        # parsed_tweet["emotions"]["first"] = emotion_coverage[idx][0]
-        # parsed_tweet["emotions"]["second"] = emotion_coverage[idx][1]
-        # parsed_tweet["emotions"]["min"] = emotion_min_score[idx]
+        parsed_tweet["emotions"] = {}
+        parsed_tweet["emotions"]["first"] = emotion_coverage[idx][0]
+        parsed_tweet["emotions"]["second"] = emotion_coverage[idx][1]
+        parsed_tweet["emotions"]["min"] = emotion_min_score[idx]
         operations.append(InsertOne(parsed_tweet))
     return operations
 
@@ -384,49 +384,50 @@ def run_fetch_es_tweets():
         "192.168.2.33", "tweets", "tweet", "user.id_str", lookup_list])
 
 
+def start_store_preprocessed_text():
+    """ Start the job for both word embedding and generic text preprocessing
+    """
+    job_list = [
+        # ["twitter_annotated_datasets", "NAACL_SRW_2016", "text"],
+        # ["twitter_annotated_datasets",
+        #  "NLP_CSS_2016_expert", "text"],
+        # ["twitter_annotated_datasets", "crowdflower", "text"],
+        # ["dailystormer_archive", "d_stormer_documents", "article"],
+        # ["twitter", "melvyn_hs_users", "text"],
+        # ["manchester_event", "tweets", "text"],
+        # ["inauguration", "tweets", "text"],
+        # ["uselections", "tweets", "text"],
+        # ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "text"],
+        # ["unfiltered_stream_May17", "tweets", "text"],
+        # ["twitter", "tweets", "text"],
+        ["inauguration_no_filter", "tweets", "text"]
+    ]
+    for job in job_list:
+        run_parallel_pipeline(job, prep_word_embedding_text, ["prep_word_embedding_text",
+                                                              "Preprocess embedding text"])
+        run_parallel_pipeline(
+            job, prep_preprocessed_text, ["prep_preprocessed_text", "Preprocess Text"])
+
+
 def start_feature_extraction():
     """Run operations"""
     job_list = [
-        ["twitter_annotated_datasets", "NAACL_SRW_2016",
-            "preprocessed_txt", "features"],
-        ["twitter_annotated_datasets",
-         "NLP_CSS_2016_expert", "preprocessed_txt", "features"],
-        ["twitter_annotated_datasets", "crowdflower",
-            "preprocessed_txt", "features"],
-        # ["dailystormer_archive", "d_stormer_documents",
+        # ["twitter_annotated_datasets", "NAACL_SRW_2016",
         #     "preprocessed_txt", "features"],
-        ["twitter", "melvyn_hs_users", "preprocessed_txt", "features"],
-        ["manchester_event", "tweets", "preprocessed_txt", "features"],
-        ["inauguration", "tweets",  "preprocessed_txt", "features"],
-        ["unfiltered_stream_May17", "tweets", "preprocessed_txt", "features"],
-        ["twitter", "tweets", "preprocessed_txt", "features"]
+        # ["twitter_annotated_datasets",
+        #  "NLP_CSS_2016_expert", "preprocessed_txt", "features"],
+        # ["twitter_annotated_datasets", "crowdflower",
+        #     "preprocessed_txt", "features"],
+        # # ["dailystormer_archive", "d_stormer_documents",
+        # #     "preprocessed_txt", "features"],
+        # ["twitter", "melvyn_hs_users", "preprocessed_txt", "features"],
+        # ["manchester_event", "tweets", "preprocessed_txt", "features"],
+        # ["inauguration", "tweets",  "preprocessed_txt", "features"],
+        # ["unfiltered_stream_May17", "tweets", "preprocessed_txt", "features"],
+        # ["twitter", "tweets", "preprocessed_txt", "features"],
+        ["inauguration_no_filter", "tweets", "preprocessed_txt", "features"]
     ]
 
     for job in job_list:
         run_parallel_pipeline(
             job[0:4], feature_extraction_pipeline, [job[0] + "_" + job[2], "Extract features"])
-
-
-def start_store_preprocessed_text():
-    """ Start the job for both word embedding and generic text preprocessing
-    """
-    job_list = [
-        ["twitter_annotated_datasets", "NAACL_SRW_2016", "text"],
-        ["twitter_annotated_datasets",
-         "NLP_CSS_2016_expert", "text"],
-        ["twitter_annotated_datasets", "crowdflower", "text"],
-        ["dailystormer_archive", "d_stormer_documents", "article"],
-        ["twitter", "melvyn_hs_users", "text"],
-        ["manchester_event", "tweets", "text"],
-        ["inauguration", "tweets", "text"],
-        ["uselections", "tweets", "text"],
-        ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "text"],
-        ["unfiltered_stream_May17", "tweets", "text"],
-        ["twitter", "tweets", "text"]
-    ]
-    for job in job_list:
-        # run_parallel_pipeline(
-        # job, prep_word_embedding_text, ["prep_word_embedding_text",
-        # "Preprocess embedding text"])
-        run_parallel_pipeline(
-            job, prep_preprocessed_text, ["prep_preprocessed_text", "Preprocess Text"])
