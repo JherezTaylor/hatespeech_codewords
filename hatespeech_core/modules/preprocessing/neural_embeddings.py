@@ -85,57 +85,64 @@ def get_embeddings(embedding_type, model_ids=None, load=False):
         print("Embedding models not loaded")
 
 
-def create_dep_embedding_input(connection_params, filename):
+def create_dep_embedding_input(collection_args, query_filter, filename):
     """ Read and write the data from a conll collection"""
     client = mongo_base.connect()
-    connection_params.insert(0, client)
 
     query = {}
-    query["filter"] = {}
+    query["filter"] = query_filter
     query["projection"] = {"conllFormat": 1, "_id": 0}
     query["limit"] = 0
     query["skip"] = 0
     query["no_cursor_timeout"] = True
 
-    cursor = mongo_base.finder(connection_params, query, False)
-    text_preprocessing.prep_conll_file(cursor, filename)
+    for connection_params in collection_args:
+
+        connection_params.insert(0, client)
+        cursor = mongo_base.finder(connection_params, query, False)
+        text_preprocessing.prep_conll_file(cursor, filename)
 
 
-def create_word_embedding_input(connection_params, filter, filename):
+def create_word_embedding_input(collection_args, query_filter, filename):
     """ Call a collection and write it to disk """
 
     client = mongo_base.connect()
 
     query = {}
-    query["filter"] = {}
+    query["filter"] = query_filter
     query["projection"] = {"word_embedding_txt": 1, "_id": 0}
     query["limit"] = 0
     query["skip"] = 0
     query["no_cursor_timeout"] = True
 
-    connection_params.insert(0, client)
-    collection_size = mongo_base.finder(connection_params, query, True)
-    del connection_params[0]
-    client.close()
+    for connection_params in collection_args:
 
-    num_cores = cpu_count()
-    partition_size = collection_size // num_cores
-    partitions = [(i, partition_size)
-                  for i in range(0, collection_size, partition_size)]
-    # Account for lists that aren't evenly divisible, update the last tuple to
-    # retrieve the remainder of the items
+        connection_params.insert(0, client)
+        collection_size = mongo_base.finder(connection_params, query, True)
+        del connection_params[0]
+        client.close()
 
-    partitions[-1] = (partitions[-1][0], (collection_size - partitions[-1][0]))
+        num_cores = cpu_count()
+        partition_size = collection_size // num_cores
+        partitions = [(i, partition_size)
+                      for i in range(0, collection_size, partition_size)]
+        # Account for lists that aren't evenly divisible, update the last tuple to
+        # retrieve the remainder of the items
 
-    for idx, _partition in enumerate(partitions):
-        partitions[idx] = (partitions[idx][0], partitions[idx][1], idx)
+        partitions[-1] = (partitions[-1][0],
+                          (collection_size - partitions[-1][0]))
 
-    Parallel(n_jobs=num_cores)(delayed(text_preprocessing.prep_word_embedding_file)(
-        connection_params, query, partition, filename) for partition in partitions)
+        for idx, _partition in enumerate(partitions):
+            partitions[idx] = (partitions[idx][0], partitions[idx][1],
+                               connection_params[1] + str(idx))
+
+        Parallel(n_jobs=num_cores)(delayed(text_preprocessing.prep_word_embedding_file)(
+            connection_params, query, partition, filename) for partition in partitions)
 
     # Merge all files
     filenames = glob.glob(settings.EMBEDDING_INPUT + filename + "*.txt")
-    with open(settings.EMBEDDING_INPUT + filename + ".txt", 'w') as fout, fileinput.input(filenames) as fin:
+    with open(settings.EMBEDDING_INPUT + filename + ".txt", 'w') as fout, \
+            fileinput.input(filenames) as fin:
         for line in fin:
             fout.write(line)
     # Clean up files
@@ -170,64 +177,81 @@ def train_word_embeddings():
     """ Start embedding tasks
     """
 
-    job_list = [
-        ["twitter_annotated_datasets",
-            "NAACL_SRW_2016", "embedding_NACCL"],
-        ["twitter_annotated_datasets",
-         "NLP_CSS_2016_expert", "embedding_NLP_CSS"],
-        ["twitter_annotated_datasets", "crowdflower", "embedding_crwdflr"],
-        ["dailystormer_archive", "d_stormer_documents",
-            "embedding_daily_stormer"],
-        ["twitter", "melvyn_hs_users", "embedding_melvyn_hs"],
-        ["manchester_event", "tweets", "embedding_manchester"],
-        ["inauguration", "tweets", "embedding_inauguration"],
-        ["uselections", "tweets", "embedding_uselections"],
-        ["twitter", "candidates_hs_exp6_combo_3_Mar_9813004", "embedding_hs_exp6"],
-        ["unfiltered_stream_May17", "tweets", "embedding_unfiltered_stream"],
-        ["twitter", "tweets", "embedding_twitter"],
-        ["inauguration_no_filter", "tweets", "embedding_inauguration_unfiltered"]
+    core_tweets = [
+        ["twitter", "tweets"],
+        ["uselections", "tweets"],
+        ["inauguration", "tweets"],
+        ["inauguration_no_filter", "tweets"],
+        ["unfiltered_stream_May17", "tweets"],
+        ["manchester_event", "tweets"]
     ]
 
-    clean_collection = [
-        ["twitter_annotated_datasets",
-            "NAACL_SRW_2016"],
-        ["twitter_annotated_datasets",
-         "NLP_CSS_2016_expert"]
+    hate_corpus = [
+        ["dailystormer_archive", "d_stormer_documents"],
+        ["twitter", "melvyn_hs_users"]
     ]
-
-    # create_word_embedding_input(clean_collection, "clean_test")
 
     # Prep data
-    # for job in job_list:
-    #     create_word_embedding_input(job, job[2])
+    create_word_embedding_input(
+        core_tweets, {"has_hs_keywords": False}, "embedding_clean_corpus")
+
+    create_word_embedding_input(
+        core_tweets, {"has_hs_keywords": True}, "embedding_hs_keyword_corpus")
+
+    create_word_embedding_input(
+        hate_corpus, {}, "embedding_core_hate_corpus")
+
+    embedding_list = [
+        ["embedding_clean_corpus", "core_tweets_clean"],
+        ["embedding_hs_keyword_corpus", "core_tweets_hs_keyword"],
+        ["embedding_clean_corpus", "core_hate_corpus"]
+    ]
 
     # Train fasttext and w2v model
-    # for job in job_list:
-    #     train_embeddings.fasttext_model(
-    #         settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS + "fasttext_" + job[2])
-        # train_embeddings.word2vec_model(
-        #     settings.EMBEDDING_INPUT + job[2] + ".txt", settings.EMBEDDING_MODELS +
-        #     "word2vec_" + job[2])
+    for job in embedding_list:
+        train_embeddings.fasttext_model(
+            settings.EMBEDDING_INPUT + job[0] + ".txt",
+            settings.EMBEDDING_MODELS + "fasttext_" + job[1])
+    # train_embeddings.word2vec_model(
+    #     settings.EMBEDDING_INPUT + job[0] + ".txt", settings.EMBEDDING_MODELS +
+    #     "word2vec_" + job[1])
 
 
 def train_dep2vec_model():
     """ Start dependenc2vec classification"""
-    dep_job_list = [
-        ["dailystormer_archive", "d_stormer_documents_conll",
-         "dstormer_conll"],
-        ["twitter", "melvyn_hs_users_conll", "melvynhs_conll"],
-        ["manchester_event", "tweets_conll", "manch_conll"],
-        ["inauguration", "tweets_conll", "inaug_conll"],
-        ["uselections", "tweets_conll", "uselec_conll"],
-        ["unfiltered_stream_May17", "tweets_conll", "ustream_conll"],
-        ["twitter", "tweets_conll", "twitter_conll"]
+
+    core_tweets = [
+        ["twitter", "tweets"],
+        ["uselections", "tweets"],
+        ["inauguration", "tweets"],
+        ["inauguration_no_filter", "tweets"],
+        ["unfiltered_stream_May17", "tweets"],
+        ["manchester_event", "tweets"]
     ]
 
-    # for job in dep_job_list:
-    #     create_dep_embedding_input(job[0:2], job[2])
+    hate_corpus = [
+        ["dailystormer_archive", "d_stormer_documents"],
+        ["twitter", "melvyn_hs_users"]
+    ]
 
-    for job in dep_job_list:
-        train_embeddings.dep2vec_model(job[2], 50, 100, 200)
+    embedding_list = [
+        ["conll_clean_corpus", "core_tweets_clean"],
+        ["conll_hs_keyword_corpus", "core_tweets_hs_keyword"],
+        ["conll_core_hate_corpus", "core_hate_corpus"]
+    ]
+
+    # Prep data
+    create_dep_embedding_input(
+        core_tweets, {"has_hs_keywords": False}, "conll_clean_corpus")
+
+    create_dep_embedding_input(
+        core_tweets, {"has_hs_keywords": True}, "conll_hs_keyword_corpus")
+
+    create_dep_embedding_input(
+        hate_corpus, {}, "conll_core_hate_corpus")
+
+    for job in embedding_list:
+        train_embeddings.dep2vec_model(job[0], job[1], 50, 100, 200)
 
 
 def train_fasttext_classifier():
