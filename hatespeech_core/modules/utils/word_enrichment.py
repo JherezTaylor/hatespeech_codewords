@@ -114,17 +114,19 @@ def select_candidate_codewords(**kwargs):
                 similar_word_set = set(
                     [entry[0] for entry in contextual_representation["similar_words"]])
 
-                if contextual_representation["similar_words_unbiased"]:
-                    similar_word_set = similar_word_set.union(
-                        set([entry[0] for entry in contextual_representation["similar_words_unbiased"]]))
+                # if contextual_representation["similar_words_unbiased"]:
+                #     similar_word_set = similar_word_set.union(
+                # set([entry[0] for entry in
+                # contextual_representation["similar_words_unbiased"]]))
 
                 if contextual_representation["related_words"]:
                     related_word_set = set(
                         [entry[0] for entry in contextual_representation["related_words"]])
 
-                    if contextual_representation["related_words_unbiased"]:
-                        related_word_set = related_word_set.union(
-                            set([entry[0] for entry in contextual_representation["related_words_unbiased"]]))
+                    # if contextual_representation["related_words_unbiased"]:
+                    #     related_word_set = related_word_set.union(
+                    # set([entry[0] for entry in
+                    # contextual_representation["related_words_unbiased"]]))
 
                 sim_intersection = kwargs[
                     "hs_keywords"].intersection(similar_word_set)
@@ -228,52 +230,52 @@ def prep_code_word_representation(**kwargs):
     other_related_words_unbiased = [word for word in related_words_unbiased if word[
         0] not in hs_keywords] if related_words_unbiased else None
 
-    data = {"biased_freq": [biased_vocab_freq[token]] if token in biased_vocab_freq else [0],
-            "unbiased_freq": [unbiased_vocab_freq[token]] if token in unbiased_vocab_freq else [0],
+    data = {"freq_biased": [biased_vocab_freq[token]] if token in biased_vocab_freq else [0],
+            "freq_unbiased": [unbiased_vocab_freq[token]] if token in unbiased_vocab_freq else [0],
 
-            "biased_idf": [biased_vocab_idf[token]] if token in biased_vocab_idf else [0],
-            "unbiased_idf": [unbiased_vocab_idf[token]] if token in unbiased_vocab_idf else [0],
+            "idf_biased": [biased_vocab_idf[token]] if token in biased_vocab_idf else [0],
+            "idf_unbiased": [unbiased_vocab_idf[token]] if token in unbiased_vocab_idf else [0],
 
-            "sim_hs_supp": compute_avg_cosine(hs_similar_words),
-            "rel_hs_supp": compute_avg_cosine(hs_related_words) if hs_related_words else [0],
+            "hs_supp_sim": compute_avg_cosine(hs_similar_words, topn),
+            "hs_supp_rel": compute_avg_cosine(hs_related_words, topn) if hs_related_words else [0],
 
-            "biased_sim_p@k": round(float(len(hs_similar_words)) /
-                                    float(topn), 3) if hs_similar_words else [0],
-            "biased_rel_p@k": round(float(len(hs_related_words)) /
-                                    float(topn), 3) if hs_related_words else [0],
+            "p@k_sim_biased": [round(float(len(hs_similar_words)) /
+                                     float(topn), 3)] if hs_similar_words else [0],
+            "p@k_rel_biased": [round(float(len(hs_related_words)) /
+                                     float(topn), 3)] if hs_related_words else [0],
 
-            "ubiased_sim_p@k": round(float(len(hs_similar_words_unbiased)) /
-                                     float(topn), 3) if hs_similar_words_unbiased else [0],
-            "ubiased_rel_p@k": round(float(len(hs_related_words_unbiased)) /
-                                     float(topn), 3) if hs_related_words_unbiased else [0],
+            "p@k_sim_unbiased": [round(float(len(hs_similar_words_unbiased)) /
+                                       float(topn), 3)] if hs_similar_words_unbiased else [0],
+            "p@k_rel_unbiased": [round(float(len(hs_related_words_unbiased)) /
+                                       float(topn), 3)] if hs_related_words_unbiased else [0],
 
-            "hs_sim_words": [word[0] for word in hs_similar_words
-                             ] if hs_similar_words else [],
+            "sim_words_hs_biased": [word[0] for word in hs_similar_words
+                                    ] if hs_similar_words else [],
 
-            "alt_sim_words": [word[0] for word in other_similar_words
-                              ] if other_similar_words else [],
+            "sim_words_alt_biased": [word[0] for word in other_similar_words
+                                     ] if other_similar_words else [],
 
-            "hs_rel_words": [word[0] for word in hs_related_words
-                             ] if hs_related_words else [],
+            "rel_words_hs_biased": [word[0] for word in hs_related_words
+                                    ] if hs_related_words else [],
 
-            "alt_rel_words": [word[0] for word in other_related_words
-                              ]if other_related_words else [],
+            "rel_words_alt_biased": [word[0] for word in other_related_words
+                                     ] if other_related_words else [],
 
-            "hs_sim_words_unbiased": [word[0] for word in hs_similar_words_unbiased
+            "sim_words_hs_unbiased": [word[0] for word in hs_similar_words_unbiased
                                       ] if hs_similar_words_unbiased else [],
 
-            "alt_sim_words_unbiased": [word[0] for word in other_similar_words_unbiased
+            "sim_words_alt_unbiased": [word[0] for word in other_similar_words_unbiased
                                        ] if other_similar_words_unbiased else [],
 
-            "hs_rel_words_unbiased": [word[0] for word in hs_related_words_unbiased
+            "rel_words_hs_unbiased": [word[0] for word in hs_related_words_unbiased
                                       ] if hs_related_words_unbiased else [],
 
-            "alt_rel_words_unbiased": [word[0] for word in other_related_words_unbiased
+            "rel_words_alt_unbiased": [word[0] for word in other_related_words_unbiased
                                        ] if other_related_words_unbiased else []}
     return data
 
 
-def compute_avg_cosine(similarity_result):
+def compute_avg_cosine(similarity_result, topn):
     """ Compute and return the average cosine similarities.
     Args
     ----
@@ -284,7 +286,7 @@ def compute_avg_cosine(similarity_result):
     """
     if len(similarity_result) >= 1:
         cosine_vals = [cos[1] for cos in similarity_result]
-        avg_cosine = sum(cosine_vals) / len(cosine_vals)
+        avg_cosine = sum(cosine_vals) / float(topn)
     else:
         return [0]
     return [avg_cosine]
