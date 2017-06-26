@@ -204,9 +204,9 @@ def train_word_embeddings():
         hate_corpus, {}, "embedding_core_hate_corpus")
 
     embedding_list = [
-        ["embedding_clean_corpus", "core_tweets_clean"],
-        ["embedding_hs_keyword_corpus", "core_tweets_hs_keyword"],
-        ["embedding_clean_corpus", "core_hate_corpus"]
+        # ["embedding_clean_corpus", "core_tweets_clean"],
+        # ["embedding_hs_keyword_corpus", "core_tweets_hs_keyword"],
+        ["embedding_core_hate_corpus", "core_hate_corpus"]
     ]
 
     # Train fasttext and w2v model
