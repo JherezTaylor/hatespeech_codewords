@@ -194,14 +194,14 @@ def train_word_embeddings():
     ]
 
     # Prep data
-    create_word_embedding_input(
-        core_tweets, {"has_hs_keywords": False}, "embedding_clean_corpus")
+    # create_word_embedding_input(
+    #     core_tweets, {"has_hs_keywords": False}, "embedding_clean_corpus")
 
-    create_word_embedding_input(
-        core_tweets, {"has_hs_keywords": True}, "embedding_hs_keyword_corpus")
+    # create_word_embedding_input(
+    #     core_tweets, {"has_hs_keywords": True}, "embedding_hs_keyword_corpus")
 
-    create_word_embedding_input(
-        hate_corpus, {}, "embedding_core_hate_corpus")
+    # create_word_embedding_input(
+    #     hate_corpus, {}, "embedding_core_hate_corpus")
 
     embedding_list = [
         # ["embedding_clean_corpus", "core_tweets_clean"],
