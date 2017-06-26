@@ -34,9 +34,10 @@ def connect(db_url=None):
             db_url, serverSelectionTimeoutMS=max_sev_sel_delay, socketKeepAlive=True)
         conn.server_info()
         settings.logger.info("Connected to DB at %s successfully", db_url)
+        return conn
     except errors.ServerSelectionTimeoutError as ex:
         settings.logger.error("Could not connect to MongoDB: %s", ex, exc_info=True)
-    return conn
+        raise
 
 
 def fetch_by_object_id(connection_params, object_id):
@@ -323,8 +324,9 @@ def do_bulk_op(dbo, collection, operations):
 
     try:
         result = dbo[collection].bulk_write(operations, ordered=False)
+        return result
     except errors.BulkWriteError as bwe:
         settings.logger.error(bwe.details, exc_info=True)
-        settings.logger.error(result)
+        settings.logger.error(len(operations))
+        setttings.logger.error(operations)
         raise
-    return result
