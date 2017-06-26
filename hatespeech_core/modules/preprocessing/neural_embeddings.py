@@ -134,7 +134,7 @@ def create_word_embedding_input(collection_args, query_filter, filename):
 
         for idx, _partition in enumerate(partitions):
             partitions[idx] = (partitions[idx][0], partitions[idx][1],
-                               connection_params[1] + str(idx))
+                               connection_params[0] + str(idx))
 
         Parallel(n_jobs=num_cores)(delayed(text_preprocessing.prep_word_embedding_file)(
             connection_params, query, partition, filename) for partition in partitions)
