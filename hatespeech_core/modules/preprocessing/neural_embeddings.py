@@ -87,7 +87,6 @@ def get_embeddings(embedding_type, model_ids=None, load=False):
 
 def create_dep_embedding_input(collection_args, query_filter, filename):
     """ Read and write the data from a conll collection"""
-    client = mongo_base.connect()
 
     query = {}
     query["filter"] = query_filter
@@ -97,11 +96,13 @@ def create_dep_embedding_input(collection_args, query_filter, filename):
     query["no_cursor_timeout"] = True
 
     for connection_params in collection_args:
+        client = mongo_base.connect()
         settings.logger.info("Collection: %s", connection_params[
                              0] + "_" + connection_params[1])
         connection_params.insert(0, client)
         cursor = mongo_base.finder(connection_params, query, False)
         text_preprocessing.prep_conll_file(cursor, filename)
+        del connection_params[0]
 
 
 def create_word_embedding_input(collection_args, query_filter, filename):
@@ -198,7 +199,7 @@ def train_word_embeddings():
     #     core_tweets, {"has_hs_keywords": False}, "embedding_clean_corpus")
 
     # create_word_embedding_input(
-    #     core_tweets, {"has_hs_keywords": True}, "embedding_hs_keyword_corpus")
+    # core_tweets, {"has_hs_keywords": True}, "embedding_hs_keyword_corpus")
 
     # create_word_embedding_input(
     #     hate_corpus, {}, "embedding_core_hate_corpus")
@@ -242,9 +243,9 @@ def train_dep2vec_model():
         ["conll_core_hate_corpus", "core_hate_corpus"]
     ]
 
-    # Prep data
-    create_dep_embedding_input(
-        core_tweets, {"has_hs_keywords": False}, "conll_clean_corpus")
+    # # Prep data
+    # create_dep_embedding_input(
+    #     core_tweets, {"has_hs_keywords": False}, "conll_clean_corpus")
 
     create_dep_embedding_input(
         core_tweets, {"has_hs_keywords": True}, "conll_hs_keyword_corpus")
