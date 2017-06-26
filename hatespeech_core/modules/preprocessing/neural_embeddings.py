@@ -97,7 +97,8 @@ def create_dep_embedding_input(collection_args, query_filter, filename):
     query["no_cursor_timeout"] = True
 
     for connection_params in collection_args:
-
+        settings.logger.info("Collection: %s", connection_params[
+                             0] + "_" + connection_params[1])
         connection_params.insert(0, client)
         cursor = mongo_base.finder(connection_params, query, False)
         text_preprocessing.prep_conll_file(cursor, filename)
@@ -116,7 +117,8 @@ def create_word_embedding_input(collection_args, query_filter, filename):
     query["no_cursor_timeout"] = True
 
     for connection_params in collection_args:
-
+        settings.logger.info("Collection: %s", connection_params[
+                             0] + "_" + connection_params[1])
         connection_params.insert(0, client)
         collection_size = mongo_base.finder(connection_params, query, True)
         del connection_params[0]
