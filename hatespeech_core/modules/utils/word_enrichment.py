@@ -8,6 +8,7 @@ contextual representation of words.
 """
 
 import numpy as np
+from textblob import TextBlob
 import networkx as nx
 from . import settings
 
@@ -105,69 +106,78 @@ def select_candidate_codewords(**kwargs):
     candidate_codewords = {}
     dep2vec_embedding_vocab = set(dep2vec_embedding.index2word)
     for token in biased_vocab_freq:
-        if token in dep2vec_embedding_vocab:
+        token_singular = str(TextBlob(token).words[0].singularize())
+
+        # Check for both the singular and plural verisons
+        # of the word if the exists
+
+        if token and token_singular in dep2vec_embedding_vocab:
+            representation_token = get_contextual_representation(
+                token=token, biased_embeddings=kwargs["biased_embeddings"],
+                unbiased_embeddings=kwargs["unbiased_embeddings"], topn=kwargs["topn"])
+
+            representation_singular = get_contextual_representation(
+                token=token_singular, biased_embeddings=kwargs[
+                    "biased_embeddings"],
+                unbiased_embeddings=kwargs["unbiased_embeddings"], topn=kwargs["topn"])
+
+            contextual_representation = merge_contextual_representation(
+                representation_token, representation_singular)
+            kwargs["topn"] = kwargs["topn"] * 2
+
+        elif token in dep2vec_embedding_vocab:
             contextual_representation = get_contextual_representation(
                 token=token, biased_embeddings=kwargs["biased_embeddings"],
                 unbiased_embeddings=kwargs["unbiased_embeddings"], topn=kwargs["topn"])
 
-            if kwargs["hs_check"]:
-                similar_word_set = set(
-                    [entry[0] for entry in contextual_representation["similar_words"]])
+        if kwargs["hs_check"]:
+            similar_word_set = set(
+                [entry[0] for entry in contextual_representation["similar_words"]])
 
-                # if contextual_representation["similar_words_unbiased"]:
-                #     similar_word_set = similar_word_set.union(
-                # set([entry[0] for entry in
-                # contextual_representation["similar_words_unbiased"]]))
+            if contextual_representation["related_words"]:
+                related_word_set = set(
+                    [entry[0] for entry in contextual_representation["related_words"]])
 
-                if contextual_representation["related_words"]:
-                    related_word_set = set(
-                        [entry[0] for entry in contextual_representation["related_words"]])
+            sim_intersection = kwargs[
+                "hs_keywords"].intersection(similar_word_set)
 
-                    # if contextual_representation["related_words_unbiased"]:
-                    #     related_word_set = related_word_set.union(
-                    # set([entry[0] for entry in
-                    # contextual_representation["related_words_unbiased"]]))
+            rel_intersection = kwargs[
+                "hs_keywords"].intersection(related_word_set)
 
-                sim_intersection = kwargs[
-                    "hs_keywords"].intersection(similar_word_set)
+            p_at_k_sim = round(float(len(sim_intersection)) /
+                               float(kwargs["topn"]), 3)
 
-                rel_intersection = kwargs[
-                    "hs_keywords"].intersection(related_word_set)
+            p_at_k_rel = round(float(len(rel_intersection)) /
+                               float(kwargs["topn"]), 3)
 
-                p_at_k_sim = round(float(len(sim_intersection)) /
-                                   float(kwargs["topn"]), 3)
+            freq_compare = unbiased_vocab_freq[
+                token] if token in unbiased_vocab_freq else 0
 
-                p_at_k_rel = round(float(len(rel_intersection)) /
-                                   float(kwargs["topn"]), 3)
+            # TODO Need to refine this
+            if (p_at_k_sim >= kwargs["p_at_k_threshold"] or p_at_k_rel >=
+                    kwargs["p_at_k_threshold"]) and biased_vocab_freq[token] > freq_compare:
 
-                freq_compare = unbiased_vocab_freq[
-                    token] if token in unbiased_vocab_freq else 0
+                settings.logger.debug(
+                    "Token: %s | Set: %s", token, similar_word_set)
 
-                # TODO Need to refine this
-                if (p_at_k_sim >= kwargs["p_at_k_threshold"] or p_at_k_rel >=
-                        kwargs["p_at_k_threshold"]) and biased_vocab_freq[token] > freq_compare:
+                candidate_codewords[token] = prep_code_word_representation(
+                    token=token, contextual_representation=contextual_representation,
+                    freq_vocab_pair=kwargs[
+                        "freq_vocab_pair"], topn=kwargs["topn"],
+                    idf_vocab_pair=kwargs["idf_vocab_pair"],
+                    hs_keywords=kwargs["hs_keywords"])
+        else:
+            check_intersection = set(
+                [entry[0] for entry in contextual_representation["similar_words"]])
 
-                    settings.logger.debug(
-                        "Token: %s | Set: %s", token, similar_word_set)
-
-                    candidate_codewords[token] = prep_code_word_representation(
-                        token=token, contextual_representation=contextual_representation,
-                        freq_vocab_pair=kwargs[
-                            "freq_vocab_pair"], topn=kwargs["topn"],
-                        idf_vocab_pair=kwargs["idf_vocab_pair"],
-                        hs_keywords=kwargs["hs_keywords"])
-            else:
-                check_intersection = set(
-                    [entry[0] for entry in contextual_representation["similar_words"]])
-
-                diff = kwargs["hs_keywords"].intersection(check_intersection)
-                if not diff:
-                    candidate_codewords[token] = prep_code_word_representation(
-                        token=token, contextual_representation=contextual_representation,
-                        freq_vocab_pair=kwargs[
-                            "freq_vocab_pair"], topn=kwargs["topn"],
-                        idf_vocab_pair=kwargs["idf_vocab_pair"],
-                        hs_keywords=kwargs["hs_keywords"])
+            diff = kwargs["hs_keywords"].intersection(check_intersection)
+            if not diff:
+                candidate_codewords[token] = prep_code_word_representation(
+                    token=token, contextual_representation=contextual_representation,
+                    freq_vocab_pair=kwargs[
+                        "freq_vocab_pair"], topn=kwargs["topn"],
+                    idf_vocab_pair=kwargs["idf_vocab_pair"],
+                    hs_keywords=kwargs["hs_keywords"])
 
     return candidate_codewords
 
@@ -339,6 +349,25 @@ def get_contextual_representation(**kwargs):
     return contextual_representation
 
 
+def merge_contextual_representation(representation_1, representation_2):
+    """ Helper function for doing the union of two contextual representations
+    in the case where both the plural and single version of a word exists
+    in the vocabulary.
+    """
+
+    contextual_representation = {}
+    contextual_representation["similar_words"] = list(set(representation_1[
+        "similar_words"]).union(set(representation_2["similar_words"])))
+    contextual_representation["similar_words_unbiased"] = list(set(representation_1[
+        "similar_words_unbiased"]).union(set(representation_2["similar_words_unbiased"])))
+    contextual_representation["related_words"] = list(set(representation_1[
+        "related_words"]).union(set(representation_2["related_words"])))
+    contextual_representation["related_words_unbiased"] = list(set(representation_1[
+        "related_words_unbiased"]).union(set(representation_2["related_words_unbiased"])))
+
+    return contextual_representation
+
+
 def get_average_word_vector(model, word_list):
     """ Average all of the word vectors in a given word list.
     Args:
@@ -380,7 +409,7 @@ def build_word_directed_graph(target_word, model, depth, topn=5):
     _DG = nx.DiGraph()
     seen_set = set()
     _DG.add_edges_from([(target_word, word[0])
-                       for word in model.similar_by_word(target_word, topn=topn)])
+                        for word in model.similar_by_word(target_word, topn=topn)])
     for _idx in range(1, depth):
         current_nodes = _DG.nodes()
         for node in current_nodes:
