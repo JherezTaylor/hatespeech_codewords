@@ -83,6 +83,7 @@ def select_candidate_codewords(**kwargs):
             1: unbiased_vocab_idf (dict)
 
         hs_keywords (set)
+        graph_depth (int): Depth for the token graph.
         hs_check (bool) : Check for hs keywords or not.
 
         topn (int): Number of words to check against in the embedding model. default=5.
@@ -91,18 +92,22 @@ def select_candidate_codewords(**kwargs):
                 HS keyword matches that need to appear in the topn, default=0.2.
 
     Returns:
-         dict: dictionary of token:probabiliy pairs.
+         dict: dictionary of token:probability pairs.
+         dict: pagerank scores.
+         candidate_graph
     """
 
     dep2vec_embedding = kwargs["biased_embeddings"][0]
 
     biased_vocab_freq = kwargs["freq_vocab_pair"][0]
-    unbiased_vocab_freq = kwargs["freq_vocab_pair"][1]
 
     kwargs["topn"] = 5 if "topn" not in kwargs else kwargs["topn"]
+    kwargs["graph_depth"] = 2 if "graph_depth" not in kwargs else kwargs[
+        "graph_depth"]
     kwargs["p_at_k_threshold"] = 0.2 if "p_at_k_threshold" not in kwargs else kwargs[
         "p_at_k_threshold"]
 
+    candidate_graph = nx.DiGraph()
     candidate_codewords = {}
     dep2vec_embedding_vocab = set(dep2vec_embedding.index2word)
     for token in biased_vocab_freq:
@@ -112,6 +117,10 @@ def select_candidate_codewords(**kwargs):
         # of the word if the exists
 
         if token and token_singular in dep2vec_embedding_vocab:
+            token_graph = build_word_directed_graph(
+                token, dep2vec_embedding, kwargs["graph_depth"])
+            candidate_graph = nx.disjoint_union(candidate_graph, token_graph)
+
             representation_token = get_contextual_representation(
                 token=token, biased_embeddings=kwargs["biased_embeddings"],
                 unbiased_embeddings=kwargs["unbiased_embeddings"], topn=kwargs["topn"])
@@ -126,46 +135,44 @@ def select_candidate_codewords(**kwargs):
             kwargs["topn"] = kwargs["topn"] * 2
 
         elif token in dep2vec_embedding_vocab:
+            token_graph = build_word_directed_graph(
+                token, dep2vec_embedding, kwargs["graph_depth"])
+            candidate_graph = nx.disjoint_union(candidate_graph, token_graph)
+
             contextual_representation = get_contextual_representation(
                 token=token, biased_embeddings=kwargs["biased_embeddings"],
                 unbiased_embeddings=kwargs["unbiased_embeddings"], topn=kwargs["topn"])
 
         if kwargs["hs_check"]:
-            similar_word_set = set(
-                [entry[0] for entry in contextual_representation["similar_words"]])
-
-            if contextual_representation["related_words"]:
-                related_word_set = set(
-                    [entry[0] for entry in contextual_representation["related_words"]])
-
-            sim_intersection = kwargs[
-                "hs_keywords"].intersection(similar_word_set)
-
-            rel_intersection = kwargs[
-                "hs_keywords"].intersection(related_word_set)
-
-            p_at_k_sim = round(float(len(sim_intersection)) /
-                               float(kwargs["topn"]), 3)
-
-            p_at_k_rel = round(float(len(rel_intersection)) /
-                               float(kwargs["topn"]), 3)
-
-            freq_compare = unbiased_vocab_freq[
-                token] if token in unbiased_vocab_freq else 0
-
-            # TODO Need to refine this
-            if (p_at_k_sim >= kwargs["p_at_k_threshold"] or p_at_k_rel >=
-                    kwargs["p_at_k_threshold"]) and biased_vocab_freq[token] > freq_compare:
-
-                settings.logger.debug(
-                    "Token: %s | Set: %s", token, similar_word_set)
+            # Primary codeword conditions Issue #116
+            if primary_codeword_support(token=token, hs_keywords=kwargs["hs_keywords"],
+                                        contextual_representation=contextual_representation,
+                                        freq_vocab_pair=kwargs[
+                                            "freq_vocab_pair"], topn=kwargs["topn"],
+                                        p_at_k_threshold=kwargs["p_at_k_threshold"]):
+                secondary_check = secondary_codeword_support(
+                    token_graph=token_graph, token=token, hs_keywords=kwargs["hs_keywords"])
 
                 candidate_codewords[token] = prep_code_word_representation(
                     token=token, contextual_representation=contextual_representation,
                     freq_vocab_pair=kwargs[
                         "freq_vocab_pair"], topn=kwargs["topn"],
-                    idf_vocab_pair=kwargs["idf_vocab_pair"],
-                    hs_keywords=kwargs["hs_keywords"])
+                    idf_vocab_pair=kwargs[
+                        "idf_vocab_pair"], candidate_bucket=["primary"],
+                    hs_keywords=kwargs["hs_keywords"], graph_hs_matches=secondary_check[1])
+
+            # Secondary codeword conditions Issue #122
+            else:
+                secondary_check = secondary_codeword_support(
+                    token_graph=token_graph, token=token, hs_keywords=kwargs["hs_keywords"])
+                if secondary_check[0]:
+                    candidate_codewords[token] = prep_code_word_representation(
+                        token=token, contextual_representation=contextual_representation,
+                        freq_vocab_pair=kwargs[
+                            "freq_vocab_pair"], topn=kwargs["topn"],
+                        idf_vocab_pair=kwargs["idf_vocab_pair"],
+                        hs_keywords=kwargs["hs_keywords"], graph_hs_matches=secondary_check[1])
+
         else:
             check_intersection = set(
                 [entry[0] for entry in contextual_representation["similar_words"]])
@@ -179,7 +186,108 @@ def select_candidate_codewords(**kwargs):
                     idf_vocab_pair=kwargs["idf_vocab_pair"],
                     hs_keywords=kwargs["hs_keywords"])
 
-    return candidate_codewords
+    pagerank = nx.pagerank(candidate_graph, alpha=0.85)
+    return candidate_codewords, pagerank, candidate_graph
+
+
+def primary_codeword_support(**kwargs):
+    """ Helper function for determining if a candidate word passes
+    our first stage requirements for being flagged as a code word.
+    Refer to issue #116 https://github.com/JherezTaylor/thesis-preprocessing/issues/116
+    Args
+    ----
+
+        contextual_representation (dict)
+
+        token (str)
+
+        freq_vocab_pair (list):
+            0: biased_vocab_freq (dict): Dictionary of token:frequency values. Calculated
+                             on the number of documents where that token appears.
+            1: unbiased_vocab_freq (dict)
+
+        hs_keywords (set)
+
+        topn (int): Number of words to check against in the embedding model. default=5.
+
+        p_at_k_threshold (float): Threshold for P@k calculation on the number of
+                HS keyword matches that need to appear in the topn, default=0.2.
+    Returns:
+        boolean: Whether the codeword passes the support requirements.
+    """
+
+    contextual_representation = kwargs["contextual_representation"]
+    biased_vocab_freq = kwargs["freq_vocab_pair"][0]
+    unbiased_vocab_freq = kwargs["freq_vocab_pair"][1]
+    token = kwargs["token"]
+
+    similar_word_set = set(
+        [entry[0] for entry in contextual_representation["similar_words"]])
+
+    similar_word_set.update([TextBlob(entry[0]).words[0].singularize(
+    ) for entry in contextual_representation["similar_words"]])
+
+    # TODO BUG
+    if contextual_representation["related_words"]:
+        related_word_set = set(
+            [entry[0] for entry in contextual_representation["related_words"]])
+        related_word_set.update([TextBlob(entry[0]).words[0].singularize(
+        ) for entry in contextual_representation["related_words"]])
+
+    sim_intersection = kwargs[
+        "hs_keywords"].intersection(similar_word_set)
+
+    rel_intersection = kwargs[
+        "hs_keywords"].intersection(related_word_set)
+
+    p_at_k_sim = round(float(len(sim_intersection)) /
+                       float(kwargs["topn"]), 3)
+
+    p_at_k_rel = round(float(len(rel_intersection)) /
+                       float(kwargs["topn"]), 3)
+
+    freq_compare = unbiased_vocab_freq[
+        token] if token in unbiased_vocab_freq else 0
+
+    if (p_at_k_sim >= kwargs["p_at_k_threshold"] or p_at_k_rel >=
+            kwargs["p_at_k_threshold"]) and biased_vocab_freq[token] > freq_compare:
+        settings.logger.debug(
+            "Token: %s | Set: %s", token, similar_word_set)
+        return True
+    else:
+        return False
+
+
+def secondary_codeword_support(**kwargs):
+    """ Helper function for determining if a candidate word passes
+    our second stage requirements for being flagged as a code word.
+    Refer to issue #122 https://github.com/JherezTaylor/thesis-preprocessing/issues/122
+    Args
+    ----
+
+    token_graph (networkx.classes.digraph.DiGraph): Directed word similarity
+                graph for the given token.
+
+    token (str)
+
+    hs_keywords (set)
+
+    Returns:
+        [boolean, graph_hs_matches]: Boolean and a dictionary of node matches and
+                            the path from the HS keyword match to its parent.
+    """
+
+    graph_hs_matches = {}
+    for node in kwargs["token_graph"]:
+        token_singular = str(TextBlob(kwargs["token"]).words[0].singularize())
+        if token_singular in kwargs["hs_keywords"]:
+            graph_hs_matches[kwargs["token"]] = [node, kwargs[
+                "token_graph"].predecessors(node)]
+
+    if graph_hs_matches:
+        return [True, graph_hs_matches]
+    else:
+        return [False, graph_hs_matches]
 
 
 def prep_code_word_representation(**kwargs):
@@ -197,6 +305,10 @@ def prep_code_word_representation(**kwargs):
     hs_keywords
 
     topn
+
+    candidate_bucket (str): Identifies the condition the cw passed. (primary, secondary, tertiary)
+
+    graph_hs_matches = (dict): HS Node matches and the path from the HS keyword match to its parent.
     """
 
     token = kwargs["token"]
@@ -281,7 +393,8 @@ def prep_code_word_representation(**kwargs):
                                       ] if hs_related_words_unbiased else [],
 
             "rel_words_alt_unbiased": [word[0] for word in other_related_words_unbiased
-                                       ] if other_related_words_unbiased else []}
+                                       ] if other_related_words_unbiased else [],
+            "graph_hs_matches": kwargs["graph_hs_matches"]}
     return data
 
 
@@ -356,14 +469,33 @@ def merge_contextual_representation(representation_1, representation_2):
     """
 
     contextual_representation = {}
-    contextual_representation["similar_words"] = list(set(representation_1[
-        "similar_words"]).union(set(representation_2["similar_words"])))
-    contextual_representation["similar_words_unbiased"] = list(set(representation_1[
-        "similar_words_unbiased"]).union(set(representation_2["similar_words_unbiased"])))
-    contextual_representation["related_words"] = list(set(representation_1[
-        "related_words"]).union(set(representation_2["related_words"])))
-    contextual_representation["related_words_unbiased"] = list(set(representation_1[
-        "related_words_unbiased"]).union(set(representation_2["related_words_unbiased"])))
+    if representation_1["similar_words"] or representation_2["similar_words"]:
+        contextual_representation["similar_words"] = list(set(representation_1[
+            "similar_words"]).union(set(representation_2["similar_words"])))
+    else:
+        contextual_representation["similar_words"] = representation_1[
+            "similar_words"] if representation_1["similar_words"] else representation_2["similar_words"]
+
+    if representation_1["similar_words_unbiased"] or representation_2["similar_words_unbiased"]:
+        contextual_representation["similar_words_unbiased"] = list(set(representation_1[
+            "similar_words_unbiased"]).union(set(representation_2["similar_words_unbiased"])))
+    else:
+        contextual_representation["similar_words_unbiased"] = representation_1["similar_words_unbiased"] if representation_1[
+            "similar_words_unbiased"] else representation_2["similar_words_unbiased"]
+
+    if representation_1["related_words"] or representation_2["related_words"]:
+        contextual_representation["related_words"] = list(set(
+            representation_1["related_words"]).union(set(representation_2["related_words"])))
+    else:
+        contextual_representation["related_words"] = representation_1["related_words"] if representation_1[
+            "related_words"] else representation_2["related_words"]
+
+    if representation_1["related_words_unbiased"] or representation_2["related_words_unbiased"]:
+        contextual_representation["related_words_unbiased"] = list(set(representation_1[
+                                                                   "related_words_unbiased"]).union(set(representation_2["related_words_unbiased"])))
+    else:
+        contextual_representation["related_words_unbiased"] = representation_1["related_words_unbiased"] if representation_1[
+            "related_words_unbiased"] else representation_2["related_words_unbiased"]
 
     return contextual_representation
 

@@ -74,7 +74,7 @@ def get_embeddings(embedding_type, model_ids=None, load=False):
                 glob.glob(settings.EMBEDDING_MODELS + "word2vec_*")))
 
         for idx, ref in enumerate(embeddings_ref):
-            settings.logger.debug(idx, ref)
+            print(idx, ref)
 
         loaded_models = []
         for idx in model_ids:
