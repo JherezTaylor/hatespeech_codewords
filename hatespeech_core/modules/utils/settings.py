@@ -9,7 +9,7 @@ import logging
 import yaml
 
 logging.basicConfig(
-    format='%(asctime)s : %(levelname)s : %(filename)s %(module)s.%(funcName)s %(message)s', level=logging.INFO)
+    format='%(asctime)s : %(levelname)s : %(filename)s %(module)s.%(funcName)s %(message)s', level=logging.WARNING)
 
 logger = logging.getLogger(__name__)
 

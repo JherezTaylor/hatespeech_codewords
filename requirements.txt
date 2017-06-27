@@ -24,3 +24,5 @@ tqdm
 gensim
 Cython
 fasttext
+networkx
+matplotlib
