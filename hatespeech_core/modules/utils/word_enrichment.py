@@ -8,8 +8,8 @@ contextual representation of words.
 """
 
 import numpy as np
+import networkx as nx
 from . import settings
-from . import notifiers
 
 
 def gensim_top_k_similar(model, row, field_name, k):
@@ -356,3 +356,37 @@ def get_average_word_vector(model, word_list):
 
     feature_vec = np.divide(feature_vec, len(word_list))
     return feature_vec
+
+
+def build_word_directed_graph(target_word, model, depth, topn=5):
+    """ Accept a target_word and builds a directed graph based on
+    the results returned by model.similar_by_word. Weights are initialized
+    to 1. Starts from the target_word and gets similarity results for it's children
+    and so forth, up to the specified depth.
+    Args
+    ----
+
+        target_word (string): Root node.
+
+        wordlist (list): List of words that will act as nodes.
+
+        model (gensim.models): Gensim word embedding model.
+
+        depth (int): Depth to restrict the search to.
+
+        topn (int): Number of words to check against in the embedding model, default=5.
+    """
+
+    _DG = nx.DiGraph()
+    seen_set = set()
+    _DG.add_edges_from([(target_word, word[0])
+                       for word in model.similar_by_word(target_word, topn=topn)])
+    for _idx in range(1, depth):
+        current_nodes = _DG.nodes()
+        for node in current_nodes:
+            if node not in seen_set:
+                _DG.add_edges_from(
+                    [(node, word[0]) for word in model.similar_by_word(node, topn=topn)])
+                seen_set.add(node)
+
+    return _DG
