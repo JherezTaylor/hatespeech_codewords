@@ -196,7 +196,7 @@ def train_word_embeddings():
 
     # Prep data
     # create_word_embedding_input(
-    #     core_tweets, {"has_hs_keywords": False}, "embedding_clean_corpus")
+    # core_tweets, {"has_hs_keywords": False}, "embedding_core_clean_corpus")
 
     # create_word_embedding_input(
     # core_tweets, {"has_hs_keywords": True}, "embedding_hs_keyword_corpus")
@@ -205,9 +205,10 @@ def train_word_embeddings():
     #     hate_corpus, {}, "embedding_core_hate_corpus")
 
     embedding_list = [
-        # ["embedding_clean_corpus", "core_tweets_clean"],
+        # ["embedding_core_clean_corpus", "core_tweets_clean"],
         # ["embedding_hs_keyword_corpus", "core_tweets_hs_keyword"],
-        ["embedding_core_hate_corpus", "core_hate_corpus"]
+        # ["embedding_core_hate_corpus", "core_hate_corpus"],
+        ["embedding_core_combined_corpus", "core_combined_corpus"]
     ]
 
     # Train fasttext and w2v model
@@ -238,20 +239,21 @@ def train_dep2vec_model():
     ]
 
     embedding_list = [
-        ["conll_clean_corpus", "core_tweets_clean"],
-        ["conll_hs_keyword_corpus", "core_tweets_hs_keyword"],
-        ["conll_core_hate_corpus", "core_hate_corpus"]
+        # ["conll_core_clean_corpus", "core_tweets_clean"],
+        # ["conll_hs_keyword_corpus", "core_tweets_hs_keyword"],
+        # ["conll_core_hate_corpus", "core_hate_corpus"],
+        ["conll_core_combined_corpus", "core_combined_corpus"]
     ]
 
     # # Prep data
     # create_dep_embedding_input(
     #     core_tweets, {"has_hs_keywords": False}, "conll_clean_corpus")
 
-    create_dep_embedding_input(
-        core_tweets, {"has_hs_keywords": True}, "conll_hs_keyword_corpus")
+    # create_dep_embedding_input(
+    #     core_tweets, {"has_hs_keywords": True}, "conll_hs_keyword_corpus")
 
-    create_dep_embedding_input(
-        hate_corpus, {}, "conll_core_hate_corpus")
+    # create_dep_embedding_input(
+    #     hate_corpus, {}, "conll_core_hate_corpus")
 
     for job in embedding_list:
         train_embeddings.dep2vec_model(job[0], job[1], 50, 100, 200)
