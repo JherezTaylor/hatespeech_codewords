@@ -8,9 +8,10 @@ contextual representation of words.
 """
 
 import numpy as np
-from . import settings
+from joblib import Parallel, delayed, cpu_count
 from textblob import TextBlob
 import networkx as nx
+from . import settings
 
 
 def gensim_top_k_similar(model, row, field_name, k):
@@ -55,6 +56,13 @@ def spacy_top_k_similar(word, k):
     cosine_score = [word.similarity(w) for w in by_similarity]
     return by_similarity[:k], cosine_score[:k]
 
+def candidate_codeword_search(**kwargs):
+    num_cores = cpu_count()
+
+    # job_results = []
+    # job_results.append(Parallel(n_jobs=num_cores)(delayed(spacy_top_k_similar)(
+    #     word, k) for word in word_list))
+    # return results
 
 def select_candidate_codewords(**kwargs):
     """ Select words that share a similarity (functional) or relatedness with a known
@@ -159,8 +167,18 @@ def select_candidate_codewords(**kwargs):
                             graph_hs_matches=secondary_check[1]
                         )
 
+                    elif not secondary_check[0]:
+                        candidate_codewords[token] = prep_code_word_representation(
+                            token=token, contextual_representation=contextual_representation,
+                            freq_vocab_pair=kwargs[
+                                "freq_vocab_pair"], topn=kwargs["topn"],
+                            idf_vocab_pair=kwargs["idf_vocab_pair"],
+                            hs_keywords=kwargs[
+                                "hs_keywords"], candidate_bucket=["primary"]
+                        )
+
                 # Fails primary condition, try secondary.
-                else:
+                elif not primary_codeword_support:
                     secondary_check = secondary_codeword_support(
                         token_graph=token_graph, token=token, hs_keywords=kwargs["hs_keywords"])
 
@@ -175,7 +193,7 @@ def select_candidate_codewords(**kwargs):
                             graph_hs_matches=secondary_check[1]
                         )
             # Don't check for HS keywords
-            else:
+            elif not kwargs["hs_check"]:
                 check_intersection = set(
                     [entry[0] for entry in contextual_representation["similar_words"]])
 
@@ -188,13 +206,27 @@ def select_candidate_codewords(**kwargs):
                         idf_vocab_pair=kwargs["idf_vocab_pair"],
                         hs_keywords=kwargs["hs_keywords"])
 
+    # End main search and do cleanup pass
     # Check for the singular versions of words
     singular_intersection = singular_words.intersection(
         dep2vec_embedding_vocab)
     for token in singular_intersection:
-        if token in kwargs["hs_keywords"]:
+        if token in kwargs["hs_keywords"] or token not in biased_vocab_freq:
             pass
         else:
+            token_graph = build_word_directed_graph(
+                token, dep2vec_embedding, kwargs["graph_depth"])
+            candidate_graph = nx.compose(candidate_graph, token_graph)
+
+            contextual_representation = get_contextual_representation(
+                token=token, biased_embeddings=kwargs["biased_embeddings"],
+                unbiased_embeddings=kwargs[
+                    "unbiased_embeddings"], topn=kwargs["topn"],
+                biased_vocab=[dep2vec_embedding_vocab,
+                              word_embedding_vocab],
+                unbiased_vocab=[base_dep2vec_embedding_vocab, base_word_embedding_vocab])
+
+            # Primary codeword condition. Issue #116
             if primary_codeword_support(token=token, hs_keywords=kwargs["hs_keywords"],
                                         contextual_representation=contextual_representation,
                                         freq_vocab_pair=kwargs[
@@ -215,8 +247,19 @@ def select_candidate_codewords(**kwargs):
                             "hs_keywords"], candidate_bucket=["primary"],
                         graph_hs_matches=secondary_check[1]
                     )
+
+                elif not secondary_check[0]:
+                    candidate_codewords[token] = prep_code_word_representation(
+                        token=token, contextual_representation=contextual_representation,
+                        freq_vocab_pair=kwargs[
+                            "freq_vocab_pair"], topn=kwargs["topn"],
+                        idf_vocab_pair=kwargs["idf_vocab_pair"],
+                        hs_keywords=kwargs[
+                            "hs_keywords"], candidate_bucket=["primary"]
+                    )
+
             # Fails primary condition, try secondary.
-            else:
+            elif not primary_codeword_support:
                 secondary_check = secondary_codeword_support(
                     token_graph=token_graph, token=token, hs_keywords=kwargs["hs_keywords"])
 
@@ -230,6 +273,8 @@ def select_candidate_codewords(**kwargs):
                             "hs_keywords"], candidate_bucket=["secondary"],
                         graph_hs_matches=secondary_check[1]
                     )
+
+    # End cleanup pass
 
     # Third codeword condition, trim this list outside the function
     pagerank = nx.pagerank(candidate_graph, alpha=0.85)
@@ -466,7 +511,7 @@ def prep_code_word_representation(**kwargs):
             "rel_words_alt_unbiased": [word[0] for word in other_related_words_unbiased
                                        ] if other_related_words_unbiased else [],
 
-            "graph_hs_matches": kwargs["graph_hs_matches"],
+            "graph_hs_matches": kwargs["graph_hs_matches"] if "graph_hs_matches" in kwargs else [],
             "candidate_bucket": kwargs["candidate_bucket"]}
     return data
 
