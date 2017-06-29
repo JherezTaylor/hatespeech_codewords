@@ -127,7 +127,10 @@ def candidate_codeword_search(**kwargs):
 
     singular_tokens = set()
     for result in job_results:
-        candidate_codewords = {**candidate_codewords, **result[0][0]}
+        # candidate_codewords = {**candidate_codewords, **result[0][0]}
+        # Requires python 3.5.3 to merge
+        candidate_codewords = file_ops.merge_dicts(
+            candidate_codewords, result[0][0])
         singular_tokens = singular_tokens.union(result[0][1])
         candidate_graph = nx.compose(candidate_graph, result[0][2])
 
@@ -141,7 +144,8 @@ def candidate_codeword_search(**kwargs):
                            partition, **kwargs) for partition in partitions))
 
     for result in job_results:
-        candidate_codewords = {**candidate_codewords, **result[0][0]}
+        candidate_codewords = file_ops.merge_dicts(
+            candidate_codewords, result[0][0])
         singular_tokens = singular_tokens.union(result[0][1])
         candidate_graph = nx.compose(candidate_graph, result[0][2])
 

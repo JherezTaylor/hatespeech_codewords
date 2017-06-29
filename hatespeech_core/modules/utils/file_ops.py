@@ -56,6 +56,17 @@ def dict_chunks(data, size):
     return return_list
 
 
+def merge_dicts(*dict_args):
+    """
+    Given any number of dicts, shallow copy and merge into a new dict,
+    precedence goes to key value pairs in latter dicts.
+    """
+    result = {}
+    for dictionary in dict_args:
+        result.update(dictionary)
+    return result
+
+
 def count_sightings(json_obj):
     """ Returns a count of the number of sightings per word in corpus
 
