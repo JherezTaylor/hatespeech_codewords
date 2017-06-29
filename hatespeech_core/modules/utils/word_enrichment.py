@@ -401,7 +401,8 @@ def secondary_codeword_support(**kwargs):
 
     graph_hs_matches = {}
     for node in kwargs["token_graph"]:
-        if kwargs["token"] in kwargs["hs_keywords"]:
+        singular_token = str(TextBlob(kwargs["token"]).words[0].singularize())
+        if kwargs["token"] in kwargs["hs_keywords"] or singular_token in kwargs["hs_keywords"]:
             graph_hs_matches[kwargs["token"]] = [node, kwargs[
                 "token_graph"].predecessors(node)]
 
