@@ -28,10 +28,32 @@ def unicode_to_utf(unicode_list):
     return [x.encode("UTF8") for x in unicode_list]
 
 
-def take(n, iterable):
+def take(size, iterable):
     # https://docs.python.org/3/library/itertools.html#recipes
-    "Return first n items of the iterable as a list"
-    return list(islice(iterable, n))
+    """Return first n items of the iterable as a list"""
+    return list(islice(iterable, size))
+
+
+def list_chunks(data, size):
+    """Splits a list into chunks of a given size"""
+    # For item i in a range that is a length of object_list,
+    for i in range(0, len(data), size):
+        # Create an index range for object_list of n items:
+        yield data[i:i + size]
+
+
+def dict_chunks(data, size):
+    "Splits dict by keys. Returns a list of dictionaries."
+    # prep with empty dicts
+    return_list = [dict() for idx in range(size)]
+    idx = 0
+    for k, v in data.items():
+        return_list[idx][k] = v
+        if idx < size - 1:  # indexes start at 0
+            idx += 1
+        else:
+            idx = 0
+    return return_list
 
 
 def count_sightings(json_obj):

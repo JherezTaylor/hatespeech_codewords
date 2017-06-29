@@ -12,6 +12,7 @@ from joblib import Parallel, delayed, cpu_count
 from textblob import TextBlob
 import networkx as nx
 from . import settings
+from . import file_ops
 
 
 def gensim_top_k_similar(model, row, field_name, k):
@@ -56,18 +57,12 @@ def spacy_top_k_similar(word, k):
     cosine_score = [word.similarity(w) for w in by_similarity]
     return by_similarity[:k], cosine_score[:k]
 
+
 def candidate_codeword_search(**kwargs):
-    num_cores = cpu_count()
+    """ Candidate search process. We define the bulk of the logic in select_candidate_codewords.
+    At this level we define the job to be run in parallel and perform the final
+    stage of the process, the pagerank results.
 
-    # job_results = []
-    # job_results.append(Parallel(n_jobs=num_cores)(delayed(spacy_top_k_similar)(
-    #     word, k) for word in word_list))
-    # return results
-
-def select_candidate_codewords(**kwargs):
-    """ Select words that share a similarity (functional) or relatedness with a known
-    hate speech word. Similarity and relatedness are depenedent on the model passed.
-    The idea is to trim the passed vocab.
     Args
     ----
 
@@ -103,10 +98,114 @@ def select_candidate_codewords(**kwargs):
          dict: dictionary of token:probability pairs.
          dict: pagerank scores.
          candidate_graph
+         set: singular_tokens:
+    """
+
+    candidate_graph = nx.DiGraph()
+    candidate_codewords = {}
+    biased_vocab_freq = kwargs["freq_vocab_pair"][0]
+
+    dep2vec_embedding_vocab = set(kwargs["biased_embeddings"][0].index2word)
+    word_embedding_vocab = set(kwargs["biased_embeddings"][1].index2word)
+
+    base_dep2vec_embedding_vocab = set(
+        kwargs["unbiased_embeddings"][0].index2word)
+    base_word_embedding_vocab = set(
+        kwargs["unbiased_embeddings"][1].index2word)
+
+    kwargs["biased_embeddings_vocab_pair"] = [
+        dep2vec_embedding_vocab, word_embedding_vocab]
+    kwargs["unbiased_embeddings_vocab_pair"] = [
+        base_dep2vec_embedding_vocab, base_word_embedding_vocab]
+
+    job_results = []
+    num_cores = cpu_count()
+    partitions = file_ops.dict_chunks(biased_vocab_freq, num_cores)
+    job_results.append(Parallel(n_jobs=num_cores, backend="threading")
+                       (delayed(select_candidate_codewords)(
+                           partition, **kwargs) for partition in partitions))
+
+    singular_tokens = set()
+    for result in job_results:
+        candidate_codewords = {**candidate_codewords, **result[0][0]}
+        singular_tokens = singular_tokens.union(result[0][1])
+        candidate_graph = nx.compose(candidate_graph, result[0][2])
+
+    job_results = []
+    secondary_pass_tokens = {token: biased_vocab_freq[
+        token] for token in singular_tokens if token in biased_vocab_freq}
+
+    partitions = file_ops.dict_chunks(secondary_pass_tokens, num_cores)
+    job_results.append(Parallel(n_jobs=num_cores, backend="threading")
+                       (delayed(select_candidate_codewords)(
+                           partition, **kwargs) for partition in partitions))
+
+    for result in job_results:
+        candidate_codewords = {**candidate_codewords, **result[0][0]}
+        singular_tokens = singular_tokens.union(result[0][1])
+        candidate_graph = nx.compose(candidate_graph, result[0][2])
+
+    # Third codeword condition, trim this list outside the function
+    pagerank = nx.pagerank(candidate_graph, alpha=0.85)
+    return candidate_codewords, pagerank, candidate_graph, singular_tokens
+
+
+def select_candidate_codewords(partition, **kwargs):
+    """ Select words that share a similarity (functional) or relatedness with a known
+    hate speech word. Similarity and relatedness are depenedent on the model passed.
+    The idea is to trim the passed vocab.
+    Args
+    ----
+
+        biased_embeddings (list): Stores (gensim.models): Gensim word embedding model
+
+            0: dep2vec_embedding
+            1: word_embedding (either fasttext or w2v)
+
+        unbiased_embeddings (list): Stores (gensim.models): Gensim word embedding model
+            0: base_dep2vec_embedding
+            1: base_word_embedding (either fasttext or w2v)
+
+        biased_embeddings_vocab_pair (list): Stores (gensim.models.index2word):
+            0: dep2vec_embedding_vocab
+            1: word_embedding_vocab
+
+        unbiased_embeddings_vocab_pair (list): Stores (gensim.models.index2word):
+            0: base_dep2vec_embedding_vocab
+            1: base_word_embedding_vocab
+
+        freq_vocab_pair (list):
+            0: biased_vocab_freq (dict): Dictionary of token:frequency values. Calculated
+                             on the number of documents where that token appears.
+            1: unbiased_vocab_freq (dict)
+
+        idf_vocab_pair (list):
+            0: biased_vocab_idf (dict): Dictionary of token:idf values. Calculated
+                             on the number of documents where that token appears.
+            1: unbiased_vocab_idf (dict)
+
+        hs_keywords (set)
+        graph_depth (int): Depth for the token graph.
+        hs_check (bool) : Check for hs keywords or not.
+
+        topn (int): Number of words to check against in the embedding model. default=5.
+
+        p_at_k_threshold (float): Threshold for P@k calculation on the number of
+                HS keyword matches that need to appear in the topn, default=0.2.
+
+    Returns:
+         dict: dictionary of token:probability pairs.
+         set: singular tokens.
+         candidate_graph
     """
 
     dep2vec_embedding = kwargs["biased_embeddings"][0]
     biased_vocab_freq = kwargs["freq_vocab_pair"][0]
+
+    dep2vec_embedding_vocab = kwargs["biased_embeddings_vocab_pair"][0]
+    word_embedding_vocab = kwargs["biased_embeddings_vocab_pair"][1]
+    base_dep2vec_embedding_vocab = kwargs["unbiased_embeddings_vocab_pair"][0]
+    base_word_embedding_vocab = kwargs["unbiased_embeddings"][1]
 
     kwargs["topn"] = 5 if "topn" not in kwargs else kwargs["topn"]
     kwargs["p_at_k_threshold"] = 0.2 if "p_at_k_threshold" not in kwargs else kwargs[
@@ -116,29 +215,23 @@ def select_candidate_codewords(**kwargs):
     candidate_codewords = {}
     singular_words = set()
 
-    dep2vec_embedding_vocab = set(dep2vec_embedding.index2word)
-    word_embedding_vocab = set(kwargs["biased_embeddings"][1].index2word)
-    base_dep2vec_embedding_vocab = set(
-        kwargs["unbiased_embeddings"][0].index2word)
-    base_word_embedding_vocab = set(
-        kwargs["unbiased_embeddings"][1].index2word)
+    for token in partition:
+        if kwargs["hs_check"]:
+            if token in kwargs["hs_keywords"] or token not in biased_vocab_freq:
+                pass
 
-    for token in biased_vocab_freq:
-        if token in dep2vec_embedding_vocab:
+            elif token in dep2vec_embedding_vocab:
+                token_graph = build_word_directed_graph(
+                    token, dep2vec_embedding, kwargs["graph_depth"])
+                candidate_graph = nx.compose(candidate_graph, token_graph)
 
-            token_graph = build_word_directed_graph(
-                token, dep2vec_embedding, kwargs["graph_depth"])
-            candidate_graph = nx.compose(candidate_graph, token_graph)
-
-            contextual_representation = get_contextual_representation(
-                token=token, biased_embeddings=kwargs["biased_embeddings"],
-                unbiased_embeddings=kwargs[
-                    "unbiased_embeddings"], topn=kwargs["topn"],
-                biased_vocab=[dep2vec_embedding_vocab,
-                              word_embedding_vocab],
-                unbiased_vocab=[base_dep2vec_embedding_vocab, base_word_embedding_vocab])
-
-            if kwargs["hs_check"]:
+                contextual_representation = get_contextual_representation(
+                    token=token, biased_embeddings=kwargs["biased_embeddings"],
+                    unbiased_embeddings=kwargs[
+                        "unbiased_embeddings"], topn=kwargs["topn"],
+                    biased_vocab=[dep2vec_embedding_vocab,
+                                  word_embedding_vocab],
+                    unbiased_vocab=[base_dep2vec_embedding_vocab, base_word_embedding_vocab])
 
                 # Track the singular words for a cleanup pass at the end
                 singular_token = str(TextBlob(token).words[0].singularize())
@@ -192,93 +285,26 @@ def select_candidate_codewords(**kwargs):
                                 "hs_keywords"], candidate_bucket=["secondary"],
                             graph_hs_matches=secondary_check[1]
                         )
-            # Don't check for HS keywords
-            elif not kwargs["hs_check"]:
-                check_intersection = set(
-                    [entry[0] for entry in contextual_representation["similar_words"]])
+        # Don't check for HS keywords
+        elif not kwargs["hs_check"]:
+            check_intersection = set(
+                [entry[0] for entry in contextual_representation["similar_words"]])
 
-                diff = kwargs["hs_keywords"].intersection(check_intersection)
-                if not diff:
-                    candidate_codewords[token] = prep_code_word_representation(
-                        token=token, contextual_representation=contextual_representation,
-                        freq_vocab_pair=kwargs[
-                            "freq_vocab_pair"], topn=kwargs["topn"],
-                        idf_vocab_pair=kwargs["idf_vocab_pair"],
-                        hs_keywords=kwargs["hs_keywords"])
+            diff = kwargs["hs_keywords"].intersection(check_intersection)
+            if not diff:
+                candidate_codewords[token] = prep_code_word_representation(
+                    token=token, contextual_representation=contextual_representation,
+                    freq_vocab_pair=kwargs[
+                        "freq_vocab_pair"], topn=kwargs["topn"],
+                    idf_vocab_pair=kwargs["idf_vocab_pair"],
+                    hs_keywords=kwargs["hs_keywords"])
 
     # End main search and do cleanup pass
     # Check for the singular versions of words
     singular_intersection = singular_words.intersection(
         dep2vec_embedding_vocab)
-    for token in singular_intersection:
-        if token in kwargs["hs_keywords"] or token not in biased_vocab_freq:
-            pass
-        else:
-            token_graph = build_word_directed_graph(
-                token, dep2vec_embedding, kwargs["graph_depth"])
-            candidate_graph = nx.compose(candidate_graph, token_graph)
 
-            contextual_representation = get_contextual_representation(
-                token=token, biased_embeddings=kwargs["biased_embeddings"],
-                unbiased_embeddings=kwargs[
-                    "unbiased_embeddings"], topn=kwargs["topn"],
-                biased_vocab=[dep2vec_embedding_vocab,
-                              word_embedding_vocab],
-                unbiased_vocab=[base_dep2vec_embedding_vocab, base_word_embedding_vocab])
-
-            # Primary codeword condition. Issue #116
-            if primary_codeword_support(token=token, hs_keywords=kwargs["hs_keywords"],
-                                        contextual_representation=contextual_representation,
-                                        freq_vocab_pair=kwargs[
-                                            "freq_vocab_pair"], topn=kwargs["topn"],
-                                        p_at_k_threshold=kwargs["p_at_k_threshold"]):
-
-                secondary_check = secondary_codeword_support(
-                    token_graph=token_graph, token=token, hs_keywords=kwargs["hs_keywords"])
-
-                # Secondary codeword condition. Issue #122
-                if secondary_check[0]:
-                    candidate_codewords[token] = prep_code_word_representation(
-                        token=token, contextual_representation=contextual_representation,
-                        freq_vocab_pair=kwargs[
-                            "freq_vocab_pair"], topn=kwargs["topn"],
-                        idf_vocab_pair=kwargs["idf_vocab_pair"],
-                        hs_keywords=kwargs[
-                            "hs_keywords"], candidate_bucket=["primary"],
-                        graph_hs_matches=secondary_check[1]
-                    )
-
-                elif not secondary_check[0]:
-                    candidate_codewords[token] = prep_code_word_representation(
-                        token=token, contextual_representation=contextual_representation,
-                        freq_vocab_pair=kwargs[
-                            "freq_vocab_pair"], topn=kwargs["topn"],
-                        idf_vocab_pair=kwargs["idf_vocab_pair"],
-                        hs_keywords=kwargs[
-                            "hs_keywords"], candidate_bucket=["primary"]
-                    )
-
-            # Fails primary condition, try secondary.
-            elif not primary_codeword_support:
-                secondary_check = secondary_codeword_support(
-                    token_graph=token_graph, token=token, hs_keywords=kwargs["hs_keywords"])
-
-                if secondary_check[0]:
-                    candidate_codewords[token] = prep_code_word_representation(
-                        token=token, contextual_representation=contextual_representation,
-                        freq_vocab_pair=kwargs[
-                            "freq_vocab_pair"], topn=kwargs["topn"],
-                        idf_vocab_pair=kwargs["idf_vocab_pair"],
-                        hs_keywords=kwargs[
-                            "hs_keywords"], candidate_bucket=["secondary"],
-                        graph_hs_matches=secondary_check[1]
-                    )
-
-    # End cleanup pass
-
-    # Third codeword condition, trim this list outside the function
-    pagerank = nx.pagerank(candidate_graph, alpha=0.85)
-    return candidate_codewords, singular_intersection, candidate_graph, pagerank
+    return candidate_codewords, singular_intersection, candidate_graph
 
 
 def primary_codeword_support(**kwargs):
