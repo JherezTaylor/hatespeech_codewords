@@ -127,27 +127,31 @@ def candidate_codeword_search(**kwargs):
 
     singular_tokens = set()
     for result in job_results:
-        # candidate_codewords = {**candidate_codewords, **result[0][0]}
-        # Requires python 3.5.3 to merge
-        candidate_codewords = file_ops.merge_dicts(
-            candidate_codewords, result[0][0])
-        singular_tokens = singular_tokens.union(result[0][1])
-        candidate_graph = nx.compose(candidate_graph, result[0][2])
+        for sub_result in result:
+            # Requires python 3.5.3 to merge, use file_ops.merge_dicts if fail
+            candidate_codewords = {**candidate_codewords, **sub_result["candidate_codewords"]}
+            singular_tokens = singular_tokens.union(
+                sub_result["singular_intersection"])
+            candidate_graph = nx.compose(
+                candidate_graph, sub_result["candidate_graph"])
 
     job_results = []
     secondary_pass_tokens = {token: biased_vocab_freq[
         token] for token in singular_tokens if token in biased_vocab_freq}
 
+    kwargs["freq_vocab_pair"][0] = secondary_pass_tokens
     partitions = file_ops.dict_chunks(secondary_pass_tokens, num_cores)
     job_results.append(Parallel(n_jobs=num_cores, backend="threading")
                        (delayed(select_candidate_codewords)(
                            partition, **kwargs) for partition in partitions))
 
     for result in job_results:
-        candidate_codewords = file_ops.merge_dicts(
-            candidate_codewords, result[0][0])
-        singular_tokens = singular_tokens.union(result[0][1])
-        candidate_graph = nx.compose(candidate_graph, result[0][2])
+        for sub_result in result:
+            candidate_codewords = {**candidate_codewords, **sub_result["candidate_codewords"]}
+            singular_tokens = singular_tokens.union(
+                sub_result["singular_intersection"])
+            candidate_graph = nx.compose(
+                candidate_graph, sub_result["candidate_graph"])
 
     # Third codeword condition, trim this list outside the function
     pagerank = nx.pagerank(candidate_graph, alpha=0.85)
@@ -243,12 +247,12 @@ def select_candidate_codewords(partition, **kwargs):
                     singular_words.add(singular_token)
 
                 # Primary codeword condition. Issue #116
-                if primary_codeword_support(token=token, hs_keywords=kwargs["hs_keywords"],
-                                            contextual_representation=contextual_representation,
-                                            freq_vocab_pair=kwargs[
-                                                "freq_vocab_pair"], topn=kwargs["topn"],
-                                            p_at_k_threshold=kwargs["p_at_k_threshold"]):
-
+                primary_check = primary_codeword_support(token=token, hs_keywords=kwargs["hs_keywords"],
+                                                         contextual_representation=contextual_representation,
+                                                         freq_vocab_pair=kwargs[
+                                                             "freq_vocab_pair"], topn=kwargs["topn"],
+                                                         p_at_k_threshold=kwargs["p_at_k_threshold"])
+                if primary_check:
                     secondary_check = secondary_codeword_support(
                         token_graph=token_graph, token=token, hs_keywords=kwargs["hs_keywords"])
 
@@ -275,7 +279,7 @@ def select_candidate_codewords(partition, **kwargs):
                         )
 
                 # Fails primary condition, try secondary.
-                elif not primary_codeword_support:
+                elif not primary_check:
                     secondary_check = secondary_codeword_support(
                         token_graph=token_graph, token=token, hs_keywords=kwargs["hs_keywords"])
 
@@ -308,7 +312,11 @@ def select_candidate_codewords(partition, **kwargs):
     singular_intersection = singular_words.intersection(
         dep2vec_embedding_vocab)
 
-    return candidate_codewords, singular_intersection, candidate_graph
+    result = {}
+    result["candidate_codewords"] = candidate_codewords
+    result["singular_intersection"] = singular_intersection
+    result["candidate_graph"] = candidate_graph
+    return result
 
 
 def primary_codeword_support(**kwargs):
