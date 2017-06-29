@@ -8,6 +8,7 @@ This module houses various io functions for use throughout the project
 
 import os
 import csv
+from itertools import islice
 from collections import OrderedDict
 import glob
 import ujson
@@ -25,6 +26,12 @@ def unicode_to_utf(unicode_list):
         list: UTF8 converted list of strings.
     """
     return [x.encode("UTF8") for x in unicode_list]
+
+
+def take(n, iterable):
+    # https://docs.python.org/3/library/itertools.html#recipes
+    "Return first n items of the iterable as a list"
+    return list(islice(iterable, n))
 
 
 def count_sightings(json_obj):
