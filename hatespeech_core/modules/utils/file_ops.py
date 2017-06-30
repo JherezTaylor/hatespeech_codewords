@@ -146,7 +146,7 @@ def get_model_names(filenames):
     return result
 
 
-@notifiers.do_cprofile
+# @notifiers.do_cprofile
 def read_json_file(filename, path):
     """Accepts a file name and loads it as a json object.
 
