@@ -242,9 +242,12 @@ def select_candidate_codewords(partition, **kwargs):
                     unbiased_vocab=[base_dep2vec_embedding_vocab, base_word_embedding_vocab])
 
                 # Track the singular words for a cleanup pass at the end
-                singular_token = str(TextBlob(token).words[0].singularize())
-                if token != singular_token and singular_token not in candidate_codewords:
-                    singular_words.add(singular_token)
+                singular_tokens = TextBlob(token).words
+                if singular_tokens:
+                    for entry in singular_tokens:
+                        temp = entry.singularize()
+                        if temp and temp != token and temp not in candidate_codewords:
+                            singular_words.add(temp)
 
                 # Primary codeword condition. Issue #116
                 primary_check = primary_codeword_support(token=token, hs_keywords=kwargs["hs_keywords"],
@@ -401,10 +404,14 @@ def secondary_codeword_support(**kwargs):
 
     graph_hs_matches = {}
     for node in kwargs["token_graph"]:
-        singular_token = str(TextBlob(kwargs["token"]).words[0].singularize())
-        if kwargs["token"] in kwargs["hs_keywords"] or singular_token in kwargs["hs_keywords"]:
-            graph_hs_matches[kwargs["token"]] = [node, kwargs[
-                "token_graph"].predecessors(node)]
+
+        singular_tokens = TextBlob(node).words
+        if singular_tokens:
+            for entry in singular_tokens:
+                temp = entry.singularize()
+                if temp and temp != kwargs["token"] and (temp in kwargs["hs_keywords"] or node in kwargs["hs_keywords"]):
+                    graph_hs_matches[kwargs["token"]] = [node, kwargs[
+                        "token_graph"].predecessors(node)]
 
     if graph_hs_matches:
         return [True, graph_hs_matches]
