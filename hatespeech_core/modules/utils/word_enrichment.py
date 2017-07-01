@@ -410,13 +410,41 @@ def secondary_codeword_support(**kwargs):
             for entry in singular_tokens:
                 temp = entry.singularize()
                 if temp and temp != kwargs["token"] and (temp in kwargs["hs_keywords"] or node in kwargs["hs_keywords"]):
-                    graph_hs_matches[kwargs["token"]] = [node, kwargs[
+                    graph_hs_matches[node] = [kwargs[
                         "token_graph"].predecessors(node)]
 
     if graph_hs_matches:
         return [True, graph_hs_matches]
     else:
         return [False, graph_hs_matches]
+
+
+def build_wordlist_directed_graph(wordlist, model, depth, topn=5):
+    """ Accept a target_word_list and builds a directed graph based on
+    the results returned by model.similar_by_word. Weights are initialized
+    to 1. For each word in target_word_list we call build_word_directed_graph and merge the results.
+    The idea is to build a similarity graph that increases the weight of an edge each
+    time a node appears in the similarity results.
+    Args
+    ----
+
+        wordlist (list): List of words that will act as nodes.
+
+        model (gensim.models): Gensim word embedding model.
+
+        depth (int): Depth to restrict the search to.
+
+        topn (int): Number of words to check against in the embedding model, default=5.
+    """
+
+    wordlist_graph = nx.DiGraph()
+    model_vocab = set(model.index2word)
+    for target_word in wordlist:
+        if target_word in model_vocab:
+            target_word_graph = build_word_directed_graph(
+                target_word, model, depth, topn=topn)
+            wordlist_graph = nx.compose(wordlist_graph, target_word_graph)
+    return wordlist_graph
 
 
 def build_word_directed_graph(target_word, model, depth, topn=5):
@@ -429,8 +457,6 @@ def build_word_directed_graph(target_word, model, depth, topn=5):
 
         target_word (string): Root node.
 
-        wordlist (list): List of words that will act as nodes.
-
         model (gensim.models): Gensim word embedding model.
 
         depth (int): Depth to restrict the search to.
@@ -440,14 +466,15 @@ def build_word_directed_graph(target_word, model, depth, topn=5):
 
     _DG = nx.DiGraph()
     seen_set = set()
-    _DG.add_edges_from([(target_word, word[0])
-                        for word in model.similar_by_word(target_word, topn=topn)])
+    _DG.add_weighted_edges_from([(target_word, word[0], word[1])
+                                 for word in model.similar_by_word(target_word, topn=topn)])
+    seen_set.add(target_word)
     for _idx in range(1, depth):
         current_nodes = _DG.nodes()
         for node in current_nodes:
             if node not in seen_set:
-                _DG.add_edges_from(
-                    [(node, word[0]) for word in model.similar_by_word(node, topn=topn)])
+                _DG.add_weighted_edges_from(
+                    [(node, word[0], word[1]) for word in model.similar_by_word(node, topn=topn)])
                 seen_set.add(node)
     return _DG
 
