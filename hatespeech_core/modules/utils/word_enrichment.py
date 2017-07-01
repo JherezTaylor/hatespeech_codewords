@@ -8,6 +8,7 @@ contextual representation of words.
 """
 
 import numpy as np
+from math import log10
 from joblib import Parallel, delayed, cpu_count
 from textblob import TextBlob
 import networkx as nx
@@ -419,7 +420,7 @@ def secondary_codeword_support(**kwargs):
         return [False, graph_hs_matches]
 
 
-def build_wordlist_directed_graph(wordlist, model, depth, topn=5):
+def build_wordlist_directed_graph(**kwargs):
     """ Accept a target_word_list and builds a directed graph based on
     the results returned by model.similar_by_word. Weights are initialized
     to 1. For each word in target_word_list we call build_word_directed_graph and merge the results.
@@ -434,20 +435,36 @@ def build_wordlist_directed_graph(wordlist, model, depth, topn=5):
 
         depth (int): Depth to restrict the search to.
 
+        hs_keywords (set)
+
         topn (int): Number of words to check against in the embedding model, default=5.
     """
 
+    wordlist = kwargs["wordlist"]
+    model = kwargs["model"]
+    depth = kwargs["depth"]
+    hs_keywords = kwargs["hs_keywords"]
+    topn = 5 if "topn" not in kwargs else kwargs["topn"]
+
     wordlist_graph = nx.DiGraph()
     model_vocab = set(model.index2word)
+
     for target_word in wordlist:
-        if target_word in model_vocab:
+        do_hs_boosting = (
+            hs_keywords and model_vocab and target_word in hs_keywords and target_word in model_vocab)
+        if do_hs_boosting:
+            target_word_graph = build_word_directed_graph(
+                target_word, model, depth, model_vocab=model_vocab, hs_keywords=hs_keywords, topn=topn)
+            wordlist_graph = nx.compose(wordlist_graph, target_word_graph)
+
+        elif not do_hs_boosting and target_word in model_vocab:
             target_word_graph = build_word_directed_graph(
                 target_word, model, depth, topn=topn)
             wordlist_graph = nx.compose(wordlist_graph, target_word_graph)
     return wordlist_graph
 
 
-def build_word_directed_graph(target_word, model, depth, topn=5):
+def build_word_directed_graph(target_word, model, depth, model_vocab=None, hs_keywords=False, topn=5):
     """ Accept a target_word and builds a directed graph based on
     the results returned by model.similar_by_word. Weights are initialized
     to 1. Starts from the target_word and gets similarity results for it's children
@@ -466,8 +483,16 @@ def build_word_directed_graph(target_word, model, depth, topn=5):
 
     _DG = nx.DiGraph()
     seen_set = set()
-    _DG.add_weighted_edges_from([(target_word, word[0], word[1])
-                                 for word in model.similar_by_word(target_word, topn=topn)])
+    do_hs_boosting = (
+        hs_keywords and model_vocab and target_word in hs_keywords and target_word in model_vocab)
+
+    if do_hs_boosting:
+        weight_boost = log10(float(model.vocab[target_word].count))
+        _DG.add_weighted_edges_from([(target_word, word[0], weight_boost + word[1])
+                                     for word in model.similar_by_word(target_word, topn=topn)])
+    else:
+        _DG.add_weighted_edges_from([(target_word, word[0], word[1])
+                                     for word in model.similar_by_word(target_word, topn=topn)])
     seen_set.add(target_word)
     for _idx in range(1, depth):
         current_nodes = _DG.nodes()
