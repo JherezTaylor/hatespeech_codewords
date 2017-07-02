@@ -7,11 +7,11 @@ This module houses various functions that are used to enrich the
 contextual representation of words.
 """
 
-import numpy as np
 from math import log10
+import numpy as np
 from joblib import Parallel, delayed, cpu_count
 from textblob import TextBlob
-import networkx as nx
+from . import graphing
 from . import settings
 from . import file_ops
 
@@ -102,7 +102,7 @@ def candidate_codeword_search(**kwargs):
          set: singular_tokens:
     """
 
-    candidate_graph = nx.DiGraph()
+    candidate_graph = graphing.init_digraph()
     candidate_codewords = {}
     biased_vocab_freq = kwargs["freq_vocab_pair"][0]
 
@@ -133,7 +133,7 @@ def candidate_codeword_search(**kwargs):
             candidate_codewords = {**candidate_codewords, **sub_result["candidate_codewords"]}
             singular_tokens = singular_tokens.union(
                 sub_result["singular_intersection"])
-            candidate_graph = nx.compose(
+            candidate_graph = graphing.compose_graphs(
                 candidate_graph, sub_result["candidate_graph"])
 
     job_results = []
@@ -151,11 +151,11 @@ def candidate_codeword_search(**kwargs):
             candidate_codewords = {**candidate_codewords, **sub_result["candidate_codewords"]}
             singular_tokens = singular_tokens.union(
                 sub_result["singular_intersection"])
-            candidate_graph = nx.compose(
+            candidate_graph = graphing.compose_graphs(
                 candidate_graph, sub_result["candidate_graph"])
 
     # Third codeword condition, trim this list outside the function
-    pagerank = nx.pagerank(candidate_graph, alpha=0.85)
+    pagerank = graphing.compute_pagerank(candidate_graph, alpha=0.85)
     return candidate_codewords, pagerank, candidate_graph, singular_tokens
 
 
@@ -220,7 +220,7 @@ def select_candidate_codewords(partition, **kwargs):
     kwargs["p_at_k_threshold"] = 0.2 if "p_at_k_threshold" not in kwargs else kwargs[
         "p_at_k_threshold"]
 
-    candidate_graph = nx.DiGraph()
+    candidate_graph = graphing.init_digraph()
     candidate_codewords = {}
     singular_words = set()
 
@@ -230,9 +230,10 @@ def select_candidate_codewords(partition, **kwargs):
                 pass
 
             elif token in dep2vec_embedding_vocab:
-                token_graph = build_word_directed_graph(
+                token_graph = graphing.build_word_dg(
                     token, dep2vec_embedding, kwargs["graph_depth"])
-                candidate_graph = nx.compose(candidate_graph, token_graph)
+                candidate_graph = graphing.compose_graphs(
+                    candidate_graph, token_graph)
 
                 contextual_representation = get_contextual_representation(
                     token=token, biased_embeddings=kwargs["biased_embeddings"],
@@ -418,90 +419,6 @@ def secondary_codeword_support(**kwargs):
         return [True, graph_hs_matches]
     else:
         return [False, graph_hs_matches]
-
-
-def build_wordlist_directed_graph(**kwargs):
-    """ Accept a target_word_list and builds a directed graph based on
-    the results returned by model.similar_by_word. Weights are initialized
-    to 1. For each word in target_word_list we call build_word_directed_graph and merge the results.
-    The idea is to build a similarity graph that increases the weight of an edge each
-    time a node appears in the similarity results.
-    Args
-    ----
-
-        wordlist (list): List of words that will act as nodes.
-
-        model (gensim.models): Gensim word embedding model.
-
-        depth (int): Depth to restrict the search to.
-
-        hs_keywords (set)
-
-        topn (int): Number of words to check against in the embedding model, default=5.
-    """
-
-    wordlist = kwargs["wordlist"]
-    model = kwargs["model"]
-    depth = kwargs["depth"]
-    hs_keywords = kwargs["hs_keywords"]
-    topn = 5 if "topn" not in kwargs else kwargs["topn"]
-
-    wordlist_graph = nx.DiGraph()
-    model_vocab = set(model.index2word)
-
-    for target_word in wordlist:
-        do_hs_boosting = (
-            hs_keywords and model_vocab and target_word in hs_keywords and target_word in model_vocab)
-        if do_hs_boosting:
-            target_word_graph = build_word_directed_graph(
-                target_word, model, depth, model_vocab=model_vocab, hs_keywords=hs_keywords, topn=topn)
-            wordlist_graph = nx.compose(wordlist_graph, target_word_graph)
-
-        elif not do_hs_boosting and target_word in model_vocab:
-            target_word_graph = build_word_directed_graph(
-                target_word, model, depth, topn=topn)
-            wordlist_graph = nx.compose(wordlist_graph, target_word_graph)
-    return wordlist_graph
-
-
-def build_word_directed_graph(target_word, model, depth, model_vocab=None, hs_keywords=False, topn=5):
-    """ Accept a target_word and builds a directed graph based on
-    the results returned by model.similar_by_word. Weights are initialized
-    to 1. Starts from the target_word and gets similarity results for it's children
-    and so forth, up to the specified depth.
-    Args
-    ----
-
-        target_word (string): Root node.
-
-        model (gensim.models): Gensim word embedding model.
-
-        depth (int): Depth to restrict the search to.
-
-        topn (int): Number of words to check against in the embedding model, default=5.
-    """
-
-    _DG = nx.DiGraph()
-    seen_set = set()
-    do_hs_boosting = (
-        hs_keywords and model_vocab and target_word in hs_keywords and target_word in model_vocab)
-
-    if do_hs_boosting:
-        weight_boost = log10(float(model.vocab[target_word].count))
-        _DG.add_weighted_edges_from([(target_word, word[0], weight_boost + word[1])
-                                     for word in model.similar_by_word(target_word, topn=topn)])
-    else:
-        _DG.add_weighted_edges_from([(target_word, word[0], word[1])
-                                     for word in model.similar_by_word(target_word, topn=topn)])
-    seen_set.add(target_word)
-    for _idx in range(1, depth):
-        current_nodes = _DG.nodes()
-        for node in current_nodes:
-            if node not in seen_set:
-                _DG.add_weighted_edges_from(
-                    [(node, word[0], word[1]) for word in model.similar_by_word(node, topn=topn)])
-                seen_set.add(node)
-    return _DG
 
 
 def prep_code_word_representation(**kwargs):
