@@ -769,3 +769,12 @@ def prep_conll_file(collection, filename):
             _f.write("\n")
             settings.logger.debug("Count %s", count)
         _f.close()
+
+
+def singles_plurals(word):
+    """Return the singluraized and plural version of a word"""
+    single = TextBlob(word).words.singularize()
+    plural = TextBlob(word).words.pluralize()
+    result = set(single)
+    result = result.union(set(plural))
+    return list(result)
