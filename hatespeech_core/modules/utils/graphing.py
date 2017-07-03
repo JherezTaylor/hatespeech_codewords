@@ -8,7 +8,9 @@ computing results on them.
 """
 
 from math import log10
+from collections import Counter
 import networkx as nx
+from . import text_preprocessing
 
 
 def init_digraph():
@@ -78,12 +80,36 @@ def build_wordlist_dg(**kwargs):
     wordlist_graph = init_digraph()
     model_vocab = set(model.index2word)
 
+    # Changing how we boost from HS keywords
+    single_plural_boost = set()
+    hs_checker = (word for word in hs_keywords if word in model_vocab)
+    for word in hs_checker:
+        single_plural = text_preprocessing.singles_plurals(word)
+        for entry in single_plural:
+            if entry in model_vocab:
+                single_plural_boost.add(entry)
+
+    hs_keywords = hs_keywords.union(single_plural_boost)
+    hs_checker = (word for word in hs_keywords if word in model_vocab)
+
+    boost_check = []
+    for hs_word in hs_checker:
+        boost_check.extend(
+            [word[0] for word in model.similar_by_word(hs_word, topn=20)])
+
+    boost_counter = Counter()
+    for word in boost_check:
+        boost_counter[word] += 1
+
     for target_word in wordlist:
+        # do_hs_boosting = (
+        # hs_keywords and model_vocab and target_word in hs_keywords and
+        # target_word in model_vocab)
         do_hs_boosting = (
-            hs_keywords and model_vocab and target_word in hs_keywords and target_word in model_vocab)
+            hs_keywords and model_vocab and target_word in model_vocab)
         if do_hs_boosting:
             target_word_graph = build_word_dg(
-                target_word, model, depth, model_vocab=model_vocab, hs_keywords=hs_keywords, topn=topn)
+                target_word, model, depth, model_vocab=model_vocab, topn=topn, boost_counter=boost_counter)
             wordlist_graph = nx.compose(wordlist_graph, target_word_graph)
 
         elif not do_hs_boosting and target_word in model_vocab:
@@ -93,7 +119,7 @@ def build_wordlist_dg(**kwargs):
     return wordlist_graph
 
 
-def build_word_dg(target_word, model, depth, model_vocab=None, hs_keywords=False, topn=5):
+def build_word_dg(target_word, model, depth, model_vocab=None, boost_counter=None, topn=5):
     """ Accept a target_word and builds a directed graph based on
     the results returned by model.similar_by_word. Weights are initialized
     to 1. Starts from the target_word and gets similarity results for it's children
@@ -113,10 +139,11 @@ def build_word_dg(target_word, model, depth, model_vocab=None, hs_keywords=False
     _DG = init_digraph()
     seen_set = set()
     do_hs_boosting = (
-        hs_keywords and model_vocab and target_word in hs_keywords and target_word in model_vocab)
+        boost_counter and model_vocab and target_word in model_vocab)
 
     if do_hs_boosting:
-        weight_boost = log10(float(model.vocab[target_word].count))
+        weight_boost = log10(float(model.vocab[target_word].count)) * boost_counter[
+            target_word] if target_word in boost_counter else 0
         _DG.add_weighted_edges_from([(target_word, word[0], weight_boost + word[1])
                                      for word in model.similar_by_word(target_word, topn=topn)])
     else:
