@@ -1,0 +1,3128 @@
+{
+    "unaccompanied": {
+        "rel_words_alt_unbiased": ["accompanied", "languishing", "languish", "languishes", "rear-ended"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["colored"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["minors", "unaccounted", "rgv", "border-crossers", "cpb"],
+        "sim_words_alt_unbiased": ["middle-aged", "college-educated", "#disabled", "guatemalan", "75-year"],
+        "idf_unbiased": [5.2319764811],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0000058617],
+        "graph_hs_matches": {
+            "colored": [
+                ["unaccompanied"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["tribal", "low-income", "non-jewish", "urban"],
+        "hs_supp_sim": [0.1929012179],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "greeks": {
+        "rel_words_alt_unbiased": ["greek", "greece", "greece's", "acropolis", "athens"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["greek", "athenians", "greece", "italians", "romans"],
+        "sim_words_alt_unbiased": ["egyptians", "mormons", "anti-trumpers", "brazilians", "environmentalists"],
+        "idf_unbiased": [4.8874807917],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000129574],
+        "graph_hs_matches": {
+            "negros": [
+                ["hungarians"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["israelis", "ukrainians", "hungarians", "palestinians", "latinos"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.7162538259]
+    },
+    "rat": {
+        "rel_words_alt_unbiased": ["slimy", "rodent", "maggot", "bastard", "moldy"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["ratfaced", "filthy", "greasy", "weasel", "rat-faced"],
+        "sim_words_alt_unbiased": ["weirdo", "swine", "nonce", "toad", "cockroach"],
+        "idf_unbiased": [3.8014601211],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0001579574],
+        "graph_hs_matches": {
+            "twat": [
+                ["pig", "slut"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["pig", "scumbag", "snake", "slut", "celebrity"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "bastards": {
+        "rel_words_alt_unbiased": ["scumbags", "scum", "bastard", "scums", "cowards"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["bastard", "bastardy", "tards", "fucktards", "\ud83d\udc4a\ud83c\udffc\ud83d\udc4a\ud83c\udffc\ud83d\udc4a\ud83c\udffc"],
+        "sim_words_alt_unbiased": ["scumbags", "pricks", "motherfuckers", "fuckers", "cunts"],
+        "idf_unbiased": [3.9805303839],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0001045851],
+        "graph_hs_matches": {
+            "snowflakes": [
+                ["bastards", "bitches", "losers"]
+            ],
+            "cunts": [
+                ["scumbags"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["losers", "bitches", "snowflakes", "sluts", "scumbags"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "economists": {
+        "rel_words_alt_unbiased": ["#economists", "economist's", "enconomists", "economist", "economist\u2019s"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["economist", "economics", "economical", "#economics", "economies"],
+        "sim_words_alt_unbiased": ["psychologists", "historians", "gopers", "statisticians", "netizens"],
+        "idf_unbiased": [4.9086700908],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000123404],
+        "graph_hs_matches": {
+            "queers": [
+                ["atheists"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["observers", "atheists", "egyptians", "attendees", "bureaucrats"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "female": {
+        "rel_words_alt_unbiased": ["female\ud83d\udcaf", "female-", "male", "femal", "female\ud83d\ude02"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["negro"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["male", "female\u2019s", "male-female", "females", "all-female"],
+        "sim_words_alt_unbiased": ["male", "lesbian", "brazilian", "pakistani", "sikh"],
+        "idf_unbiased": [3.1185609326],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0007610953],
+        "graph_hs_matches": {
+            "negro": [
+                ["female", "male"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["male", "moslem", "christian", "14-year-old"],
+        "hs_supp_sim": [0.1866053462],
+        "freq_biased": [0.0008072266],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.0930045355]
+    },
+    "misdemeanor": {
+        "rel_words_alt_unbiased": ["misdemeanors", "misdemeanours", "offenses", "charges", "felony"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["misdemeanors", "felony", "offenses", "larceny", "fourth-degree"],
+        "sim_words_alt_unbiased": ["neo-con", "non-politician", "know-it-all", "neonazi", "warhawk"],
+        "idf_unbiased": [4.9309464855],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000117234],
+        "graph_hs_matches": {
+            "jihadi": [
+                ["paedophile"]
+            ],
+            "fag": [
+                ["virgin"]
+            ],
+            "fairy": [
+                ["mutant"]
+            ],
+            "tranny": [
+                ["virgin"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["sham", "mutant", "sodomite", "paedophile", "virgin"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "brits": {
+        "rel_words_alt_unbiased": ["britsh", "non-brits", "britons", "britian's", "uk"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["britons", "britonics", "non-brits", "scots", "briton"],
+        "sim_words_alt_unbiased": ["aussies", "mormons", "europeans", "australians", "anti-trumpers"],
+        "idf_unbiased": [4.3176054837],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000481276],
+        "graph_hs_matches": {
+            "negros": [
+                ["cubans"]
+            ],
+            "lefties": [
+                ["swedes"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["canadians", "australians", "swedes", "cubans", "youngsters"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "gentiles": {
+        "rel_words_alt_unbiased": ["gentile", "gentils", "gentil", "gentility", "gentileza"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["gentile", "non-jews", "jewish-gentile", "jews", "israelites"],
+        "sim_words_alt_unbiased": [],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "negros": [
+                ["pakis"]
+            ],
+            "queers": [
+                ["african-americans", "thieves", "pakis"]
+            ],
+            "pakis": [
+                ["gentiles"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["non-jews", "african-americans", "thieves", "pakis", "youngsters"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "primitive": {
+        "rel_words_alt_unbiased": ["primitives", "primitivity", "#primitive", "antiquewhite", "antiqued"],
+        "rel_words_hs_biased": ["uncivilized"],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0.2],
+        "rel_words_alt_biased": ["primitives", "monkey-like", "monkey-people", "civilized"],
+        "sim_words_alt_unbiased": ["mythical", "luminous", "occasional", "developmental", "youthful"],
+        "idf_unbiased": [4.8575175683],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.000013883],
+        "graph_hs_matches": [],
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["noble", "peaceful", "heroic", "vile", "vicious"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0.1506681681],
+        "idf_biased": [3.9381025755]
+    },
+    "parasites": {
+        "rel_words_alt_unbiased": ["parasite", "parasitic", "#parasites", "parasitical", "parasitism"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["parasite", "parasitical", "parasitizing", "parasitic", "parasitically"],
+        "sim_words_alt_unbiased": ["warmongers", "wimps", "freeloaders", "leeches", "scums"],
+        "idf_unbiased": [4.7625420551],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000172766],
+        "graph_hs_matches": {
+            "jihadis": [
+                ["fanatics"]
+            ],
+            "queers": [
+                ["monsters"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["monsters", "barbarians", "creatures", "celebrities", "fanatics"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0002690755],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.5701257902]
+    },
+    "surge": {
+        "rel_words_alt_unbiased": ["surges", "surging", "surged", "uptick", "market-wide"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["spike"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["surges", "surged", "upsurge", "amnesty\/surge", "surging"],
+        "sim_words_alt_unbiased": ["decline", "soar", "plummet", "rebound", "uptick"],
+        "idf_unbiased": [4.0891261552],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0000814468],
+        "graph_hs_matches": {
+            "spike": [
+                ["surge"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["reduction", "massacre", "explosion", "uprising"],
+        "hs_supp_sim": [0.1912968874],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "drones": {
+        "rel_words_alt_unbiased": ["drone", "drone's", "#drones", "droned", "planes"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["drone", "droned", "satellites", "manpads", "icbms"],
+        "sim_words_alt_unbiased": ["helicopters", "sensors", "planes", "cables", "satellites"],
+        "idf_unbiased": [4.1471181022],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000712659],
+        "graph_hs_matches": {
+            "hoes": [
+                ["kebabs"]
+            ],
+            "cunts": [
+                ["zombies"]
+            ],
+            "rednecks": [
+                ["deniers"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["stickers", "hormones", "zombies", "kebabs", "deniers"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "culprits": {
+        "rel_words_alt_unbiased": ["culprit", "perpetrators", "unaccountably", "conspirators", "extorting"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["culprit", "culpa", "prematurely", "egged", "suspected"],
+        "sim_words_alt_unbiased": ["perpetrators", "instigators", "perps", "subversives", "beneficiaries"],
+        "idf_unbiased": [4.8294888447],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000148085],
+        "graph_hs_matches": {
+            "rednecks": [
+                ["homeowners"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["psychopaths", "ideologues", "homeowners", "geniuses", "afrikaners"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "illegals": {
+        "rel_words_alt_unbiased": ["illegals\/", "illegals-", "w\/illegals", "dead\/illegals", "illegals\/dead"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["#illegals", "illegal's", "illegal", "#illegalaliens", "aliens"],
+        "sim_words_alt_unbiased": ["aliens", "immigrants", "foreigners", "criminals", "#illegals"],
+        "idf_unbiased": [4.3066100994],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000493617],
+        "graph_hs_matches": {
+            "negroes": [
+                ["mexicans", "arabs", "syrians"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["foreigners", "mexicans", "syrians", "moslems", "arabs"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "gentile": {
+        "rel_words_alt_unbiased": ["gentiles", "gentils", "_danigentile", "gentil", "gentility"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["queer"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["gentiles", "jewish-gentile", "anti-gentile", "mercantile", "non-jewish"],
+        "sim_words_alt_unbiased": ["know-it-all", "scouser", "muggle", "shithouse"],
+        "idf_unbiased": [5.5107300821],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0000030851],
+        "graph_hs_matches": {
+            "queer": [
+                ["mulatto", "gentile"]
+            ]
+        },
+        "sim_words_hs_unbiased": ["chinaman"],
+        "sim_words_alt_biased": ["mulatto", "moroccan", "mestizo", "savage"],
+        "hs_supp_sim": [0.1902546763],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0.2],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "foreigners": {
+        "rel_words_alt_unbiased": ["hireforeigners", "foreigner", "citizens", "#foreigners", "foreigner's"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["foreigner", "nonimmigrants", "immigrants", "tasmanians", "crimmigrants"],
+        "sim_words_alt_unbiased": ["moslems", "non-whites", "syrians", "cubans", "non-muslims"],
+        "idf_unbiased": [4.431548836],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000370213],
+        "graph_hs_matches": {
+            "negroes": [
+                ["non-whites", "arabs", "syrians"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["non-whites", "arabs", "nonwhites", "syrians", "moslems"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0003459543],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.4609813208]
+    },
+    "losers": {
+        "rel_words_alt_unbiased": ["loosers", "whiners", "losers-", "loser", "libtards"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["#sorelosers", "#losers", "#soreloser", "loser", "#nevertrumpers"],
+        "sim_words_alt_unbiased": ["loosers", "whiners", "cowards", "idiots", "crybabies"],
+        "idf_unbiased": [3.9022040485],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0001252553],
+        "graph_hs_matches": {
+            "snowflakes": [
+                ["bastards", "fools", "losers"]
+            ],
+            "lefties": [
+                ["libtards"]
+            ],
+            "cunts": [
+                ["libtards"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["bastards", "morons", "fools", "libtards", "snowflakes"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "slut": {
+        "rel_words_alt_unbiased": ["sluty", "slutty", "cockslut", "slutt", "blonde"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["twat"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["sluts", "slutbag", "slutty", "whore", "slutwalk"],
+        "sim_words_alt_unbiased": ["milf", "hottie", "redhead", "twink", "whore"],
+        "idf_unbiased": [3.5828466718],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0002613084],
+        "graph_hs_matches": {
+            "cunt": [
+                ["coward"]
+            ],
+            "twat": [
+                ["clown", "pig", "slut"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["scumbag", "pig", "clown", "coward"],
+        "hs_supp_sim": [0.1933298588],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "cowards": {
+        "rel_words_alt_unbiased": ["cowardly", "coward", "coward-", "gutless", "scumbags"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["coward", "cowardly", "coward's", "#cowards", "cowardice"],
+        "sim_words_alt_unbiased": ["scumbags", "imbeciles", "commies", "douchebags", "wimps"],
+        "idf_unbiased": [4.2206954707],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000601595],
+        "graph_hs_matches": {
+            "cunts": [
+                ["hypocrites", "cowards", "pigs"]
+            ],
+            "snowflakes": [
+                ["losers"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["hypocrites", "bigots", "pigs", "losers", "cunts"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0002306362],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.6370725798]
+    },
+    "moderates": {
+        "rel_words_alt_unbiased": ["moderate", "moderated", "moderately", "unmoderated", "immoderate"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["moderate", "moderated", "moderately", "moderating", "moderation"],
+        "sim_words_alt_unbiased": ["centrists", "brexiteers", "intellectuals", "zionists", "berniebros"],
+        "idf_unbiased": [5.1885107874],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000064787],
+        "graph_hs_matches": {
+            "coloreds": [
+                ["wasps"]
+            ],
+            "rednecks": [
+                ["moderates", "wasps", "cockroaches"]
+            ],
+            "wasps": [
+                ["moderates", "cockroaches"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["cockroaches", "frenchmen", "rednecks", "anti-fascists", "wasps"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "queers": {
+        "rel_words_alt_unbiased": ["queer-", "queer's", "non-queer", "queer\/", "gay\/queer"],
+        "rel_words_hs_biased": ["queer"],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0.2],
+        "rel_words_alt_biased": ["faggots", "homosexuals", "transsexuals", "trannies"],
+        "sim_words_alt_unbiased": ["buddhists", "hipsters", "protestants", "muzzies", "paedophiles"],
+        "idf_unbiased": [5.2802811607],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000052447],
+        "graph_hs_matches": {
+            "queers": [
+                ["homos", "lesbians", "thieves", "poles"]
+            ],
+            "fags": [
+                ["homos"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["thieves", "poles", "homos", "lesbians", "capitalists"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0.1596314549],
+        "idf_biased": [4.1141938346]
+    },
+    "karen": {
+        "rel_words_alt_unbiased": ["-karen", "karens", "sara", "sarah", "xxkaren"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["finley", "kare", "tinley", "haren", "wilke"],
+        "sim_words_alt_unbiased": ["erin", "julie", "danielle", "natalie", "alison"],
+        "idf_unbiased": [3.906504029],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0001240212],
+        "graph_hs_matches": {
+            "ho": [
+                ["debbie"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["neil", "debbie", "sen", "carl", "saxon"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "ugly": {
+        "rel_words_alt_unbiased": ["uglyass", "ugly\ud83d\ude02", "ashy", "ugly\ud83d\ude02\ud83d\ude02\ud83d\ude02", "ugly\ud83d\ude02\ud83d\ude02"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["uglier", "fugly", "slobs", "anorexic", "nasty"],
+        "sim_words_alt_unbiased": ["goofy", "corny", "messy", "nasty", "greasy"],
+        "idf_unbiased": [3.0597116299],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0008715421],
+        "graph_hs_matches": {
+            "retarded": [
+                ["nasty"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["nasty", "brave", "lazy", "vile", "hateful"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0003075149],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.5121338432]
+    },
+    "canadians": {
+        "rel_words_alt_unbiased": ["canadian\ud83c\udde8\ud83c\udde6", "#canadians", "canadian's", "canadia", "canadianpm"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["eurocanadians", "canadian", "eurocanadian", "canada", "french-canadian"],
+        "sim_words_alt_unbiased": ["brits", "europeans", "atheists", "catholics", "trumpsters"],
+        "idf_unbiased": [4.3176054837],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000481276],
+        "graph_hs_matches": {
+            "queers": [
+                ["italians", "catholics"]
+            ],
+            "fags": [
+                ["catholics"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["australians", "southerners", "brits", "italians", "catholics"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "subhumans": {
+        "rel_words_alt_unbiased": ["subhuman", "sub-humans", "sub-human", "low-lifes", "neanderthals"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["subhuman", "monkey-people", "hordes", "monkey-like", "savages"],
+        "sim_words_alt_unbiased": [],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "negros": [
+                ["pakis"]
+            ],
+            "queers": [
+                ["subhumans", "pakis"]
+            ],
+            "pakis": [
+                ["subhumans"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["newcomers", "pakis", "innocents", "twins", "queers"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0003075149],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.5121338432]
+    },
+    "apes": {
+        "rel_words_alt_unbiased": ["gorillas", "mutants", "mutant", "mapes", "martians"],
+        "rel_words_hs_biased": ["monkey", "ape"],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0.4],
+        "rel_words_alt_biased": ["monkeys", "monkey-like", "monkey-people"],
+        "sim_words_alt_unbiased": ["rogues", "emperors", "reptiles", "colonists", "lambs"],
+        "idf_unbiased": [4.5564875726],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000277659],
+        "graph_hs_matches": {
+            "queers": [
+                ["subhumans"]
+            ],
+            "pakis": [
+                ["subhumans"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["infants", "innocents", "barbarians", "youngsters", "subhumans"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0.3136436701],
+        "idf_biased": [3.7162538259]
+    },
+    "jersey": {
+        "rel_words_alt_unbiased": ["jerseyans", "jerse", "-jersey", "jerseys", "jersey's"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["guinea"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["jerseys", "jersey\u2019s", "massachusetts", "tennessee", "florio"],
+        "sim_words_alt_unbiased": ["windbreaker", "hoody", "f.c.", "tartan", "helmet"],
+        "idf_unbiased": [3.40726846],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0003914998],
+        "graph_hs_matches": {
+            "guinea": [
+                ["zealand", "orleans", "jersey", "hampshire"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["hampshire", "orleans", "zealand", "yorker"],
+        "hs_supp_sim": [0.191900003],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "anti-racist": {
+        "rel_words_alt_unbiased": ["anti-racists", "anti-racism", "anti-rape", "anti-right", "anti-feminist"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["anti-racists", "anti-racism", "anti-anti-white", "anti-rape", "anti-roma"],
+        "sim_words_alt_unbiased": ["pro-america", "flippant", "nimble", "antiamerican", "colorblind"],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "cracker": [
+                ["cuckservative"]
+            ],
+            "redneck": [
+                ["cuckservative"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["pagan", "populist", "cuckservative", "antisemitic", "cuban"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "ideologues": {
+        "rel_words_alt_unbiased": ["ideologue", "ideologies", "idealogues", "ideological", "ideology"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["ideologue", "ideologies", "monologues", "ideology", "left-liberals"],
+        "sim_words_alt_unbiased": ["subversives", "zealots", "fundamentalists", "douches", "antisemites"],
+        "idf_unbiased": [5.431548836],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000037021],
+        "graph_hs_matches": {
+            "rednecks": [
+                ["tyrants"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["tyrants", "witches", "aryans", "psychopaths", "right-wingers"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "israelis": {
+        "rel_words_alt_unbiased": ["israeli's", "#israelis", "israelies", "israels", "american-israelis"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["israeli's", "israeli", "israelite", "israeli\u2019s", "israeli-palestinian"],
+        "sim_words_alt_unbiased": ["iranians", "kurds", "moslems", "foreigners", "syrians"],
+        "idf_unbiased": [4.5422471335],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000286915],
+        "graph_hs_matches": {
+            "negros": [
+                ["hungarians"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["greeks", "latinos", "hungarians", "ukrainians", "communists"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "barbarians": {
+        "rel_words_alt_unbiased": ["bearbarians", "barbarian", "#barbarians", "barbarity", "barbarities"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["techno-barbarians", "barbarian", "savages", "barbarity", "barbarities"],
+        "sim_words_alt_unbiased": ["neanderthals", "muzzies", "warmongers", "freeloaders", "muppets"],
+        "idf_unbiased": [5.0193683883],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000095638],
+        "graph_hs_matches": {
+            "jihadis": [
+                ["fanatics", "tribes"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["youngsters", "athletes", "fanatics", "tribes", "rappers"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "nasty": {
+        "rel_words_alt_unbiased": ["bitchy", "nasty's", "filthy", "trashy", "mouthed"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["retarded"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["pasty", "nauseous", "puke", "ugly", "wench"],
+        "sim_words_alt_unbiased": ["greasy", "slimy", "sneaky", "goofy", "corny"],
+        "idf_unbiased": [3.368653621],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.000427904],
+        "graph_hs_matches": {
+            "retarded": [
+                ["nasty"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["ugly", "decent", "wonderful", "silly"],
+        "hs_supp_sim": [0.193896234],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.7162538259]
+    },
+    "negroes": {
+        "rel_words_alt_unbiased": ["negroe", "negroids", "negro\u2122", "#negroes", "negro's"],
+        "rel_words_hs_biased": ["negro"],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0.2],
+        "rel_words_alt_biased": ["negroe", "negros", "blacks", "negroids"],
+        "sim_words_alt_unbiased": ["queers", "poeple", "xtians", "right-wingers", "centrists"],
+        "idf_unbiased": [5.3967867298],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000040106],
+        "graph_hs_matches": {
+            "queers": [
+                ["homos"]
+            ],
+            "negroes": [
+                ["mexicans", "arabs"]
+            ],
+            "fags": [
+                ["homos"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["arabs", "homosexuals", "mexicans", "latinos", "homos"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0003075149],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0.1534504652],
+        "idf_biased": [3.5121338432]
+    },
+    "bigots": {
+        "rel_words_alt_unbiased": ["racists", "racists\/bigots", "mysogynists", "bigot\/racist", "misogynists"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["bigot", "homophobes", "bigoted", "racists", "homophobe"],
+        "sim_words_alt_unbiased": ["homophobes", "xenophobes", "misogynists", "racists", "anti-semites"],
+        "idf_unbiased": [4.6594717334],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000219042],
+        "graph_hs_matches": {
+            "cunts": [
+                ["hypocrites", "cowards", "pigs"]
+            ],
+            "niggers": [
+                ["fascists"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["cowards", "haters", "fascists", "pigs", "hypocrites"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "mexicans": {
+        "rel_words_alt_unbiased": ["mexican's", "#mexicans", "mexicos", "mexican", "mexico\/us"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["#mexicans", "mexican", "mexican's", "mexico", "ricans"],
+        "sim_words_alt_unbiased": ["foreigners", "moslems", "cubans", "arabs", "non-whites"],
+        "idf_unbiased": [4.4693373969],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000339362],
+        "graph_hs_matches": {
+            "negroes": [
+                ["mexicans", "arabs"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["arabs", "homosexuals", "gays", "negroes", "latinos"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0003459543],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.4609813208]
+    },
+    "implication": {
+        "rel_words_alt_unbiased": ["implications", "implicating", "complication", "implicated", "complications"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["jig"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["implications", "implicating", "implicated", "replication", "de-nazification"],
+        "sim_words_alt_unbiased": ["subtext", "presumption", "endgame", "reluctance", "realisation"],
+        "idf_unbiased": [5.0055801038],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0000098723],
+        "graph_hs_matches": {
+            "jig": [
+                ["implication"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["culprit", "timing", "satire", "analogy"],
+        "hs_supp_sim": [0.1930917621],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "agitators": {
+        "rel_words_alt_unbiased": ["#agitators", "#paidagitators", "agitator", "anarchists", "thugs"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["agitator", "agitate", "agitates", "agitated", "agitation"],
+        "sim_words_alt_unbiased": ["moonbats", "anarchists", "marxists", "vandals", "mercenaries"],
+        "idf_unbiased": [5.334638823],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000046277],
+        "graph_hs_matches": {
+            "jihadis": [
+                ["fanatics"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["fanatics", "vermin", "clergy", "rappers", "peasants"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "villages": {
+        "rel_words_alt_unbiased": ["villagers", "villager", "#villages", "village", "village's"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["villagers", "village", "villager", "towns", "village\u2019s"],
+        "sim_words_alt_unbiased": ["provinces", "breweries", "galaxies", "kingdoms", "embassies"],
+        "idf_unbiased": [4.4654071033],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000342447],
+        "graph_hs_matches": {
+            "ghettos": [
+                ["villages", "capitals"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["ghettos", "capitals", "professions", "hotels", "textbooks"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "nationalities": {
+        "rel_words_alt_unbiased": ["nationality", "commonalities", "religion\/nationality", "functionalities", "ethnicities"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["nationality", "banalities", "modalities", "localities", "nationals"],
+        "sim_words_alt_unbiased": ["ethnicities", "faiths", "mediums", "#countries", "constituencies"],
+        "idf_unbiased": [5.2319764811],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000058617],
+        "graph_hs_matches": {
+            "shades": [
+                ["branches"]
+            ],
+            "jihadis": [
+                ["factions"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["factions", "faiths", "ethnicities", "felonies", "branches"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "non-whites": {
+        "rel_words_alt_unbiased": ["non-white", "owe2non-whites", "nonwhites", "whites", "minorities"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["non-white", "whites", "anti-whites", "less-white", "#onlywhites"],
+        "sim_words_alt_unbiased": ["moslems", "non-muslims", "blks", "pocs", "queers"],
+        "idf_unbiased": [5.3646020464],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000043191],
+        "graph_hs_matches": {
+            "negroes": [
+                ["non-whites", "arabs"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["foreigners", "arabs", "moslems", "negroes", "latinos"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0004997117],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.3012804779]
+    },
+    "swedes": {
+        "rel_words_alt_unbiased": ["swedens", "swede", "sweden", "europeans", "sweden's"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["non-swedes", "swedists", "swede", "sweden", "swedish"],
+        "sim_words_alt_unbiased": ["righties", "grownups", "mosquitoes", "right-wingers", "corporates"],
+        "idf_unbiased": [4.9086700908],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000123404],
+        "graph_hs_matches": {
+            "lefties": [
+                ["swedes"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["brits", "lefties", "australians", "canadians", "celebrities"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "fascists": {
+        "rel_words_alt_unbiased": ["facists", "rascists", "neofascists", "neo-fascists", "proto-fascists"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["antifascists", "fasciste", "islamofascists", "fascist", "antifascist"],
+        "sim_words_alt_unbiased": ["elitists", "communists", "loonies", "marxists", "socialists"],
+        "idf_unbiased": [4.5564875726],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000277659],
+        "graph_hs_matches": {
+            "niggers": [
+                ["fascists"]
+            ],
+            "queers": [
+                ["anti-semites"]
+            ],
+            "fags": [
+                ["niggers"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["bigots", "anti-semites", "communists", "sluts", "niggers"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "transgender": {
+        "rel_words_alt_unbiased": ["transgenders", "transgendered", "transgenderism", "anti-transgender", "transgender-obsessed"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["transgendered", "transgenders", "pro-transgender", "transgenderism", "cisgender"],
+        "sim_words_alt_unbiased": ["cis", "yazidi", "lgbtq", "kashmiri", "african-american"],
+        "idf_unbiased": [4.1823504786],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000657127],
+        "graph_hs_matches": {
+            "queer": [
+                ["gentile"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["lgbt", "african-american", "gentile", "mexican", "afghan"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.7162538259]
+    },
+    "non-jews": {
+        "rel_words_alt_unbiased": ["non-jew", "non-jewish", "jews", "non-christians", "non-moslems"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["non-jewish", "non-jew", "gentiles", "jewish-gentile", "jews"],
+        "sim_words_alt_unbiased": [],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "queers": [
+                ["homos", "african-americans"]
+            ],
+            "pakis": [
+                ["gentiles"]
+            ],
+            "fags": [
+                ["homos"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["gentiles", "african-americans", "latinos", "homos", "innocents"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "fags": {
+        "rel_words_alt_unbiased": ["faggots", "fagots", "faggot\ud83d\ude02\ud83d\ude02", "faggot\ud83d\ude02", "faggoty"],
+        "rel_words_hs_biased": ["fag"],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0.2],
+        "rel_words_alt_biased": ["faggots", "faggoty", "trannies", "homos"],
+        "sim_words_alt_unbiased": ["weirdos", "dickheads", "thots", "fucktards", "faggots"],
+        "idf_unbiased": [4.7947267385],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000160425],
+        "graph_hs_matches": {
+            "trannies": [
+                ["commies"]
+            ],
+            "queers": [
+                ["homos", "poles", "catholics", "fags"]
+            ],
+            "fags": [
+                ["homos", "catholics"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["homos", "queers", "commies", "catholics", "poles"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0.1475734353],
+        "idf_biased": [4.1141938346]
+    },
+    "sodomite": {
+        "rel_words_alt_unbiased": ["sodomites", "pro-sodomite", "sodomize", "sodomy", "sodomized"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["sodomites", "sodomist", "sodomize", "sodomy", "sodomizing"],
+        "sim_words_alt_unbiased": [],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "jihadi": [
+                ["paedophile"]
+            ],
+            "fairy": [
+                ["mutant"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["shitlib", "pedo", "paedophile", "mutant", "punk"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "massacre": {
+        "rel_words_alt_unbiased": ["massacres", "#zariamassacre", "#massacre", "massacring", "massacred"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["massacres", "massacred", "massacring", "atrocity", "rezgui"],
+        "sim_words_alt_unbiased": ["bombings", "attac", "explosion", "outbreak", "#terrorattack"],
+        "idf_unbiased": [4.2342682779],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000583085],
+        "graph_hs_matches": {
+            "spike": [
+                ["surge"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["surge", "assassination", "uprising", "outbreak", "explosion"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.7162538259]
+    },
+    "newcomers": {
+        "rel_words_alt_unbiased": ["newcomer", "#newcomers", "newcomb", "newcombe", "newco"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["newcomer", "comers", "incomers", "nonimmigrants", "immigrants"],
+        "sim_words_alt_unbiased": ["pollies", "student-athletes", "medics", "cyclists", "hybrids"],
+        "idf_unbiased": [5.0957567341],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000080213],
+        "graph_hs_matches": {
+            "queers": [
+                ["subhumans"]
+            ],
+            "pakis": [
+                ["subhumans"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["innocents", "travelers", "twins", "gang-rapists", "subhumans"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "mutant": {
+        "rel_words_alt_unbiased": ["mutants", "#mutant", "turtles", "mutating", "muta"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["fairy"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["mutants", "mutah", "mutated", "mutate", "mutating"],
+        "sim_words_alt_unbiased": ["canine", "moroccan", "reptilian", "minimalist", "pagan"],
+        "idf_unbiased": [4.8205340021],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.000015117],
+        "graph_hs_matches": {
+            "fairy": [
+                ["mutant"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["sham", "sodomite", "shitlib", "pedo"],
+        "hs_supp_sim": [0.1957373619],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "hippies": {
+        "rel_words_alt_unbiased": ["chippies", "hippie", "hippy", "hipsters", "yuppies"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["hippie", "yuppies", "hippy", "poppies", "mommies"],
+        "sim_words_alt_unbiased": ["pansies", "sissies", "hipsters", "muppets", "cocksuckers"],
+        "idf_unbiased": [5.0336088274],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000092553],
+        "graph_hs_matches": {
+            "coloreds": [
+                ["wasps"]
+            ],
+            "rednecks": [
+                ["wasps"]
+            ],
+            "wasps": [
+                ["hippies"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["crooks", "wasps", "frogs", "psychopaths", "paedophiles"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "prisoners": {
+        "rel_words_alt_unbiased": ["prisoner", "#prisoners", "#freeallpoliticalprisoners", "prisoner's", "#politicalprisoners"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["prisoner", "prisoner\u2019s", "inmates", "prisons", "inmate"],
+        "sim_words_alt_unbiased": ["detainees", "jihadists", "nationals", "youths", "inmates"],
+        "idf_unbiased": [4.1864476268],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000650957],
+        "graph_hs_matches": {
+            "jihadis": [
+                ["prisoners", "factions"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["jihadis", "entities", "inmates", "speakers", "factions"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0003075149],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.5121338432]
+    },
+    "savages": {
+        "rel_words_alt_unbiased": ["savagery", "savage\ud83d\ude02", "savage-", "savag", "savage\ud83d\ude02\ud83d\ude02\ud83d\ude02"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["ravages", "savage", "ape-people", "savaged", "subhumans"],
+        "sim_words_alt_unbiased": ["degenerates", "cucks", "cry-babies", "cretins", "dykes"],
+        "idf_unbiased": [4.5064087083],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000311596],
+        "graph_hs_matches": {
+            "faggots": [
+                ["kikes"]
+            ],
+            "monkeys": [
+                ["kikes", "savages"]
+            ],
+            "negroes": [
+                ["kikes"]
+            ],
+            "kikes": [
+                ["savages"]
+            ],
+            "niggers": [
+                ["kikes"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["monkeys", "parasites", "barbarians", "kikes", "apes"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0003459543],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.4609813208]
+    },
+    "denier": {
+        "rel_words_alt_unbiased": ["deniers", "#climatedenier", "climate-denying", "#sciencedenier", "#denier"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["cracker"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["deniers", "holo\u00adcaust", "lipstadt", "deniro", "zundel"],
+        "sim_words_alt_unbiased": ["skeptic", "manipulator", "campaigner", "deniers", "fraudster"],
+        "idf_unbiased": [5.255457577],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0000055532],
+        "graph_hs_matches": {
+            "cracker": [
+                ["kook", "denier"]
+            ],
+            "redneck": [
+                ["cracker"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["kook", "skinhead", "fanatic", "toy"],
+        "hs_supp_sim": [0.1948912859],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "territory": {
+        "rel_words_alt_unbiased": ["territor", "#territory", "sassen-territory", "territ", "territorial"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["territories", "territorial", "sukhoi", "us-nato", "azerbaijan"],
+        "sim_words_alt_unbiased": ["wasteland", "pathology", "vessel", "fabrication", "powerhouse"],
+        "idf_unbiased": [3.979251165],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0001048936],
+        "graph_hs_matches": {
+            "ghettos": [
+                ["airspace"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["airspace", "workforce", "soil", "territories", "currency"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.000422833],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.3738311451]
+    },
+    "arabs": {
+        "rel_words_alt_unbiased": ["persians", "arabians", "sunni", "kurds", "egyptians"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["non-moslems", "moslems", "arab", "arabians", "druze"],
+        "sim_words_alt_unbiased": ["mormons", "moslems", "zionists", "non-whites", "buddhists"],
+        "idf_unbiased": [4.528458849],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.000029617],
+        "graph_hs_matches": {
+            "negroes": [
+                ["mexicans", "arabs"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["mexicans", "negroes", "latinos", "homosexuals", "gays"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "cockroaches": {
+        "rel_words_alt_unbiased": ["cockroach", "#cockroaches", "maggots", "roaches", "infests"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["cockroach", "turkroaches", "roaches", "monkeyshines", "cockring"],
+        "sim_words_alt_unbiased": ["roaches", "lizards", "muzzies", "inbreds", "skanks"],
+        "idf_unbiased": [4.8672774056],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000135745],
+        "graph_hs_matches": {
+            "coloreds": [
+                ["wasps"]
+            ],
+            "rednecks": [
+                ["moderates", "wasps", "cockroaches"]
+            ],
+            "wasps": [
+                ["hippies", "moderates", "cockroaches"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["rednecks", "moderates", "wasps", "serbs", "hippies"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "slavs": {
+        "rel_words_alt_unbiased": ["slav", "slavic", "slavey", "slavers", "slaved"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["slavic", "slav", "serbs", "slavland", "latvians"],
+        "sim_words_alt_unbiased": [],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "queers": [
+                ["poles"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["romanians", "iranians", "mestizos", "sodomites", "poles"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "communists": {
+        "rel_words_alt_unbiased": ["socialists\/communists", "neo-communists", "comunists", "commies", "communist"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["stalinists", "anti-communists", "communistic", "communist", "socialists"],
+        "sim_words_alt_unbiased": ["commies", "marxists", "anarchists", "elitists", "fascists"],
+        "idf_unbiased": [4.6656320421],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000215957],
+        "graph_hs_matches": {
+            "queers": [
+                ["italians", "catholics"]
+            ],
+            "fags": [
+                ["neocons", "catholics"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["neocons", "globalists", "israelis", "italians", "catholics"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "monkeys": {
+        "rel_words_alt_unbiased": ["honkeys", "monkey\ud83d\ude48", "#arcticmonkeys", "donkeys", "monkey\ud83d\ude0d"],
+        "rel_words_hs_biased": ["monkey"],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0.2],
+        "rel_words_alt_biased": ["monkey-people", "monkeyshines", "monkey-like", "apes"],
+        "sim_words_alt_unbiased": ["goats", "frogs", "elephants", "foxes", "spiders"],
+        "idf_unbiased": [4.2032340442],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000626276],
+        "graph_hs_matches": {
+            "cunts": [
+                ["clowns"]
+            ],
+            "monkeys": [
+                ["rats"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["rats", "parasites", "creatures", "apes", "clowns"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0002306362],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0.1640237451],
+        "idf_biased": [3.6370725798]
+    },
+    "pig": {
+        "rel_words_alt_unbiased": ["pigs", "bastard", "pig-fucker", "pigfucker", "pigsty"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["twat"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["piggy", "pigs", "slobs", "douchebags", "motherfucking"],
+        "sim_words_alt_unbiased": ["scumbag", "prick", "swine", "bastard", "buffoon"],
+        "idf_unbiased": [3.7703673926],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0001696808],
+        "graph_hs_matches": {
+            "cunt": [
+                ["coward"]
+            ],
+            "twat": [
+                ["pig"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["coward", "snake", "scumbag", "rat"],
+        "hs_supp_sim": [0.1950495124],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "anti-whites": {
+        "rel_words_alt_unbiased": ["anti-white", "pro-whites", "antiwhite", "anti-racists", "#antiwhites"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["anti-white", "anti-whiteness", "anti-anti-white", "anti-whitism", "non-whites"],
+        "sim_words_alt_unbiased": [],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "lefties": [
+                ["cuckservatives", "leftists", "anti-whites", "feminists"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["leftists", "lefties", "feminists", "dems", "cuckservatives"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.7162538259]
+    },
+    "feminists": {
+        "rel_words_alt_unbiased": ["anti-feminists", "#feminists", "feminist", "feminist's", "feminis"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["#feminists", "feminist's", "feminist", "feminazis", "feminised"],
+        "sim_words_alt_unbiased": ["lefties", "comedians", "intellectuals", "feminazis", "entertainers"],
+        "idf_unbiased": [4.35236759],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000444255],
+        "graph_hs_matches": {
+            "lefties": [
+                ["swedes", "feminists", "leftists", "cuckservatives"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["leftists", "liberals", "lefties", "cuckservatives", "swedes"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "operatives": {
+        "rel_words_alt_unbiased": ["operative", "cooperatives", "inoperative", "conspirators", "cooperatively"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["operative", "#workercooperatives", "operations", "sabotages", "colluded"],
+        "sim_words_alt_unbiased": ["lackeys", "conspirators", "apologists", "pols", "agitators"],
+        "idf_unbiased": [4.9086700908],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000123404],
+        "graph_hs_matches": {
+            "jihadis": [
+                ["commentators"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["professionals", "firms", "backers", "managers", "commentators"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "hajis": {
+        "rel_words_alt_unbiased": [],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["haji", "moslems", "hadjis", "moslem", "moslem\u2019s"],
+        "sim_words_alt_unbiased": [],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "queers": [
+                ["homos", "hajis", "fags"]
+            ],
+            "lefties": [
+                ["westerners"]
+            ],
+            "fags": [
+                ["homos", "hajis"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["homos", "innocents", "queers", "fags", "westerners"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "afrikaners": {
+        "rel_words_alt_unbiased": ["afrikaner", "afrikans", "afrika", "afrikaans", "republikkkans"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["afrikaner", "afrikan", "amerikaners", "afrika", "amerikaner"],
+        "sim_words_alt_unbiased": [],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "rednecks": [
+                ["tyrants"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["norwegians", "psychopaths", "right-wingers", "tyrants", "frenchmen"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "bigot": {
+        "rel_words_alt_unbiased": ["racist", "bigot\/racist", "racist\/misogynist", "xenophobic\/racist", "racist\/misogynistic"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["cunt"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["bigots", "bigoted", "homophobe", "racist", "hater"],
+        "sim_words_alt_unbiased": ["homophobe", "xenophobe", "demagogue", "misogynist", "psychopath"],
+        "idf_unbiased": [4.4500322417],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0000354787],
+        "graph_hs_matches": {
+            "cunt": [
+                ["bigot", "hypocrite", "liar", "coward"]
+            ],
+            "fag": [
+                ["hypocrite", "liar"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["coward", "hater", "liar", "hypocrite"],
+        "hs_supp_sim": [0.189588356],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "liberals": {
+        "rel_words_alt_unbiased": ["liberals\/", "libs", "liberals-", "democrats\/liberals", "liberals\/progressives"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["left-liberals", "non-liberals", "neoliberals", "#liberals", "leftists"],
+        "sim_words_alt_unbiased": ["leftists", "lefties", "libtards", "progressives", "commies"],
+        "idf_unbiased": [3.5085640203],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.000310053],
+        "graph_hs_matches": {
+            "lefties": [
+                ["feminists", "leftists"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["feminists", "leftists", "christians", "conservatives", "germans"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0005381511],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.2690957946]
+    },
+    "kurds": {
+        "rel_words_alt_unbiased": ["kurdish", "#kurds", "kurd", "kurdistan", "kurdish-led"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["kurdish", "kurd", "turkmen", "kurdistan", "shi\u2019ites"],
+        "sim_words_alt_unbiased": ["environmentalists", "imams", "pilgrims", "buddhists", "homosexuals"],
+        "idf_unbiased": [4.5662474099],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000271489],
+        "graph_hs_matches": {
+            "coloreds": [
+                ["hindus"]
+            ],
+            "rednecks": [
+                ["bloggers"]
+            ],
+            "wasps": [
+                ["hindus"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["nurses", "bloggers", "afghans", "hindus", "romanians"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "goyim": {
+        "rel_words_alt_unbiased": ["goys", "goy", "trumpians", "koyim", "zionists"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["goyims", "goyim\u2019s", "lolwut", "goy", "goyish"],
+        "sim_words_alt_unbiased": ["plebs", "stupids", "weaklings", "trumpanzees", "trumpians"],
+        "idf_unbiased": [5.255457577],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000055532],
+        "graph_hs_matches": {
+            "snowflakes": [
+                ["goys"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["idiots", "ppl", "guys", "goys", "folks"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0009225447],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.0350125885]
+    },
+    "monster": {
+        "rel_words_alt_unbiased": ["donster", "monstercock", "monsterous", "monste", "#fbgmonster"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["monsters", "creature", "\ud83c\udf0f", "viper", "monstrous"],
+        "sim_words_alt_unbiased": ["demon", "maniac", "toad", "pig", "swine"],
+        "idf_unbiased": [3.3390036284],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0004581381],
+        "graph_hs_matches": {
+            "tranny": [
+                ["lunatic"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["creature", "scumbag", "lunatic", "madman", "psychopath"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "rats": {
+        "rel_words_alt_unbiased": ["snakes", "cockroaches", "scurrying", "clowns", "drats"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["scurrying", "scurry", "weasels", "bastards", "rat"],
+        "sim_words_alt_unbiased": ["commies", "vultures", "pigs", "warmongers", "cheaters"],
+        "idf_unbiased": [4.0957567341],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000802127],
+        "graph_hs_matches": {
+            "cunts": [
+                ["pigs"]
+            ],
+            "monkeys": [
+                ["rats"]
+            ],
+            "queers": [
+                ["pedophiles"]
+            ],
+            "trannies": [
+                ["commies"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["pigs", "monkeys", "commies", "pedophiles", "sluts"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.7162538259]
+    },
+    "soviets": {
+        "rel_words_alt_unbiased": ["soviet", "ussr", "soviet-era", "eussr", "germans"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["soviet", "ex-soviet", "soviet-era", "post-soviet", "ussr"],
+        "sim_words_alt_unbiased": ["marcoses", "mayans", "guptas", "niners", "bolsheviks"],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "rednecks": [
+                ["soviets", "tyrants"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["romans", "tories", "rednecks", "greens", "tyrants"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "stickers": {
+        "rel_words_alt_unbiased": ["potstickers", "sticker", "linesticker", "bumper-stickers", "sticker\/"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["sticker", "stickering", "snickers", "posters", "pickers"],
+        "sim_words_alt_unbiased": ["t-shirts", "sticker", "tees", "buttons", "ornaments"],
+        "idf_unbiased": [3.9152338603],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0001215531],
+        "graph_hs_matches": {
+            "hoes": [
+                ["vids"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["drones", "fliers", "flyers", "apps", "vids"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "factions": {
+        "rel_words_alt_unbiased": ["faction", "factional", "facting", "factious", "insurgencies"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["faction", "factionalists", "opposition", "groupings", "ultranationalists"],
+        "sim_words_alt_unbiased": ["commanders", "militias", "ideologues", "imams", "grps"],
+        "idf_unbiased": [4.8772616265],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.000013266],
+        "graph_hs_matches": {
+            "jihadis": [
+                ["tribes", "factions"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["jihadis", "entities", "nationalities", "tribes", "primitives"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "scholars": {
+        "rel_words_alt_unbiased": ["scholar's", "#scholars", "scholarly", "scholar\u2019s", "scholar"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["scholarly", "scholar", "scholarship", "scholarships", "scholastic"],
+        "sim_words_alt_unbiased": ["historians", "economists", "councils", "educators", "commanders"],
+        "idf_unbiased": [4.5239583478],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000299255],
+        "graph_hs_matches": {
+            "jihadis": [
+                ["prisoners"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["academics", "actors", "priests", "historians", "prisoners"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "ghettos": {
+        "rel_words_alt_unbiased": ["ghettoes", "ghetto\ud83d\ude02", "ghetto-ass", "ghetto's", "#ghettos"],
+        "rel_words_hs_biased": ["ghetto"],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0.2],
+        "rel_words_alt_biased": ["ghettoes", "ghettoized", "ghetto-prison", "neighbourhoods"],
+        "sim_words_alt_unbiased": ["sewers", "gutters", "dorms", "silos", "palaces"],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "ghettos": [
+                ["villages", "capitals", "shadows"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["villages", "shadows", "capitals", "professions", "stocks"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0.1651526093],
+        "idf_biased": [4.1141938346]
+    },
+    "faggots": {
+        "rel_words_alt_unbiased": ["faggot\ud83d\ude02", "faggott", "faggoty", "faggot\ud83d\ude02\ud83d\ude02", "fags"],
+        "rel_words_hs_biased": ["faggot"],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0.2],
+        "rel_words_alt_biased": ["faggoty", "fags", "faggotry", "faggotized"],
+        "sim_words_alt_unbiased": ["twats", "dickheads", "fucktards", "dipshits", "jackasses"],
+        "idf_unbiased": [4.7183383926],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000191276],
+        "graph_hs_matches": {
+            "snowflakes": [
+                ["bastards"]
+            ],
+            "niggers": [
+                ["cucks", "faggots"]
+            ],
+            "negroes": [
+                ["faggots"]
+            ],
+            "faggots": [
+                ["cucks"]
+            ],
+            "fags": [
+                ["niggers"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["negroes", "cucks", "bastards", "niggers", "morons"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0005381511],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0.161765945],
+        "idf_biased": [3.2690957946]
+    },
+    "dictators": {
+        "rel_words_alt_unbiased": ["dictatorships", "dictator", "dictatorship", "dictatorial", "tyrants"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["dictatorships", "dictatorship", "dictator's", "dictator", "dictatorial"],
+        "sim_words_alt_unbiased": ["regimes", "tyrants", "despots", "authoritarians", "warmongers"],
+        "idf_unbiased": [4.528458849],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.000029617],
+        "graph_hs_matches": {
+            "cunts": [
+                ["demons"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["crazies", "witches", "demons", "right-wingers", "afrikaners"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "perverts": {
+        "rel_words_alt_unbiased": ["pervert's", "pervert", "perverting", "perverted", "pervs"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["pervert", "perverting", "perverted", "perverse", "deviants"],
+        "sim_words_alt_unbiased": ["degenerates", "cretins", "dirtbags", "psychos", "a-holes"],
+        "idf_unbiased": [4.979251165],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000104894],
+        "graph_hs_matches": {
+            "queers": [
+                ["perverts", "subhumans", "pedophiles"]
+            ],
+            "pakis": [
+                ["subhumans"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["subhumans", "pedophiles", "queers", "predators", "rappers"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "specialists": {
+        "rel_words_alt_unbiased": ["specialist\/", "specialist-", "specialist", "specialising", "specialist-full"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["specialist", "specialises", "specialised", "specialities", "special-needs"],
+        "sim_words_alt_unbiased": ["consultants", "internships", "clerks", "coordinators", "assistants"],
+        "idf_unbiased": [4.5469422547],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.000028383],
+        "graph_hs_matches": {
+            "rednecks": [
+                ["specialists"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["travellers", "consultants", "rednecks", "imams", "informants"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.7162538259]
+    },
+    "reince": {
+        "rel_words_alt_unbiased": ["priebus", "reincepriebus", "priebus's", "bannon-priebus", "preibus"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["priebus", "rein-in", "kellyanne", "pompeo", "strategist"],
+        "sim_words_alt_unbiased": ["preibus", "mcconnel", "cornyn", "guiliani", "grassley"],
+        "idf_unbiased": [4.803159906],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.000015734],
+        "graph_hs_matches": {
+            "ho": [
+                ["debbie"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["jason", "debbie", "#msm", "lena", "timothy"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "kikes": {
+        "rel_words_alt_unbiased": ["faggots", "ratfuckers", "goatfuckers", "inbred", "cucks"],
+        "rel_words_hs_biased": ["kike"],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0.2],
+        "rel_words_alt_biased": ["r\/gasthekikes", "kikess", "kikey", "kike-gassing"],
+        "sim_words_alt_unbiased": [],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "monkeys": [
+                ["kikes"]
+            ],
+            "faggots": [
+                ["kikes"]
+            ],
+            "niggers": [
+                ["faggots", "kikes"]
+            ],
+            "fags": [
+                ["niggers"]
+            ],
+            "negroes": [
+                ["faggots", "kikes"]
+            ],
+            "kikes": [
+                []
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["faggots", "niggers", "foreigners", "negroes", "monkeys"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.000422833],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0.1596152306],
+        "idf_biased": [3.3738311451]
+    },
+    "bastard": {
+        "rel_words_alt_unbiased": ["scumbag", "prick", "o'bastard", "ratbastard", "obastard"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["monkey", "faggot"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["bastardy", "bastards", "slackbastard", "bastard\u2019s", "scumbag"],
+        "sim_words_alt_unbiased": ["prick", "scumbag", "hag", "buffoon", "swine"],
+        "idf_unbiased": [3.8546318801],
+        "p@k_sim_biased": [0.4],
+        "freq_unbiased": [0.0001397552],
+        "graph_hs_matches": {
+            "cunt": [
+                ["goy", "faggot", "pos"]
+            ],
+            "monkey": [
+                ["bastard"]
+            ],
+            "faggot": [
+                ["bastard"]
+            ],
+            "snowflake": [
+                ["goy"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["pos", "scumbag", "goy"],
+        "hs_supp_sim": [0.3748726726],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "anglo-saxon": {
+        "rel_words_alt_unbiased": ["anglo-saxons", "anglo-saxonne", "anglo-saxonnes", "anglo-sphere", "anglo-boer"],
+        "rel_words_hs_biased": ["anglo"],
+        "sim_words_hs_biased": ["anglo"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0.2],
+        "rel_words_alt_biased": ["anglo-saxons", "judeo-saxon", "anglo-european", "saxon"],
+        "sim_words_alt_unbiased": ["orthodox", "aboriginal", "buddhist", "navajo", "canine"],
+        "idf_unbiased": [5.5107300821],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0000030851],
+        "graph_hs_matches": {
+            "anglo": [
+                ["anglo-saxon"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["lebanese", "crimean", "germanic", "boy\u2019s"],
+        "hs_supp_sim": [0.1960363388],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0.160785985],
+        "idf_biased": [3.7162538259]
+    },
+    "cuck": {
+        "rel_words_alt_unbiased": ["cucky", "cucking", "libcuck", "cucks", "cucked"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["faggot", "retard"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["cucky", "cuckfest", "cuckad", "cuckface", "cucks"],
+        "sim_words_alt_unbiased": ["dickhead", "shithead", "fucktard", "shitbag", "wanker"],
+        "idf_unbiased": [4.3317531348],
+        "p@k_sim_biased": [0.4],
+        "freq_unbiased": [0.0000465851],
+        "graph_hs_matches": {
+            "cunt": [
+                ["dumbass", "moron", "faggot", "pos"]
+            ],
+            "retard": [
+                ["dumbass", "cuck"]
+            ],
+            "faggot": [
+                ["cuck"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["moron", "dumbass", "pos"],
+        "hs_supp_sim": [0.3672780037],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.7162538259]
+    },
+    "whore": {
+        "rel_words_alt_unbiased": ["whorey", "whore-", "whorish", "whored", "whor"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["whores", "camwhore", "fuck-your-ass", "whorehouse", "slut"],
+        "sim_words_alt_unbiased": ["bimbo", "hooker", "slut", "prostitute", "skank"],
+        "idf_unbiased": [3.7872744101],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.000163202],
+        "graph_hs_matches": {
+            "cunt": [
+                ["loser", "coward"]
+            ],
+            "twat": [
+                ["slut"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["slut", "coward", "monster", "loser", "scumbag"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "poles": {
+        "rel_words_alt_unbiased": ["pole", "volcanoes", "tadpoles", "climes", "coasts"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["latvians", "lithuanians", "serbians", "romanians", "estonians"],
+        "sim_words_alt_unbiased": ["coverings", "potholes", "choppers", "barricades", "mics"],
+        "idf_unbiased": [4.5376022285],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.000029],
+        "graph_hs_matches": {
+            "wasps": [
+                ["mormons"]
+            ],
+            "queers": [
+                ["gypsies", "poles"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["queers", "mestizos", "slavs", "gypsies", "mormons"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "hungarians": {
+        "rel_words_alt_unbiased": ["hungarian", "hungary", "austrians", "hungary's", "#hungarian"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["hungarian", "bulgarians", "non-hungarian", "hungary", "slovaks"],
+        "sim_words_alt_unbiased": [],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "negros": [
+                ["hungarians"]
+            ],
+            "queers": [
+                ["gypsies", "african-americans"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["ukrainians", "african-americans", "gypsies", "negros", "greeks"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "brave": {
+        "rel_words_alt_unbiased": ["braver", "courageous", "bravery", "bravest", "braved"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["braver", "braved", "bravest", "braves", "bravery"],
+        "sim_words_alt_unbiased": ["courageous", "fearless", "helpless", "selfless", "joyful"],
+        "idf_unbiased": [3.5507352438],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0002813616],
+        "graph_hs_matches": {
+            "retarded": [
+                ["nasty"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["ugly", "lazy", "nasty", "weak", "wonderful"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.000422833],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.3738311451]
+    },
+    "muslims": {
+        "rel_words_alt_unbiased": ["muslims-", "_muslims", "non-muslims", "-muslims", "muslims\/"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["ex-muslims", "non-muslims", "muslim's", "\ud83d\udea8muslim", "muslim"],
+        "sim_words_alt_unbiased": ["moslems", "hindus", "foreigners", "christians", "iranians"],
+        "idf_unbiased": [3.361819089],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0004346913],
+        "graph_hs_matches": {
+            "negroes": [
+                ["mexicans", "arabs", "non-whites"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["moslems", "arabs", "illegals", "mexicans", "non-whites"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0014606958],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [2.8354402336]
+    },
+    "hampshire": {
+        "rel_words_alt_unbiased": ["hampshire|", "hampshire's", "hampshir", "hampshire\u2019s", "hampshire|job"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["guinea"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["hampshire\u2019s", "iowa", "caucuses", "wisconsin", "primaries"],
+        "sim_words_alt_unbiased": ["nevada", "pennsylvania", "missouri", "maryland", "iowa"],
+        "idf_unbiased": [4.4936967428],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0000320851],
+        "graph_hs_matches": {
+            "guinea": [
+                ["zealand", "orleans", "hampshire", "jersey"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["jersey", "zealand", "orleans", "yorker"],
+        "hs_supp_sim": [0.1919311285],
+        "freq_biased": [0.0002690755],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.5701257902]
+    },
+    "creatures": {
+        "rel_words_alt_unbiased": ["creature", "creature's", "reptiles", "#swampcreatures", "earthworms"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["creature", "creature\u2019s", "creature's", "natures", "subhumans"],
+        "sim_words_alt_unbiased": ["critters", "doers", "pups", "weasels", "maniacs"],
+        "idf_unbiased": [4.0278564985],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000937872],
+        "graph_hs_matches": {
+            "cunts": [
+                ["clowns"]
+            ],
+            "queers": [
+                ["hajis", "monsters"]
+            ],
+            "fags": [
+                ["hajis"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["clowns", "parasites", "sluts", "monsters", "hajis"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0003843936],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.4152238302]
+    },
+    "leftists": {
+        "rel_words_alt_unbiased": ["liberals", "liberals\/progressives", "lefties", "leftist", "#regressiveleftists"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["#leftists", "lefties", "leftist", "left-liberals", "lefturds"],
+        "sim_words_alt_unbiased": ["lefties", "liberals", "elitists", "commies", "libtards"],
+        "idf_unbiased": [4.3093329578],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000490532],
+        "graph_hs_matches": {
+            "lefties": [
+                ["swedes", "anti-whites", "leftists", "feminists"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["feminists", "liberals", "swedes", "anti-whites", "lefties"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0003075149],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.5121338432]
+    },
+    "latinos": {
+        "rel_words_alt_unbiased": ["hispanics\/latinos", "latinos\/hispanics", "\u00a1latinos", "hispanic\/latino", "hispanics"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["hispanics", "latino", "hispanic\/latino", "#latinos", "mexican-americans"],
+        "sim_words_alt_unbiased": ["hispanics", "blacks", "latino's", "millenials", "gringos"],
+        "idf_unbiased": [4.7548552264],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000175851],
+        "graph_hs_matches": {
+            "negros": [
+                ["hungarians"]
+            ],
+            "queers": [
+                ["homos"]
+            ],
+            "fags": [
+                ["homos"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["homosexuals", "homos", "ukrainians", "hungarians", "greeks"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "monsters": {
+        "rel_words_alt_unbiased": ["harmonsters", "monster's", "monsterous", "spinsters", "#monsters"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["monster", "monkeyshines", "savages", "creatures", "\ud83c\udf0f"],
+        "sim_words_alt_unbiased": ["turtles", "unicorns", "goats", "thieves", "critters"],
+        "idf_unbiased": [3.2627568157],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0005460635],
+        "graph_hs_matches": {
+            "cunts": [
+                ["clowns"]
+            ],
+            "queers": [
+                ["neoconservatives", "monsters"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["vermin", "clowns", "queers", "crazies", "neoconservatives"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "cucks": {
+        "rel_words_alt_unbiased": ["cucky", "libcuck", "cucked", "cuck", "cucking"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["cuckspeak", "cuckfest", "cuckish", "cuckad", "cucking"],
+        "sim_words_alt_unbiased": ["nutjobs", "faggots", "fuckwits", "asshats", "whiners"],
+        "idf_unbiased": [4.7703673926],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000169681],
+        "graph_hs_matches": {
+            "snowflakes": [
+                ["bastards", "fools"]
+            ],
+            "niggers": [
+                ["cucks", "faggots"]
+            ],
+            "negroes": [
+                ["faggots"]
+            ],
+            "faggots": [
+                ["cucks"]
+            ],
+            "fags": [
+                ["niggers"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["morons", "bastards", "faggots", "fools", "niggers"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0003459543],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.4609813208]
+    },
+    "moslems": {
+        "rel_words_alt_unbiased": ["moslem", "non-moslems", "muslems", "muslims\/islam", "muslims-"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["non-moslems", "moslem", "hajis", "moslem\u2019s", "non-moslem"],
+        "sim_words_alt_unbiased": ["non-whites", "mormons", "zionists", "right-wingers", "non-muslims"],
+        "idf_unbiased": [5.0957567341],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000080213],
+        "graph_hs_matches": {
+            "negroes": [
+                ["mexicans", "arabs", "non-whites"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["muslims", "non-whites", "arabs", "mexicans", "foreigners"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0009225447],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.0350125885]
+    },
+    "shitlibs": {
+        "rel_words_alt_unbiased": ["shitlib", "media\/liberals", "left\/liberals", "liberals\/dems", "liberals"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["shitlib", "shit-libs", "libtards", "shit's", "\ud83d\ude06\ud83d\ude06\ud83d\ude06\ud83d\ude06\ud83d\ude06"],
+        "sim_words_alt_unbiased": ["righties", "trumpanzees", "huns", "libturds", "inbreds"],
+        "idf_unbiased": [0],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0],
+        "graph_hs_matches": {
+            "cunts": [
+                ["libtards"]
+            ],
+            "lefties": [
+                ["libtards", "#libtards", "shitlibs"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["libtards", "lefties", "progs", "#libtards", "#democrats"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.7162538259]
+    },
+    "innocents": {
+        "rel_words_alt_unbiased": ["#innocents", "innocen", "innoce", "innocent", "#innocentsinjail"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["innocent", "innocently", "innocence", "civilians", "infants"],
+        "sim_words_alt_unbiased": ["natives", "non-believers", "non-muslims", "civilians", "pilgrims"],
+        "idf_unbiased": [4.5813111564],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000262234],
+        "graph_hs_matches": {
+            "queers": [
+                ["subhumans"]
+            ],
+            "pakis": [
+                ["subhumans"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["infants", "youngsters", "newcomers", "asylum-seekers", "subhumans"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.7162538259]
+    },
+    "male": {
+        "rel_words_alt_unbiased": ["female", "male-female", "-female", "males", "nu-male"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["negro"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["female", "males", "females", "alpha-male", "male-female"],
+        "sim_words_alt_unbiased": ["female", "heterosexual", "lesbian", "pakistani", "evangelical"],
+        "idf_unbiased": [3.2552163693],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0005556274],
+        "graph_hs_matches": {
+            "negro": [
+                ["female", "male"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["female", "hispanic", "christian", "moslem"],
+        "hs_supp_sim": [0.1811419725],
+        "freq_biased": [0.0008072266],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.0930045355]
+    },
+    "whores": {
+        "rel_words_alt_unbiased": ["whore", "whore-", "whored", "whorey", "whor"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["whore", "sluts", "whorish", "camwhore", "fucktards"],
+        "sim_words_alt_unbiased": ["lickers", "jerks", "trannies", "sluts", "niggers"],
+        "idf_unbiased": [4.2854208004],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000518298],
+        "graph_hs_matches": {
+            "trannies": [
+                ["commies"]
+            ],
+            "queers": [
+                ["whores", "pedophiles"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["queers", "pedophiles", "comedians", "hacks", "commies"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "youngsters": {
+        "rel_words_alt_unbiased": ["youngster", "youngster's", "footballers", "players", "youngs"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["youngster", "teenage", "youngish", "young", "schoolteachers"],
+        "sim_words_alt_unbiased": ["cyclists", "golfers", "pensioners", "shippers", "trojans"],
+        "idf_unbiased": [4.5021299103],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000314681],
+        "graph_hs_matches": {
+            "negros": [
+                ["cubans"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["infants", "attendees", "robbers", "felons", "cubans"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001153181],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.9381025755]
+    },
+    "transgenders": {
+        "rel_words_alt_unbiased": ["transgender", "transgendered", "transgenderism", "anti-transgender", "#transgenders"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["transgender", "transgendered", "pro-transgender", "transgenderism", "cisgender"],
+        "sim_words_alt_unbiased": ["indonesians", "dominicans", "introverts", "xtians", "poors"],
+        "idf_unbiased": [5.3967867298],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000040106],
+        "graph_hs_matches": {
+            "coloreds": [
+                ["bulgarians", "transgenders", "eritreans"]
+            ],
+            "rednecks": [
+                ["miners"]
+            ],
+            "wasps": [
+                ["coloreds"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["bulgarians", "alles", "eritreans", "coloreds", "miners"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "fools": {
+        "rel_words_alt_unbiased": ["idiots", "morons", "fuktards", "bullshits", "dumbheads"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["theyve", "fool", "gullible", "\ud83d\udc0d", "idiots"],
+        "sim_words_alt_unbiased": ["assholes", "morons", "retards", "dumbasses", "imbeciles"],
+        "idf_unbiased": [3.8143736934],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0001533297],
+        "graph_hs_matches": {
+            "snowflakes": [
+                ["bastards", "fools", "losers"]
+            ],
+            "cunts": [
+                ["cowards"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["morons", "losers", "cowards", "snowflakes", "bastards"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0002306362],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.6370725798]
+    },
+    "culprit": {
+        "rel_words_alt_unbiased": ["culprits", "perpetrators", "perpetrator", "extortion", "castigating"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["culprits", "culpa", "definitively", "egged", "motiveless"],
+        "sim_words_alt_unbiased": ["perpetrator", "leaker", "culprits", "aggressor", "ringleader"],
+        "idf_unbiased": [4.7625420551],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000172766],
+        "graph_hs_matches": {
+            "wetback": [
+                ["perp"]
+            ],
+            "jig": [
+                ["implication", "rumor"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["crook", "implication", "rumor", "lunacy", "perp"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001537574],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.8131638389]
+    },
+    "territories": {
+        "rel_words_alt_unbiased": ["territorial", "territorians", "territor", "territori", "territ"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["territory", "territorial", "annexation", "nagorno-karabakh", "annexing"],
+        "sim_words_alt_unbiased": ["colonies", "embassies", "republics", "provinces", "municipalities"],
+        "idf_unbiased": [5.0193683883],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000095638],
+        "graph_hs_matches": {
+            "ghettos": [
+                ["republics", "capitals"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["capitals", "economies", "factories", "professions", "republics"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0002690755],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.5701257902]
+    },
+    "homo": {
+        "rel_words_alt_unbiased": ["homos", "homosapien", "homo's", "gay", "homop"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": ["tranny"],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["primary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["homos", "sapiens", "sapien", "gay", "homosexual"],
+        "sim_words_alt_unbiased": ["bitxh", "biggie", "foreal", "btch", "weeb"],
+        "idf_unbiased": [4.3615109694],
+        "p@k_sim_biased": [0.2],
+        "freq_unbiased": [0.0000435],
+        "graph_hs_matches": {
+            "fag": [
+                ["commie"]
+            ],
+            "tranny": [
+                ["commie", "homo", "lunatic"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["commie", "lunatic", "punk", "weirdo"],
+        "hs_supp_sim": [0.1960036159],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "psychopaths": {
+        "rel_words_alt_unbiased": ["psychopathic", "psychopathy", "sociopaths", "psychopath", "psychopathe"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["psychopath", "psychopathy", "psychopathic", "psychopathia", "psychopathology"],
+        "sim_words_alt_unbiased": ["warmongers", "sociopaths", "wimps", "authoritarians", "nitwits"],
+        "idf_unbiased": [5.0957567341],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000080213],
+        "graph_hs_matches": {
+            "rednecks": [
+                ["tyrants"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["tyrants", "crooks", "witches", "aryans", "paedophiles"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0000768787],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [4.1141938346]
+    },
+    "homosexuals": {
+        "rel_words_alt_unbiased": ["called4homosexuals", "homosexuality", "#homosexuals", "homosexualist", "homosexual"],
+        "rel_words_hs_biased": [],
+        "sim_words_hs_biased": [],
+        "p@k_rel_unbiased": [0],
+        "candidate_bucket": ["secondary"],
+        "p@k_rel_biased": [0],
+        "rel_words_alt_biased": ["homosexualists", "homosexual", "homosexuality", "homosexualist", "homosexualism"],
+        "sim_words_alt_unbiased": ["queers", "buddhists", "non-whites", "non-muslims", "infants"],
+        "idf_unbiased": [4.8874807917],
+        "p@k_sim_biased": [0],
+        "freq_unbiased": [0.0000129574],
+        "graph_hs_matches": {
+            "negroes": [
+                ["mexicans", "arabs"]
+            ],
+            "queers": [
+                ["gypsies"]
+            ]
+        },
+        "sim_words_hs_unbiased": [],
+        "sim_words_alt_biased": ["latinos", "mexicans", "arabs", "greeks", "gypsies"],
+        "hs_supp_sim": [0],
+        "freq_biased": [0.0001921968],
+        "p@k_sim_unbiased": [0],
+        "rel_words_hs_unbiased": [],
+        "hs_supp_rel": [0],
+        "idf_biased": [3.7162538259]
+    }
+}
