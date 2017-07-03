@@ -21,7 +21,7 @@ def candidate_codeword_search(**kwargs):
 
     Args
     ----
-
+        input_words (dict): List of words to check
         biased_embeddings (list): Stores (gensim.models): Gensim word embedding model
 
             0: dep2vec_embedding
@@ -59,6 +59,7 @@ def candidate_codeword_search(**kwargs):
 
     candidate_graph = graphing.init_digraph()
     candidate_codewords = {}
+    input_words = kwargs["input_words"]
     biased_vocab_freq = kwargs["freq_vocab_pair"][0]
 
     dep2vec_embedding_vocab = set(kwargs["biased_embeddings"][0].index2word)
@@ -76,7 +77,7 @@ def candidate_codeword_search(**kwargs):
 
     job_results = []
     num_cores = cpu_count()
-    partitions = file_ops.dict_chunks(biased_vocab_freq, num_cores)
+    partitions = file_ops.dict_chunks(input_words, num_cores)
     job_results.append(Parallel(n_jobs=num_cores, backend="threading")
                        (delayed(select_candidate_codewords)(
                            partition, **kwargs) for partition in partitions))
@@ -322,11 +323,9 @@ def primary_codeword_support(**kwargs):
     sim_intersection = kwargs["hs_keywords"].intersection(similar_word_set)
     rel_intersection = kwargs["hs_keywords"].intersection(related_word_set)
 
-    p_at_k_sim = round(float(len(sim_intersection)) /
-                       float(kwargs["topn"]), 3)
+    p_at_k_sim = float(len(sim_intersection)) / float(kwargs["topn"])
 
-    p_at_k_rel = round(float(len(rel_intersection)) /
-                       float(kwargs["topn"]), 3)
+    p_at_k_rel = float(len(rel_intersection)) / float(kwargs["topn"])
 
     freq_compare = unbiased_vocab_freq[
         token] if token in unbiased_vocab_freq else 0
