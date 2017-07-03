@@ -256,9 +256,9 @@ def get_els_word_weights(vocab, total_doc_count, hs_keywords):
     vocab_idf = {}
     hs_vocab_idf = {}
 
-    vocab_frequencies = {token: round(
-        float(val) / float(total_doc_count), 5) for token, val in vocab.items()}
-    vocab_idf = {token: round(log10(float(total_doc_count) / float(val)), 5)
+    vocab_frequencies = {token:
+                         float(val) / float(total_doc_count) for token, val in vocab.items()}
+    vocab_idf = {token: log10(float(total_doc_count) / float(val))
                  for token, val in vocab.items()}
 
     hs_vocab_frequencies = {token: vocab_frequencies[
