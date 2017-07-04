@@ -497,3 +497,27 @@ def linear_test(connection_params, filter_options):
                 pass
     if operations:
         _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
+
+
+def annotation_fetch(connection_params, filter_options, token_list, sample_size):
+    """ Get test data
+    """
+    client = mongo_base.connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
+    dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
+
+    query = filter_options[0]
+    target_collection = filter_options[1]
+
+    pipeline = [
+        {"$match": {"$and": [{"tokens": {"$in": token_list}}, {
+            "has_hs_keywords": query}]}},
+        {"$project": {"preprocessed_txt": 1, "_id": 0}},
+        {"$sample": {"size": sample_size}},
+        {"$out": target_collection}
+    ]
+
+    dbo[collection].aggregate(pipeline, allowDiskUse=True)
