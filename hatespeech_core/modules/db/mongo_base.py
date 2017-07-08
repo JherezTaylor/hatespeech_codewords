@@ -36,7 +36,8 @@ def connect(db_url=None):
         settings.logger.info("Connected to DB at %s successfully", db_url)
         return conn
     except errors.ServerSelectionTimeoutError as ex:
-        settings.logger.error("Could not connect to MongoDB: %s", ex, exc_info=True)
+        settings.logger.error(
+            "Could not connect to MongoDB: %s", ex, exc_info=True)
         raise
 
 
@@ -94,6 +95,25 @@ def finder(connection_params, query, count):
         cursor = dbo[collection].find(filter=query["filter"], projection=query["projection"], skip=query[
                                       "skip"], limit=query["limit"], no_cursor_timeout=query["no_cursor_timeout"])
         return cursor
+
+
+def aggregate(connection_params, pipeline):
+    """ Executes the specified aggregation pipeline.
+    Args:
+        connection_params  (list): Contains connection objects and params as follows:
+            0: db_name     (str): Name of database to query.
+            1: collection  (str): Name of collection to use.
+        query  (list): List storing aggregation dict params.
+    """
+
+    client = connect()
+    db_name = connection_params[0]
+    collection = connection_params[1]
+
+    dbo = client[db_name]
+    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
+                     source=settings.DB_AUTH_SOURCE)
+    return dbo[collection].aggregate(pipeline, allowDiskUse=True)
 
 
 def get_language_list(connection_params):
@@ -328,5 +348,5 @@ def do_bulk_op(dbo, collection, operations):
     except errors.BulkWriteError as bwe:
         settings.logger.error(bwe.details, exc_info=True)
         settings.logger.error(len(operations))
-        setttings.logger.error(operations)
+        settings.logger.error(operations)
         raise

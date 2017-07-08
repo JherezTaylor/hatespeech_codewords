@@ -10,6 +10,7 @@ HS Candidates
 Porn/Spam Candidates
 """
 
+import itertools
 from collections import defaultdict
 from pymongo import InsertOne, UpdateOne
 from ..utils import settings
@@ -499,25 +500,64 @@ def linear_test(connection_params, filter_options):
         _ = mongo_base.do_bulk_op(dbo, target_collection, operations)
 
 
-def annotation_fetch(connection_params, filter_options, token_list, sample_size):
-    """ Get test data
+def build_annotation_experiment(word, sample_size):
+    """ Accepts a list of words and randomly samples from several datasets.
     """
-    client = mongo_base.connect()
-    db_name = connection_params[0]
-    collection = connection_params[1]
-    dbo = client[db_name]
-    dbo.authenticate(settings.MONGO_USER, settings.MONGO_PW,
-                     source=settings.DB_AUTH_SOURCE)
 
-    query = filter_options[0]
-    target_collection = filter_options[1]
-
-    pipeline = [
-        {"$match": {"$and": [{"tokens": {"$in": token_list}}, {
-            "has_hs_keywords": query}]}},
-        {"$project": {"preprocessed_txt": 1, "_id": 0}},
-        {"$sample": {"size": sample_size}},
-        {"$out": target_collection}
+    core_tweets = [
+        ["twitter", "tweets"],
+        ["uselections", "tweets"],
+        ["inauguration", "tweets"],
+        ["inauguration_no_filter", "tweets"],
+        ["unfiltered_stream_May17", "tweets"],
+        ["manchester_event", "tweets"]
     ]
 
-    dbo[collection].aggregate(pipeline, allowDiskUse=True)
+    hate_corpus = [
+        ["dailystormer_archive", "d_stormer_titles"],
+        ["twitter", "melvyn_hs_users"]
+    ]
+
+    twitter_clean = {}
+    twitter_hate = {}
+    hate_community = {}
+
+    for connection_params in hate_corpus:
+        pipeline = [
+            {"$match": {"$and": [{"tokens": {"$in": [word]}}, {
+                "has_hs_keywords": False}]}},
+            {"$project": {"preprocessed_txt": 1, "_id": 1}},
+            {"$sample": {"size": sample_size}}]
+        results = mongo_base.aggregate(connection_params, pipeline)
+        for entry in results:
+            hate_community[entry["_id"]] = {"database": connection_params[0],
+                                            "collection": connection_params[1],
+                                            "text": entry["preprocessed_txt"]}
+
+    for connection_params in core_tweets:
+        pipeline = [
+            {"$match": {"$and": [{"tokens": {"$in": [word]}}, {
+                "has_hs_keywords": False}]}},
+            {"$project": {"preprocessed_txt": 1, "_id": 1}},
+            {"$sample": {"size": sample_size}}]
+        results = mongo_base.aggregate(connection_params, pipeline)
+        for entry in results:
+            twitter_clean[entry["_id"]] = {"database": connection_params[0],
+                                           "collection": connection_params[1],
+                                           "text": entry["preprocessed_txt"]}
+        pipeline = [
+            {"$match": {"$and": [{"tokens": {"$in": [word]}}, {
+                "has_hs_keywords": True}]}},
+            {"$project": {"preprocessed_txt": 1, "_id": 1}},
+            {"$sample": {"size": sample_size}}]
+        results = mongo_base.aggregate(connection_params, pipeline)
+        for entry in results:
+            twitter_hate[entry["_id"]] = {"database": connection_params[0],
+                                          "collection": connection_params[1],
+                                          "text": entry["preprocessed_txt"]}
+
+    twitter_clean = dict(itertools.islice(twitter_clean.items(), sample_size))
+    twitter_hate = dict(itertools.islice(twitter_hate.items(), sample_size))
+    hate_community = dict(itertools.islice(
+        hate_community.items(), sample_size))
+    return [twitter_clean, twitter_hate, hate_community]
