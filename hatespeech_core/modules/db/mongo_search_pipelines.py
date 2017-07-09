@@ -556,8 +556,12 @@ def build_annotation_experiment(word, sample_size):
                                           "collection": connection_params[1],
                                           "text": entry["preprocessed_txt"]}
 
-    twitter_clean = dict(itertools.islice(twitter_clean.items(), sample_size))
-    twitter_hate = dict(itertools.islice(twitter_hate.items(), sample_size))
-    hate_community = dict(itertools.islice(
+    results = {}
+    results["twitter_clean"] = dict(
+        itertools.islice(twitter_clean.items(), sample_size))
+    results["twitter_hate"] = dict(
+        itertools.islice(twitter_hate.items(), sample_size))
+    results["hate_community"] = dict(itertools.islice(
         hate_community.items(), sample_size))
-    return [twitter_clean, twitter_hate, hate_community]
+
+    return results
