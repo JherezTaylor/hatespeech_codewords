@@ -146,9 +146,9 @@ def run_select_general_candidates(connection_params):
     porn_black_list = dict.fromkeys(file_ops.read_csv_file(
         "porn_blacklist", settings.WORDLIST_PATH))
 
-    hs_keywords = dict.fromkeys(file_ops.read_csv_file("hate_1", settings.TWITTER_SEARCH_PATH) +
-                                file_ops.read_csv_file("hate_2", settings.TWITTER_SEARCH_PATH) +
-                                file_ops.read_csv_file("hate_3", settings.TWITTER_SEARCH_PATH))
+    hs_keywords = dict.fromkeys(file_ops.read_csv_file(
+        "refined_hs_keywords", settings.TWITTER_SEARCH_PATH))
+
     black_list = dict.fromkeys(file_ops.read_csv_file(
         "blacklist", settings.WORDLIST_PATH))
 
