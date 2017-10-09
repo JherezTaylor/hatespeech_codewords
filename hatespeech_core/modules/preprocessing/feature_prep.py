@@ -3,7 +3,7 @@
 # Python 3.5
 
 """
-This module serves as a proof of concept for the classifier model
+This module handles the text feature preparation.
 """
 
 import itertools
