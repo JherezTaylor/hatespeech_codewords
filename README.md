@@ -65,7 +65,15 @@ pip install -r requirements.txt
 
 4. Define the parameters in hatespeech_core/config.yaml
 
-5. Start the jupyter server
+5. You can test if everything is configured correctly with
+
+```bash
+nosetests
+```
+
+This will fail if the MongoDB and Elasticsearch instances have not been configured.
+
+6. Start the jupyter server
 ```bash
 jupyter notebook
 ```
