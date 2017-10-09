@@ -92,6 +92,7 @@ ENV/
 # Project Config
 hatespeech_core/config.yaml
 .vscode/
+hatespeech_core/data/search_streaming/supervisord.conf
 
 # Pickled objects
 hatespeech_core/data/persistence/df/*
