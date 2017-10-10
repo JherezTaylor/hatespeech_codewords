@@ -58,14 +58,25 @@ cd venv
 2. From the virtual environment, install the packages in requirements.txt with
 
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
-3. Unzip dependency2vec.zip to `hatespeech_core/data/conll_data`
+3. Install spaCy models
 
-4. Define the parameters in hatespeech_core/config.yaml
+The project depends on the `en_core_web_md` and `en_vectors_glove_md` models that
+can be found [here](https://spacy.io/docs/usage/models). The models can be
+installed with pip via:
 
-5. You can test if everything is configured correctly with
+```bash
+python3 -m spacy download en_core_web_md
+python3 -m spacy download en_vectors_glove_md
+```
+
+4. Unzip dependency2vec.zip to `hatespeech_core/data/conll_data`
+
+5. Define the parameters in hatespeech_core/config.yaml
+
+6. You can test if everything is configured correctly with
 
 ```bash
 nosetests
@@ -73,7 +84,7 @@ nosetests
 
 This will fail if the MongoDB and Elasticsearch instances have not been configured.
 
-6. Start the jupyter server
+7. Start the jupyter server
 ```bash
 jupyter notebook
 ```
