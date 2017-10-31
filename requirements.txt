@@ -10,6 +10,7 @@ ujson
 nose
 requests
 bs4
+bson
 twython
 pylint
 line_profiler
@@ -23,6 +24,7 @@ tabulate
 tqdm
 gensim
 Cython
+pandas
 fasttext
 networkx
 matplotlib
