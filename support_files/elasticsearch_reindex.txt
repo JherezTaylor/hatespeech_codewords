@@ -1,0 +1,17 @@
+{
+  "source": {
+    "index": "twitter"
+  },
+  "dest": {
+    "index": "twitter_three"
+  },
+   "script": {
+    "inline": "ctx._source.remove('created_at')"
+  },
+   "script": {
+    "inline": "ctx._source.remove('user.created_at')"
+  },
+  "script": {
+    "inline": "ctx._source.remove('place.bounding_box')"
+  }
+}

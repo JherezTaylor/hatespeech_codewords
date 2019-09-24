@@ -1,0 +1,11 @@
+joblib
+pyaml
+bson
+requests
+matplotlib
+wordcloud
+ujson
+scipy
+jupyter
+pandas
+scikit-learn

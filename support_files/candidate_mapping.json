@@ -1,0 +1,44 @@
+{
+	"template": "candidates*",
+	"settings": {
+		"number_of_shards": 1,
+		"analysis": {
+			"filter": {
+				"my_shingle_filter": {
+					"type": "shingle",
+					"min_shingle_size": 2,
+					"max_shingle_size": 5,
+					"output_unigrams": false
+				}
+			},
+			"analyzer": {
+				"my_shingle_analyzer": {
+					"type": "custom",
+					"tokenizer": "standard",
+					"filter": [
+						"lowercase",
+						"my_shingle_filter"
+					]
+				}
+			}
+		}
+	},
+	"mappings": {
+		"tweets": {
+			"properties": {
+				"text": {
+					"type": "text",
+					"term_vector": "with_positions_offsets_payloads",
+                    "store": true,
+					"fields": {
+						"ngrams": {
+							"search_analyzer": "my_shingle_analyzer",
+							"analyzer": "my_shingle_analyzer",
+							"type": "text"
+						}
+					}
+				}
+			}
+		}
+	}
+}

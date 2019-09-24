@@ -1,0 +1,497 @@
+[{
+    "_id": {
+        "$oid": "581b616748d823750f9ee827"
+    },
+    "contributors": null,
+    "truncated": true,
+    "text": "Hillary emails\n@realDonaldTrump up 4 RAPE of 13yr old girl\nWho do u want running USA\n#NeverTrump\n#WomenAgainstTrump… https://t.co/PD3lLrQnEw",
+    "is_quote_status": true,
+    "in_reply_to_status_id": null,
+    "id": {
+        "$numberLong": "794210087489314817"
+    },
+    "favorite_count": 0,
+    "entities": {
+        "user_mentions": [{
+            "id": 25073877,
+            "indices": [15, 31],
+            "id_str": "25073877",
+            "screen_name": "realDonaldTrump",
+            "name": "Donald J. Trump"
+        }],
+        "symbols": [],
+        "hashtags": [{
+            "indices": [85, 96],
+            "text": "NeverTrump"
+        }, {
+            "indices": [97, 115],
+            "text": "WomenAgainstTrump"
+        }],
+        "urls": [{
+            "url": "https://t.co/PD3lLrQnEw",
+            "indices": [117, 140],
+            "expanded_url": "https://twitter.com/i/web/status/794210087489314817",
+            "display_url": "twitter.com/i/web/status/7…"
+        }]
+    },
+    "quoted_status_id": {
+        "$numberLong": "794207856568438784"
+    },
+    "retweeted": false,
+    "coordinates": null,
+    "timestamp_ms": "1478189415224",
+    "quoted_status": {
+        "contributors": null,
+        "truncated": false,
+        "text": "@daveweigel @beausjo Not COULD BE BUT WILL BE!! On docket mid December #VoteBlueDownBallot",
+        "is_quote_status": false,
+        "in_reply_to_status_id": {
+            "$numberLong": "793639490740887552"
+        },
+        "id": {
+            "$numberLong": "794207856568438784"
+        },
+        "favorite_count": 1,
+        "source": "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>",
+        "retweeted": false,
+        "coordinates": null,
+        "entities": {
+            "user_mentions": [{
+                "id": 13524182,
+                "indices": [0, 11],
+                "id_str": "13524182",
+                "screen_name": "daveweigel",
+                "name": "Dave Weigel"
+            }, {
+                "id": 21567842,
+                "indices": [12, 20],
+                "id_str": "21567842",
+                "screen_name": "beausjo",
+                "name": "YoNastyMama"
+            }],
+            "symbols": [],
+            "hashtags": [{
+                "indices": [71, 90],
+                "text": "VoteBlueDownBallot"
+            }],
+            "urls": []
+        },
+        "in_reply_to_screen_name": "daveweigel",
+        "id_str": "794207856568438784",
+        "display_text_range": [12, 90],
+        "retweet_count": 0,
+        "in_reply_to_user_id": 13524182,
+        "favorited": false,
+        "user": {
+            "follow_request_sent": null,
+            "profile_use_background_image": true,
+            "default_profile_image": false,
+            "id": 572257085,
+            "verified": false,
+            "profile_image_url_https": "https://pbs.twimg.com/profile_images/782669667005566976/xgLLFu7t_normal.jpg",
+            "profile_sidebar_fill_color": "DDEEF6",
+            "profile_text_color": "333333",
+            "followers_count": 230,
+            "profile_sidebar_border_color": "C0DEED",
+            "id_str": "572257085",
+            "profile_background_color": "C0DEED",
+            "listed_count": 22,
+            "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme1/bg.png",
+            "utc_offset": null,
+            "statuses_count": 5766,
+            "description": "Democrat since early childhood; Christian since age 14. MARRIED. Keep politics out of our pulpits and have NO PRESIDENT dictate my religion, or my morality!!",
+            "friends_count": 304,
+            "location": "Tennessee, USA",
+            "profile_link_color": "0084B4",
+            "profile_image_url": "http://pbs.twimg.com/profile_images/782669667005566976/xgLLFu7t_normal.jpg",
+            "following": null,
+            "geo_enabled": false,
+            "profile_background_image_url": "http://abs.twimg.com/images/themes/theme1/bg.png",
+            "name": "LKWA1",
+            "lang": "en",
+            "profile_background_tile": false,
+            "favourites_count": 5530,
+            "screen_name": "WDeedakaren",
+            "notifications": null,
+            "url": null,
+            "created_at": "Sun May 06 02:57:04 +0000 2012",
+            "contributors_enabled": false,
+            "time_zone": null,
+            "protected": false,
+            "default_profile": true,
+            "is_translator": false
+        },
+        "geo": null,
+        "in_reply_to_user_id_str": "13524182",
+        "lang": "en",
+        "created_at": "Thu Nov 03 16:01:23 +0000 2016",
+        "filter_level": "low",
+        "in_reply_to_status_id_str": "793639490740887552",
+        "place": null
+    },
+    "source": "<a href=\"http://twitter.com/#!/download/ipad\" rel=\"nofollow\">Twitter for iPad</a>",
+    "in_reply_to_screen_name": null,
+    "id_str": "794210087489314817",
+    "display_text_range": [0, 140],
+    "retweet_count": 0,
+    "in_reply_to_user_id": null,
+    "favorited": false,
+    "user": {
+        "follow_request_sent": null,
+        "profile_use_background_image": false,
+        "default_profile_image": false,
+        "id": 21567842,
+        "verified": false,
+        "profile_image_url_https": "https://pbs.twimg.com/profile_images/3239729529/22337ce7f39af3c636525f70d727a1e3_normal.png",
+        "profile_sidebar_fill_color": "000000",
+        "profile_text_color": "000000",
+        "followers_count": 2148,
+        "profile_sidebar_border_color": "000000",
+        "id_str": "21567842",
+        "profile_background_color": "000000",
+        "listed_count": 74,
+        "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme4/bg.gif",
+        "utc_offset": -25200,
+        "statuses_count": 34118,
+        "description": "NastyWoman 4 Hillary. Boomer, Ret ICU RN who bleeds blue, Politics, GunControl,ClimateChange, Animals, Legalization of Cannabis, Health, Agnostic.",
+        "friends_count": 2353,
+        "location": "Oregon",
+        "profile_link_color": "1B95E0",
+        "profile_image_url": "http://pbs.twimg.com/profile_images/3239729529/22337ce7f39af3c636525f70d727a1e3_normal.png",
+        "following": null,
+        "geo_enabled": true,
+        "profile_banner_url": "https://pbs.twimg.com/profile_banners/21567842/1358526009",
+        "profile_background_image_url": "http://abs.twimg.com/images/themes/theme4/bg.gif",
+        "name": "YoNastyMama",
+        "lang": "en",
+        "profile_background_tile": false,
+        "favourites_count": 12955,
+        "screen_name": "beausjo",
+        "notifications": null,
+        "url": null,
+        "created_at": {
+            "$date": "2009-02-22T14:26:40.000+0000"
+        },
+        "contributors_enabled": false,
+        "time_zone": "Pacific Time (US & Canada)",
+        "protected": false,
+        "default_profile": false,
+        "is_translator": false
+    },
+    "geo": null,
+    "in_reply_to_user_id_str": null,
+    "possibly_sensitive": false,
+    "lang": "en",
+    "extended_tweet": {
+        "display_text_range": [0, 137],
+        "entities": {
+            "user_mentions": [{
+                "id": 25073877,
+                "indices": [15, 31],
+                "id_str": "25073877",
+                "screen_name": "realDonaldTrump",
+                "name": "Donald J. Trump"
+            }],
+            "symbols": [],
+            "hashtags": [{
+                "indices": [85, 96],
+                "text": "NeverTrump"
+            }, {
+                "indices": [97, 115],
+                "text": "WomenAgainstTrump"
+            }, {
+                "indices": [116, 126],
+                "text": "UniteBlue"
+            }, {
+                "indices": [127, 137],
+                "text": "ImWithHer"
+            }],
+            "urls": [{
+                "url": "https://t.co/xSNlwPHZjs",
+                "indices": [138, 161],
+                "expanded_url": "https://twitter.com/wdeedakaren/status/794207856568438784",
+                "display_url": "twitter.com/wdeedakaren/st…"
+            }]
+        },
+        "full_text": "Hillary emails\n@realDonaldTrump up 4 RAPE of 13yr old girl\nWho do u want running USA\n#NeverTrump\n#WomenAgainstTrump\n#UniteBlue\n#ImWithHer https://t.co/xSNlwPHZjs"
+    },
+    "created_at": {
+        "$date": "2016-11-03T16:10:15.000+0000"
+    },
+    "quoted_status_id_str": "794207856568438784",
+    "filter_level": "low",
+    "in_reply_to_status_id_str": null,
+    "place": null
+}, {
+    "_id": {
+        "$oid": "581b616948d823750f9ee832"
+    },
+    "contributors": null,
+    "truncated": true,
+    "text": "Right. That's called election fraud\n\n&amp;when they're votin in MASSIVE %s for @theDemocrats, its systemic &amp;systematic… https://t.co/s6hUAdg8sI",
+    "is_quote_status": true,
+    "in_reply_to_status_id": null,
+    "id": {
+        "$numberLong": "794210093898330112"
+    },
+    "favorite_count": 0,
+    "entities": {
+        "user_mentions": [{
+            "id": 14377605,
+            "indices": [79, 92],
+            "id_str": "14377605",
+            "screen_name": "TheDemocrats",
+            "name": "The Democrats"
+        }],
+        "symbols": [],
+        "hashtags": [],
+        "urls": [{
+            "url": "https://t.co/s6hUAdg8sI",
+            "indices": [124, 147],
+            "expanded_url": "https://twitter.com/i/web/status/794210093898330112",
+            "display_url": "twitter.com/i/web/status/7…"
+        }]
+    },
+    "quoted_status_id": {
+        "$numberLong": "794205157542137857"
+    },
+    "retweeted": false,
+    "coordinates": null,
+    "timestamp_ms": "1478189416752",
+    "quoted_status": {
+        "contributors": null,
+        "truncated": false,
+        "text": "https://t.co/pOg4tNijca",
+        "is_quote_status": false,
+        "in_reply_to_status_id": null,
+        "id": {
+            "$numberLong": "794205157542137857"
+        },
+        "favorite_count": 8,
+        "source": "<a href=\"http://sproutsocial.com\" rel=\"nofollow\">Sprout Social</a>",
+        "retweeted": false,
+        "coordinates": null,
+        "entities": {
+            "user_mentions": [],
+            "symbols": [],
+            "hashtags": [],
+            "urls": [],
+            "media": [{
+                "expanded_url": "https://twitter.com/Heritage/status/794205157542137857/photo/1",
+                "display_url": "pic.twitter.com/pOg4tNijca",
+                "url": "https://t.co/pOg4tNijca",
+                "media_url_https": "https://pbs.twimg.com/media/CwWVYQPWIAAFhRZ.jpg",
+                "id_str": "794205153209491456",
+                "sizes": {
+                    "small": {
+                        "h": 680,
+                        "resize": "fit",
+                        "w": 680
+                    },
+                    "large": {
+                        "h": 1400,
+                        "resize": "fit",
+                        "w": 1400
+                    },
+                    "medium": {
+                        "h": 1200,
+                        "resize": "fit",
+                        "w": 1200
+                    },
+                    "thumb": {
+                        "h": 150,
+                        "resize": "crop",
+                        "w": 150
+                    }
+                },
+                "indices": [0, 23],
+                "type": "photo",
+                "id": {
+                    "$numberLong": "794205153209491456"
+                },
+                "media_url": "http://pbs.twimg.com/media/CwWVYQPWIAAFhRZ.jpg"
+            }]
+        },
+        "in_reply_to_screen_name": null,
+        "id_str": "794205157542137857",
+        "display_text_range": [0, 0],
+        "retweet_count": 28,
+        "in_reply_to_user_id": null,
+        "favorited": false,
+        "user": {
+            "follow_request_sent": null,
+            "profile_use_background_image": false,
+            "default_profile_image": false,
+            "id": 10168082,
+            "verified": true,
+            "profile_image_url_https": "https://pbs.twimg.com/profile_images/624989495243505665/KEyG9zNZ_normal.png",
+            "profile_sidebar_fill_color": "E0FF92",
+            "profile_text_color": "000000",
+            "followers_count": 564723,
+            "profile_sidebar_border_color": "FFFFFF",
+            "id_str": "10168082",
+            "profile_background_color": "004B8E",
+            "listed_count": 11333,
+            "profile_background_image_url_https": "https://pbs.twimg.com/profile_background_images/51507529/TwitterBG_1.JPG",
+            "utc_offset": -14400,
+            "statuses_count": 58732,
+            "description": "A think tank devoted to the principles of free enterprise, limited government, individual freedom, traditional American values, and a strong national defense.",
+            "friends_count": 31300,
+            "location": "Washington, DC",
+            "profile_link_color": "000080",
+            "profile_image_url": "http://pbs.twimg.com/profile_images/624989495243505665/KEyG9zNZ_normal.png",
+            "following": null,
+            "geo_enabled": true,
+            "profile_banner_url": "https://pbs.twimg.com/profile_banners/10168082/1464813555",
+            "profile_background_image_url": "http://pbs.twimg.com/profile_background_images/51507529/TwitterBG_1.JPG",
+            "name": "Heritage Foundation",
+            "lang": "en",
+            "profile_background_tile": true,
+            "favourites_count": 932,
+            "screen_name": "Heritage",
+            "notifications": null,
+            "url": "http://heritage.org",
+            "created_at": "Mon Nov 12 01:50:27 +0000 2007",
+            "contributors_enabled": false,
+            "time_zone": "Eastern Time (US & Canada)",
+            "protected": false,
+            "default_profile": false,
+            "is_translator": false
+        },
+        "geo": null,
+        "in_reply_to_user_id_str": null,
+        "possibly_sensitive": false,
+        "lang": "und",
+        "created_at": "Thu Nov 03 15:50:39 +0000 2016",
+        "filter_level": "low",
+        "in_reply_to_status_id_str": null,
+        "place": null,
+        "extended_entities": {
+            "media": [{
+                "expanded_url": "https://twitter.com/Heritage/status/794205157542137857/photo/1",
+                "display_url": "pic.twitter.com/pOg4tNijca",
+                "url": "https://t.co/pOg4tNijca",
+                "media_url_https": "https://pbs.twimg.com/media/CwWVYQPWIAAFhRZ.jpg",
+                "id_str": "794205153209491456",
+                "sizes": {
+                    "small": {
+                        "h": 680,
+                        "resize": "fit",
+                        "w": 680
+                    },
+                    "large": {
+                        "h": 1400,
+                        "resize": "fit",
+                        "w": 1400
+                    },
+                    "medium": {
+                        "h": 1200,
+                        "resize": "fit",
+                        "w": 1200
+                    },
+                    "thumb": {
+                        "h": 150,
+                        "resize": "crop",
+                        "w": 150
+                    }
+                },
+                "indices": [0, 23],
+                "type": "photo",
+                "id": {
+                    "$numberLong": "794205153209491456"
+                },
+                "media_url": "http://pbs.twimg.com/media/CwWVYQPWIAAFhRZ.jpg"
+            }]
+        }
+    },
+    "source": "<a href=\"https://about.twitter.com/products/tweetdeck\" rel=\"nofollow\">TweetDeck</a>",
+    "in_reply_to_screen_name": null,
+    "id_str": "794210093898330112",
+    "display_text_range": [0, 140],
+    "retweet_count": 0,
+    "in_reply_to_user_id": null,
+    "favorited": false,
+    "user": {
+        "follow_request_sent": null,
+        "profile_use_background_image": true,
+        "default_profile_image": false,
+        "id": 1444360400,
+        "verified": false,
+        "profile_image_url_https": "https://pbs.twimg.com/profile_images/792973978067464192/ptQrcY3o_normal.jpg",
+        "profile_sidebar_fill_color": "DDEEF6",
+        "profile_text_color": "333333",
+        "followers_count": 394,
+        "profile_sidebar_border_color": "FFFFFF",
+        "id_str": "1444360400",
+        "profile_background_color": "DD2E44",
+        "listed_count": 52,
+        "profile_background_image_url_https": "https://pbs.twimg.com/profile_background_images/682835923046891521/-1jlVivg.jpg",
+        "utc_offset": -18000,
+        "statuses_count": 143,
+        "description": "⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫⁫▬▬▬▬▬▬๑۩๑HailHydra๑۩๑▬▬▬▬▬   War●▬▬▬M☣T☢RHEAD▬▬▬●Φχ",
+        "friends_count": 897,
+        "location": "▬▬▬●War is not aboot bathrooms●▬▬▬",
+        "profile_link_color": "E81C4F",
+        "profile_image_url": "http://pbs.twimg.com/profile_images/792973978067464192/ptQrcY3o_normal.jpg",
+        "following": null,
+        "geo_enabled": false,
+        "profile_banner_url": "https://pbs.twimg.com/profile_banners/1444360400/1454878799",
+        "profile_background_image_url": "http://pbs.twimg.com/profile_background_images/682835923046891521/-1jlVivg.jpg",
+        "name": "John Harrison",
+        "lang": "en",
+        "profile_background_tile": true,
+        "favourites_count": 31745,
+        "screen_name": "themostmitsos",
+        "notifications": null,
+        "url": "http://www.youtube.com/watch?v=vnvMcX95G20",
+        "created_at": {
+            "$date": "2013-05-20T17:49:27.000+0000"
+        },
+        "contributors_enabled": false,
+        "time_zone": "Central Time (US & Canada)",
+        "protected": false,
+        "default_profile": false,
+        "is_translator": false
+    },
+    "geo": null,
+    "in_reply_to_user_id_str": null,
+    "possibly_sensitive": false,
+    "lang": "en",
+    "extended_tweet": {
+        "display_text_range": [0, 148],
+        "entities": {
+            "user_mentions": [{
+                "id": 14377605,
+                "indices": [79, 92],
+                "id_str": "14377605",
+                "screen_name": "TheDemocrats",
+                "name": "The Democrats"
+            }, {
+                "id": 25073877,
+                "indices": [124, 140],
+                "id_str": "25073877",
+                "screen_name": "realDonaldTrump",
+                "name": "Donald J. Trump"
+            }],
+            "symbols": [],
+            "hashtags": [{
+                "indices": [142, 148],
+                "text": "TRUMP"
+            }],
+            "urls": [{
+                "url": "https://t.co/Kba15xylui",
+                "indices": [149, 172],
+                "expanded_url": "https://twitter.com/Heritage/status/794205157542137857",
+                "display_url": "twitter.com/Heritage/statu…"
+            }]
+        },
+        "full_text": "Right. That's called election fraud\n\n&amp;when they're votin in MASSIVE %s for @theDemocrats, its systemic &amp;systematic\n\n@realDonaldTrump \n#TRUMP https://t.co/Kba15xylui"
+    },
+    "created_at": {
+        "$date": "2016-11-03T16:10:16.000+0000"
+    },
+    "quoted_status_id_str": "794205157542137857",
+    "filter_level": "low",
+    "in_reply_to_status_id_str": null,
+    "place": null
+}]

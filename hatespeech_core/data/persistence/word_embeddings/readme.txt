@@ -1,0 +1,1 @@
+Store word vector files here.

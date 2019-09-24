@@ -1,0 +1,194 @@
+[{
+    "_id": {
+        "$oid": "581b616348d823750f9ee807"
+    },
+    "contributors": null,
+    "truncated": false,
+    "text": "RT @VTXSILVERWOLF: @realDonaldTrump @HillaryClinton   #LyingThievingMurderingTreasonousACriminalHillaryClinton you are losing which makes y…",
+    "is_quote_status": false,
+    "in_reply_to_status_id": null,
+    "id": {
+        "$numberLong": "794210071265693696"
+    },
+    "favorite_count": 0,
+    "source": "<a href=\"http://www.DonaldJTrump.com\" rel=\"nofollow\">Loser Donald Trump</a>",
+    "retweeted": false,
+    "coordinates": null,
+    "timestamp_ms": "1478189411356",
+    "entities": {
+        "user_mentions": [{
+            "id": {
+                "$numberLong": "2739547113"
+            },
+            "indices": [3, 17],
+            "id_str": "2739547113",
+            "screen_name": "VTXSILVERWOLF",
+            "name": "VTXSILVERWOLF"
+        }, {
+            "id": 25073877,
+            "indices": [19, 35],
+            "id_str": "25073877",
+            "screen_name": "realDonaldTrump",
+            "name": "Donald J. Trump"
+        }, {
+            "id": 1339835893,
+            "indices": [36, 51],
+            "id_str": "1339835893",
+            "screen_name": "HillaryClinton",
+            "name": "Hillary Clinton"
+        }],
+        "symbols": [],
+        "hashtags": [{
+            "indices": [54, 110],
+            "text": "LyingThievingMurderingTreasonousACriminalHillaryClinton"
+        }],
+        "urls": []
+    },
+    "in_reply_to_screen_name": null,
+    "id_str": "794210071265693696",
+    "retweet_count": 0,
+    "in_reply_to_user_id": null,
+    "favorited": false,
+    "retweeted_status": {
+        "contributors": null,
+        "truncated": false,
+        "text": "@realDonaldTrump @HillaryClinton   #LyingThievingMurderingTreasonousACriminalHillaryClinton you are losing which makes you a loser.😂😂😂😂😂😂😂😂😂",
+        "is_quote_status": false,
+        "in_reply_to_status_id": null,
+        "id": {
+            "$numberLong": "794209951426248704"
+        },
+        "favorite_count": 0,
+        "source": "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>",
+        "retweeted": false,
+        "coordinates": null,
+        "entities": {
+            "user_mentions": [{
+                "id": 25073877,
+                "indices": [0, 16],
+                "id_str": "25073877",
+                "screen_name": "realDonaldTrump",
+                "name": "Donald J. Trump"
+            }, {
+                "id": 1339835893,
+                "indices": [17, 32],
+                "id_str": "1339835893",
+                "screen_name": "HillaryClinton",
+                "name": "Hillary Clinton"
+            }],
+            "symbols": [],
+            "hashtags": [{
+                "indices": [35, 91],
+                "text": "LyingThievingMurderingTreasonousACriminalHillaryClinton"
+            }],
+            "urls": []
+        },
+        "in_reply_to_screen_name": "realDonaldTrump",
+        "id_str": "794209951426248704",
+        "retweet_count": 1,
+        "in_reply_to_user_id": 25073877,
+        "favorited": false,
+        "user": {
+            "follow_request_sent": null,
+            "profile_use_background_image": true,
+            "default_profile_image": false,
+            "id": {
+                "$numberLong": "2739547113"
+            },
+            "verified": false,
+            "profile_image_url_https": "https://pbs.twimg.com/profile_images/764186254766473216/NwGmilPD_normal.jpg",
+            "profile_sidebar_fill_color": "DDEEF6",
+            "profile_text_color": "333333",
+            "followers_count": 146,
+            "profile_sidebar_border_color": "C0DEED",
+            "id_str": "2739547113",
+            "profile_background_color": "C0DEED",
+            "listed_count": 9,
+            "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme1/bg.png",
+            "utc_offset": null,
+            "statuses_count": 6422,
+            "description": "Retired firefighter,retired EMS, Retired law-enforcement,Little League coach,Cub Scout leader. happily married 45 yrs.three wonderful sons. Seven grandchildren.",
+            "friends_count": 52,
+            "location": "Ride VTX1300truCherokee Nation",
+            "profile_link_color": "0084B4",
+            "profile_image_url": "http://pbs.twimg.com/profile_images/764186254766473216/NwGmilPD_normal.jpg",
+            "following": null,
+            "geo_enabled": false,
+            "profile_banner_url": "https://pbs.twimg.com/profile_banners/2739547113/1469920687",
+            "profile_background_image_url": "http://abs.twimg.com/images/themes/theme1/bg.png",
+            "name": "VTXSILVERWOLF",
+            "lang": "en",
+            "profile_background_tile": false,
+            "favourites_count": 3258,
+            "screen_name": "VTXSILVERWOLF",
+            "notifications": null,
+            "url": null,
+            "created_at": "Mon Aug 11 02:41:10 +0000 2014",
+            "contributors_enabled": false,
+            "time_zone": null,
+            "protected": false,
+            "default_profile": true,
+            "is_translator": false
+        },
+        "geo": null,
+        "in_reply_to_user_id_str": "25073877",
+        "lang": "en",
+        "created_at": "Thu Nov 03 16:09:42 +0000 2016",
+        "filter_level": "low",
+        "in_reply_to_status_id_str": null,
+        "place": null
+    },
+    "user": {
+        "follow_request_sent": null,
+        "profile_use_background_image": false,
+        "default_profile_image": false,
+        "id": {
+            "$numberLong": "788444815566344192"
+        },
+        "verified": false,
+        "profile_image_url_https": "https://pbs.twimg.com/profile_images/788455346100514816/3TINmqFj_normal.jpg",
+        "profile_sidebar_fill_color": "000000",
+        "profile_text_color": "000000",
+        "followers_count": 651,
+        "profile_sidebar_border_color": "000000",
+        "id_str": "788444815566344192",
+        "profile_background_color": "000000",
+        "listed_count": 41,
+        "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme1/bg.png",
+        "utc_offset": null,
+        "statuses_count": 21135,
+        "description": "I'm losing the election. Very sad!",
+        "friends_count": 1,
+        "location": "Loser Tower",
+        "profile_link_color": "FF691F",
+        "profile_image_url": "http://pbs.twimg.com/profile_images/788455346100514816/3TINmqFj_normal.jpg",
+        "following": null,
+        "geo_enabled": false,
+        "profile_banner_url": "https://pbs.twimg.com/profile_banners/788444815566344192/1476898221",
+        "profile_background_image_url": "http://abs.twimg.com/images/themes/theme1/bg.png",
+        "name": "Donald L. Trump",
+        "lang": "en",
+        "profile_background_tile": false,
+        "favourites_count": 11,
+        "screen_name": "loserDonldTrump",
+        "notifications": null,
+        "url": null,
+        "created_at": {
+            "$date": "2016-10-18T18:21:07.000+0000"
+        },
+        "contributors_enabled": false,
+        "time_zone": null,
+        "protected": false,
+        "default_profile": false,
+        "is_translator": false
+    },
+    "geo": null,
+    "in_reply_to_user_id_str": null,
+    "lang": "en",
+    "created_at": {
+        "$date": "2016-11-03T16:10:11.000+0000"
+    },
+    "filter_level": "low",
+    "in_reply_to_status_id_str": null,
+    "place": null
+}]
