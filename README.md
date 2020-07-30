@@ -3,6 +3,8 @@
 This repo contains my working surrounding the detection of hate speech code words
 within social media.
 
+The full paper can be found at https://arxiv.org/abs/1711.10093
+
 ## Background
 
 Hate speech is anything that is considered to *incite violence, attacks or 
